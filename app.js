@@ -1,4 +1,7 @@
-const API = 'https://shrill-salad-a498.ereny116011.workers.dev'; // API Worker adresin
+const API = 'https://shrill-salad-a498.ereny116011.workers.dev'; // API adresin
+
+// Varsayılan profil resmi (yeşil daire içinde "?")
+const DEFAULT_AVATAR = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzgiIGhlaWdodD0iMzgiIHZpZXdCb3g9IjAgMCAzOCAzOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxOSIgY3k9IjE5IiByPSIxOSIgZmlsbD0iIzIyYzU1ZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9ImJvbGQiPj88L3RleHQ+PC9zdmc+';
 
 // Çeviriler
 const translations = {
@@ -69,6 +72,7 @@ function getSystemTheme() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Dil
   try {
     const res = await fetch(`${API}/api/country`);
     const { tr } = await res.json();
@@ -79,6 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch { setLang(currentLang); }
 
+  // Tema: önce localStorage, yoksa sistem teması
   const savedTheme = localStorage.getItem('theme');
   const initialTheme = savedTheme || getSystemTheme();
   document.body.classList.toggle('light', initialTheme === 'light');
@@ -86,6 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     localStorage.setItem('theme', initialTheme);
   }
 
+  // Oturum
   if (token) {
     try {
       const res = await fetch(`${API}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -110,7 +116,7 @@ function renderUI() {
 
   if (currentUser) {
     userArea.innerHTML = `
-      <img src="${currentUser.icon || 'https://via.placeholder.com/38/22c55e/fff?text=?'}" class="profile-icon" id="profileIcon" title="${t('profile')}">
+      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" id="profileIcon" title="${t('profile')}">
       <span style="font-weight:bold">${currentUser.username}</span>
       <button id="logoutBtn">${t('logout')}</button>
     `;
@@ -298,6 +304,7 @@ async function openProfileModal() {
     <hr>
     <h4>${t('selectAvatar')}</h4>
     <div id="avatarPool" style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0">
+      <img src="${DEFAULT_AVATAR}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${DEFAULT_AVATAR}')" title="Varsayılan">
       ${icons.map(url => `<img src="${url}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${url}')">`).join('')}
     </div>
     <input id="customAvatar" placeholder="${t('customURL')}"><br>
