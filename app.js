@@ -1,7 +1,7 @@
 const API = 'https://shrill-salad-a498.ereny116011.workers.dev'; // API adresin
 
-// Varsayılan profil resmi (yeşil daire içinde "?")
-const DEFAULT_AVATAR = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzgiIGhlaWdodD0iMzgiIHZpZXdCb3g9IjAgMCAzOCAzOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxOSIgY3k9IjE5IiByPSIxOSIgZmlsbD0iIzIyYzU1ZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9ImJvbGQiPj88L3RleHQ+PC9zdmc+';
+// Varsayılan profil resmi (yeşil creeper yüzü)
+const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'38\' height=\'38\' viewBox=\'0 0 38 38\'%3E%3Crect width=\'38\' height=\'38\' rx=\'6\' fill=\'%2322c55e\'/%3E%3Crect x=\'8\' y=\'10\' width=\'6\' height=\'6\' fill=\'%230f172a\'/%3E%3Crect x=\'24\' y=\'10\' width=\'6\' height=\'6\' fill=\'%230f172a\'/%3E%3Crect x=\'8\' y=\'22\' width=\'22\' height=\'4\' fill=\'%230f172a\'/%3E%3C/svg%3E';
 
 // Çeviriler
 const translations = {
