@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Shop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Shop</h1>
+  <div id="items">Yükleniyor...</div>
+  <p>Bakiye: <span id="balance">0</span></p>
+  <a href="index.html">Ana Sayfa</a>
+  <script src="app.js"></script>
+  <script>
+    async function loadItems() {
+      const items = await apiGet('/api/items');
+      if (!items) return;
+      document.getElementById('items').innerHTML = items.map(i => 
+        `<div class="item">${i.name} - ${i.price} puan 
+         <button onclick="buyItem('${i.id}')">Satın Al</button></div>`
+      ).join('');
+    }
+    async function buyItem(itemId) {
+      if (!getToken()) return alert('Önce giriş yap!');
+      const result = await apiPost('/api/buy', { itemId });
+      if (result.error) return alert(result.error);
+      updateBalance(result.new_balance);
+      alert('Satın alındı!');
+    }
+    loadItems();
+  </script>
+</body>
+</html>
