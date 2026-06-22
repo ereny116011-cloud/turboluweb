@@ -66,6 +66,7 @@ const translations = {
 let currentLang = localStorage.getItem('lang') || 'tr';
 let currentUser = null;
 let token = localStorage.getItem('token') || null;
+let statusInterval = null; // 10 saniyelik yenileme için
 
 function t(key) { return translations[currentLang][key] || key; }
 
@@ -162,6 +163,13 @@ function renderUI() {
 
 function showContent(section) {
   const content = document.getElementById('content');
+
+  // Durum yenileme aralığını kontrol et
+  if (section !== 'status' && statusInterval) {
+    clearInterval(statusInterval);
+    statusInterval = null;
+  }
+
   switch (section) {
     case 'status': renderStatus(); break;
     case 'shop': renderShop(); break;
@@ -173,19 +181,35 @@ function showContent(section) {
   }
 }
 
-// Sunucu durumu (DOĞRUDAN mcsrvstat.us API'sinden)
+// Sunucu durumu (10 saniyede bir otomatik yenilenir)
 async function renderStatus() {
   const content = document.getElementById('content');
+  // İlk açılışta kartı oluştur
   content.innerHTML = `<div class="card"><h2>${t('serverStatus')}</h2><p id="statusWidget">⏳</p></div>`;
-  try {
-    const res = await fetch('https://api.mcsrvstat.us/2/144.31.46.15:12443');
-    const data = await res.json();
-    document.getElementById('statusWidget').innerHTML = data.online
-      ? `🟢 Açık - ${data.players.online}/${data.players.max} oyuncu`
-      : '🔴 Kapalı';
-  } catch {
-    document.getElementById('statusWidget').innerText = '⚠️ Veri alınamadı';
+
+  // Durum güncelleyici fonksiyon
+  async function updateStatus() {
+    try {
+      const res = await fetch('https://api.mcsrvstat.us/2/144.31.46.15:12443');
+      const data = await res.json();
+      const widget = document.getElementById('statusWidget');
+      if (widget) {
+        widget.innerHTML = data.online
+          ? `🟢 Açık - ${data.players.online}/${data.players.max} oyuncu`
+          : '🔴 Kapalı';
+      }
+    } catch {
+      const widget = document.getElementById('statusWidget');
+      if (widget) widget.innerText = '⚠️ Veri alınamadı';
+    }
   }
+
+  // İlk yüklemeyi hemen yap
+  await updateStatus();
+
+  // Önceki interval varsa temizle, yenisini başlat
+  if (statusInterval) clearInterval(statusInterval);
+  statusInterval = setInterval(updateStatus, 10000);
 }
 
 // Shop
