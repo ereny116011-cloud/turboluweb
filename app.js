@@ -1,7 +1,7 @@
-const API = 'https://shrill-salad-a498.ereny116011.workers.dev'; // API adresin
+const API = 'https://shrill-salad-a498.ereny116011.workers.dev'; // API Worker adresin
 
-// Varsayılan profil resmi (yeşil creeper yüzü)
-const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'38\' height=\'38\' viewBox=\'0 0 38 38\'%3E%3Crect width=\'38\' height=\'38\' rx=\'6\' fill=\'%2322c55e\'/%3E%3Crect x=\'8\' y=\'10\' width=\'6\' height=\'6\' fill=\'%230f172a\'/%3E%3Crect x=\'24\' y=\'10\' width=\'6\' height=\'6\' fill=\'%230f172a\'/%3E%3Crect x=\'8\' y=\'22\' width=\'22\' height=\'4\' fill=\'%230f172a\'/%3E%3C/svg%3E';
+// Varsayılan profil resmi (gülen yüz SVG)
+const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'42\' height=\'42\' viewBox=\'0 0 42 42\'%3E%3Ccircle cx=\'21\' cy=\'21\' r=\'20\' fill=\'%2322c55e\'/%3E%3Ccircle cx=\'14\' cy=\'16\' r=\'3\' fill=\'%230f172a\'/%3E%3Ccircle cx=\'28\' cy=\'16\' r=\'3\' fill=\'%230f172a\'/%3E%3Cpath d=\'M12 26 Q21 32 30 26\' stroke=\'%230f172a\' stroke-width=\'3\' fill=\'none\' stroke-linecap=\'round\'/%3E%3C/svg%3E';
 
 // Çeviriler
 const translations = {
@@ -24,6 +24,7 @@ const translations = {
     save: 'Kaydet',
     selectAvatar: 'Avatar Seç',
     customURL: 'veya URL gir',
+    uploadAvatar: 'Avatar Yükle',
     theme: 'Tema',
     dark: 'Koyu',
     light: 'Açık',
@@ -51,6 +52,7 @@ const translations = {
     save: 'Save',
     selectAvatar: 'Select Avatar',
     customURL: 'or enter URL',
+    uploadAvatar: 'Upload Avatar',
     theme: 'Theme',
     dark: 'Dark',
     light: 'Light',
@@ -120,7 +122,7 @@ function renderUI() {
       <span style="font-weight:bold">${currentUser.username}</span>
       <button id="logoutBtn">${t('logout')}</button>
     `;
-    document.getElementById('profileIcon').addEventListener('click', openProfileModal);
+    document.getElementById('profileIcon').addEventListener('click', () => showContent('profile'));
     document.getElementById('logoutBtn').addEventListener('click', logout);
   } else {
     userArea.innerHTML = `
@@ -131,20 +133,30 @@ function renderUI() {
     document.getElementById('loginBtn').addEventListener('click', () => openAuthModal('login'));
   }
 
+  // Sidebar
   let sidebarHtml = '';
   if (currentUser?.isAdmin) {
     sidebarHtml = `
-      <button onclick="showContent('addAnnouncement')">📢 ${t('addAnnouncement')}</button>
-      <button onclick="showContent('addCampaign')">🎯 ${t('addCampaign')}</button>
-      <button onclick="showContent('addNews')">📰 ${t('addNews')}</button>
+      <button data-section="addAnnouncement">📢 ${t('addAnnouncement')}</button>
+      <button data-section="addCampaign">🎯 ${t('addCampaign')}</button>
+      <button data-section="addNews">📰 ${t('addNews')}</button>
     `;
   } else {
     sidebarHtml = `
-      <button onclick="showContent('shop')">🛒 ${t('shop')}</button>
-      <button onclick="showContent('campaigns')">📣 ${t('campaigns')}</button>
+      <button data-section="shop">🛒 ${t('shop')}</button>
+      <button data-section="campaigns">📣 ${t('campaigns')}</button>
     `;
   }
   sidebar.innerHTML = sidebarHtml;
+  // Aktif butonu işaretleme
+  sidebar.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sidebar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      showContent(btn.dataset.section);
+    });
+  });
+
   if (!content.innerHTML.trim()) showContent('status');
 }
 
@@ -157,21 +169,26 @@ function showContent(section) {
     case 'addAnnouncement': renderAdminForm('announcement'); break;
     case 'addCampaign': renderAdminForm('campaign'); break;
     case 'addNews': renderAdminForm('news'); break;
+    case 'profile': renderProfile(); break;
   }
 }
 
+// Sunucu durumu (DOĞRUDAN mcsrvstat.us API'sinden)
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `<div class="card"><h2>${t('serverStatus')}</h2><p id="statusWidget">⏳</p></div>`;
   try {
-    const res = await fetch(`${API}/api/status`);
+    const res = await fetch('https://api.mcsrvstat.us/2/144.31.46.15:12443');
     const data = await res.json();
     document.getElementById('statusWidget').innerHTML = data.online
       ? `🟢 Açık - ${data.players.online}/${data.players.max} oyuncu`
       : '🔴 Kapalı';
-  } catch { document.getElementById('statusWidget').innerText = '⚠️ Veri alınamadı'; }
+  } catch {
+    document.getElementById('statusWidget').innerText = '⚠️ Veri alınamadı';
+  }
 }
 
+// Shop
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
@@ -204,6 +221,7 @@ async function buy(itemId) {
   }
 }
 
+// Kampanyalar
 async function renderCampaigns() {
   const content = document.getElementById('content');
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
@@ -212,6 +230,7 @@ async function renderCampaigns() {
   }</div>`;
 }
 
+// Admin formları
 function renderAdminForm(type) {
   const content = document.getElementById('content');
   let formHtml = '';
@@ -258,6 +277,7 @@ async function submitAdmin(type) {
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
 }
 
+// Giriş/kayıt modal
 function openAuthModal(mode) {
   const modal = document.getElementById('modal');
   const body = document.getElementById('modalBody');
@@ -291,31 +311,61 @@ async function handleAuth(mode) {
   showContent('status');
 }
 
-async function openProfileModal() {
-  const modal = document.getElementById('modal');
-  const body = document.getElementById('modalBody');
+// Profil sayfası (tam ekran, içerik alanında)
+async function renderProfile() {
+  const content = document.getElementById('content');
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
-  body.innerHTML = `
-    <h3>${t('profile')}</h3>
-    <h4>${t('passwordChange')}</h4>
-    <input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br>
-    <input id="newPass" type="password" placeholder="${t('newPassword')}"><br>
-    <button id="changePassBtn">${t('save')}</button>
-    <hr>
-    <h4>${t('selectAvatar')}</h4>
-    <div id="avatarPool" style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0">
-      <img src="${DEFAULT_AVATAR}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${DEFAULT_AVATAR}')" title="Varsayılan">
-      ${icons.map(url => `<img src="${url}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${url}')">`).join('')}
+  content.innerHTML = `
+    <div class="card">
+      <h2>${t('profile')}</h2>
+      <h3>${t('passwordChange')}</h3>
+      <input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br>
+      <input id="newPass" type="password" placeholder="${t('newPassword')}"><br>
+      <button id="changePassBtn">${t('save')}</button>
+
+      <hr style="margin:20px 0">
+
+      <h3>${t('selectAvatar')}</h3>
+      <div id="avatarPool" style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0">
+        <img src="${DEFAULT_AVATAR}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${DEFAULT_AVATAR}')" title="Varsayılan">
+        ${icons.map(url => `<img src="${url}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${url}')">`).join('')}
+      </div>
+      <div class="file-upload">
+        <label for="avatarUpload">📁 ${t('uploadAvatar')}</label>
+        <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)">
+        <span id="uploadStatus"></span>
+      </div>
+      <input id="customAvatar" placeholder="${t('customURL')}"><br>
+      <button id="setAvatarBtn">${t('save')}</button>
+
+      <hr style="margin:20px 0">
+
+      <label>${t('theme')}: 
+        <select id="themeSelect">
+          <option value="dark">${t('dark')}</option>
+          <option value="light">${t('light')}</option>
+        </select>
+      </label>
+      <label>${t('language')}: 
+        <select id="langSelect">
+          <option value="tr">Türkçe</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+      <label>${t('status')}: 
+        <select id="statusSelect">
+          <option value="Online">${t('online')}</option>
+          <option value="Offline">${t('offline')}</option>
+        </select>
+      </label>
+
+      <div style="margin-top:20px">
+        <button id="saveSettingsBtn">${t('save')}</button>
+        <button id="backBtn">← Geri</button>
+      </div>
     </div>
-    <input id="customAvatar" placeholder="${t('customURL')}"><br>
-    <button id="setAvatarBtn">${t('save')}</button>
-    <hr>
-    <label>${t('theme')}: <select id="themeSelect"><option value="dark">${t('dark')}</option><option value="light">${t('light')}</option></select></label>
-    <label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label>
-    <label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label>
-    <br><button id="saveSettingsBtn">${t('save')}</button>
-    <button id="closeProfileBtn">Kapat</button>
   `;
+
   document.getElementById('themeSelect').value = currentUser.theme || 'dark';
   document.getElementById('langSelect').value = currentUser.language || 'tr';
   document.getElementById('statusSelect').value = currentUser.status || 'Online';
@@ -325,8 +375,33 @@ async function openProfileModal() {
     if (url) setAvatar(url);
   });
   document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
-  document.getElementById('closeProfileBtn').addEventListener('click', closeModal);
-  modal.classList.remove('hidden');
+  document.getElementById('backBtn').addEventListener('click', () => showContent('status'));
+}
+
+// Dosya yükleme işleyicisi
+async function uploadAvatar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result;
+    currentUser.icon = base64;
+    await fetch(`${API}/api/profile`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ icon: base64 })
+    });
+    document.getElementById('uploadStatus').innerText = '✅ Yüklendi!';
+    const pool = document.getElementById('avatarPool');
+    const img = document.createElement('img');
+    img.src = base64;
+    img.className = 'profile-icon';
+    img.style.cursor = 'pointer';
+    img.onclick = () => setAvatar(base64);
+    pool.appendChild(img);
+    setAvatar(base64);
+  };
+  reader.readAsDataURL(file);
 }
 
 function setAvatar(url) {
@@ -335,7 +410,9 @@ function setAvatar(url) {
     method: 'PUT',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ icon: url })
-  }).then(() => { renderUI(); closeModal(); });
+  }).then(() => renderUI());
+  const profileIcon = document.getElementById('profileIcon');
+  if (profileIcon) profileIcon.src = url;
 }
 
 async function changePassword() {
@@ -368,7 +445,7 @@ async function saveProfileSettings() {
     localStorage.setItem('theme', theme);
     setLang(language);
     renderUI();
-    closeModal();
+    showContent('status');
   } else alert(data.error || 'Hata');
 }
 
