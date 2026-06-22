@@ -9,7 +9,7 @@
 <body>
   <div id="app">
     <header id="topbar">
-      <div class="logo">
+      <div class="logo" onclick="showContent('status')" style="cursor:pointer;">
         <span class="creeper">🟢</span> TurboluMC
       </div>
       <div class="user-area" id="userArea"></div>
@@ -20,6 +20,7 @@
       <main id="content"></main>
     </div>
 
+    <!-- Sadece giriş/kayıt için modal -->
     <div id="modal" class="modal hidden">
       <div class="modal-content" id="modalBody"></div>
     </div>
