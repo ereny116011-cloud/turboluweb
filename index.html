@@ -3,44 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TurboluMC Panel</title>
+  <title>TurboluMC</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
-    <header>
-      <h1>TurboluMC</h1>
-      <nav>
-        <button id="langToggle">🌐 TR</button>
-        <button id="themeToggle">🌓</button>
-        <button id="notifyToggle">🔔</button>
-        <a href="profile.html">👤 Profil</a>
-      </nav>
+    <header id="topbar">
+      <div class="logo">
+        <span class="creeper">🟢</span> TurboluMC
+      </div>
+      <div class="user-area" id="userArea"></div>
     </header>
 
-    <main>
-      <div class="card" id="statusCard">
-        <h2 data-tr="Sunucu Durumu" data-en="Server Status">Sunucu Durumu</h2>
-        <div id="status">⏳ Yükleniyor...</div>
-      </div>
+    <div class="container">
+      <nav id="sidebar"></nav>
+      <main id="content"></main>
+    </div>
 
-      <div class="card" id="loginCard">
-        <h2 data-tr="Oyuncu Girişi" data-en="Player Login">Oyuncu Girişi</h2>
-        <input type="text" id="usernameInput" placeholder="Minecraft adınız">
-        <button onclick="login()" data-tr="Giriş Yap" data-en="Login">Giriş Yap</button>
-        <span id="userInfo"></span>
-      </div>
-
-      <div class="card">
-        <h2 data-tr="Duyurular" data-en="Announcements">Duyurular</h2>
-        <ul id="announcements"></ul>
-      </div>
-    </main>
-
-    <footer>
-      <a href="shop.html">🛒 Shop</a> |
-      <a href="admin.html">⚙️ Admin</a>
-    </footer>
+    <div id="modal" class="modal hidden">
+      <div class="modal-content" id="modalBody"></div>
+    </div>
   </div>
   <script src="app.js"></script>
 </body>
