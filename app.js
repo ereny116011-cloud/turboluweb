@@ -209,7 +209,33 @@ async function renderStatus() {
         <span id="serverVersion" class="version-tag">⏳</span>
       </div>
       <div class="server-praise">
-        <p>🌟 Türkiye'nin en iyi Minecraft sunucusu! Hayatta kalma, ekonomi, mini oyunlar ve daha fazlası seni bekliyor. Hemen katıl, maceraya başla! 🌟</p>
+        <h2 style="margin-bottom: 15px;">🚀 Neden TurboluMC?</h2>
+        <div class="praise-grid">
+          <div class="praise-item">
+            <h3>⚔️ Tamamen Dengeli Oynanış</h3>
+            <p>Korumalı claim sistemi, hile koruması ve adaletli ekonomi ile huzur içinde oyna.</p>
+          </div>
+          <div class="praise-item">
+            <h3>🌍 Dev Bir Topluluk</h3>
+            <p>Binlerce aktif oyuncuyla dolu Discord’umuz ve etkinliklerimiz seni bekliyor.</p>
+          </div>
+          <div class="praise-item">
+            <h3>🎮 Özel Mini Oyunlar</h3>
+            <p>SkyBlock, BedWars, Hunger Games gibi oyunları başka hiçbir yerde bulamayacağın kalitede oyna.</p>
+          </div>
+          <div class="praise-item">
+            <h3>💰 Ödüllü Görevler & Kampanyalar</h3>
+            <p>Her hafta yeni görevler, çekilişler ve özel eşya kampanyaları düzenliyoruz.</p>
+          </div>
+          <div class="praise-item">
+            <h3>🔧 Sürekli Güncel & Optimize</h3>
+            <p>En yeni sürüm, sıfır lag ve profesyonel ekip desteğiyle kesintisiz oyun keyfi.</p>
+          </div>
+          <div class="praise-item">
+            <h3>🎁 Yeni Başlayanlara Özel</h3>
+            <p>Sunucuya ilk adımını attığında seni hoş geldin hediyeleri ve rehberler karşılıyor!</p>
+          </div>
+        </div>
       </div>
     </div>
   `;
