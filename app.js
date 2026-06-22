@@ -181,33 +181,82 @@ function showContent(section) {
   }
 }
 
-// Sunucu durumu (10 saniyede bir otomatik yenilenir)
+// Sunucu durumu (modern banner, 10 saniyede bir otomatik yenilenir)
 async function renderStatus() {
   const content = document.getElementById('content');
-  // İlk açılışta kartı oluştur
-  content.innerHTML = `<div class="card"><h2>${t('serverStatus')}</h2><p id="statusWidget">⏳</p></div>`;
 
-  // Durum güncelleyici fonksiyon
+  // İlk yapıyı oluştur
+  content.innerHTML = `
+    <div class="status-banner" id="statusBanner">
+      <div class="status-header">
+        <img id="serverIcon" class="server-icon" src="${DEFAULT_AVATAR}" alt="Sunucu İkonu">
+        <h1 id="serverName">TurboluMC</h1>
+        <div class="motd" id="serverMotd">⏳</div>
+      </div>
+      <div class="status-body">
+        <div class="status-indicator">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">⏳</span>
+        </div>
+        <div class="player-count">
+          <span id="playerOnline">-</span> / <span id="playerMax">-</span>
+          <small>Oyuncu</small>
+        </div>
+        <div class="server-ip">
+          <span>144.31.46.15:12443</span>
+          <button onclick="navigator.clipboard.writeText('144.31.46.15:12443');this.textContent='Kopyalandı!';setTimeout(()=>this.textContent='Kopyala',2000)">📋 Kopyala</button>
+        </div>
+        <span id="serverVersion" class="version-tag">⏳</span>
+      </div>
+    </div>
+  `;
+
+  // Güncelleme fonksiyonu
   async function updateStatus() {
     try {
       const res = await fetch('https://api.mcsrvstat.us/2/144.31.46.15:12443');
       const data = await res.json();
-      const widget = document.getElementById('statusWidget');
-      if (widget) {
-        widget.innerHTML = data.online
-          ? `🟢 Açık - ${data.players.online}/${data.players.max} oyuncu`
-          : '🔴 Kapalı';
+
+      // İkon
+      if (data.icon) {
+        document.getElementById('serverIcon').src = data.icon;
+      } else {
+        document.getElementById('serverIcon').src = DEFAULT_AVATAR;
       }
-    } catch {
-      const widget = document.getElementById('statusWidget');
-      if (widget) widget.innerText = '⚠️ Veri alınamadı';
+
+      // Sunucu adı ve MOTD
+      const motdClean = data.motd?.clean?.[0] || '';
+      document.getElementById('serverName').textContent = data.hostname || 'TurboluMC';
+      document.getElementById('serverMotd').textContent = motdClean;
+
+      // Çevrimiçi durumu
+      const dot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      if (data.online) {
+        dot.className = 'dot online';
+        statusText.textContent = 'Çevrimiçi';
+        statusText.style.color = '#22c55e';
+      } else {
+        dot.className = 'dot';
+        statusText.textContent = 'Çevrimdışı';
+        statusText.style.color = '#ef4444';
+      }
+
+      // Oyuncu sayısı
+      document.getElementById('playerOnline').textContent = data.players?.online ?? 0;
+      document.getElementById('playerMax').textContent = data.players?.max ?? 0;
+
+      // Versiyon
+      document.getElementById('serverVersion').textContent = data.version || '?';
+    } catch (e) {
+      // Hata durumunda eski görüntü kalır.
     }
   }
 
-  // İlk yüklemeyi hemen yap
+  // İlk çalıştır
   await updateStatus();
 
-  // Önceki interval varsa temizle, yenisini başlat
+  // Zamanlayıcıyı güncelle
   if (statusInterval) clearInterval(statusInterval);
   statusInterval = setInterval(updateStatus, 10000);
 }
