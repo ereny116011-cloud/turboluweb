@@ -203,10 +203,13 @@ async function renderStatus() {
           <small>Oyuncu</small>
         </div>
         <div class="server-ip">
-          <span>144.31.46.15:12443</span>
-          <button onclick="navigator.clipboard.writeText('144.31.46.15:12443');this.textContent='Kopyalandı!';setTimeout(()=>this.textContent='Kopyala',2000)">📋 Kopyala</button>
+          <span>turbolu.mcsh.io</span>
+          <button onclick="navigator.clipboard.writeText('turbolu.mcsh.io');this.textContent='Kopyalandı!';setTimeout(()=>this.textContent='Kopyala',2000)">📋 Kopyala</button>
         </div>
         <span id="serverVersion" class="version-tag">⏳</span>
+      </div>
+      <div class="server-praise">
+        <p>🌟 Türkiye'nin en iyi Minecraft sunucusu! Hayatta kalma, ekonomi, mini oyunlar ve daha fazlası seni bekliyor. Hemen katıl, maceraya başla! 🌟</p>
       </div>
     </div>
   `;
