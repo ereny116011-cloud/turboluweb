@@ -14,6 +14,8 @@ const translations = {
     addAnnouncement: 'Duyuru Yap',
     addCampaign: 'Kampanya Düzenle',
     addNews: 'Haber Ekle',
+    addItem: 'Ürün Ekle',
+    inventory: 'Envanter',
     serverStatus: 'Sunucu Durumu',
     balance: 'Bakiye',
     buy: 'Satın Al',
@@ -42,6 +44,8 @@ const translations = {
     addAnnouncement: 'Add Announcement',
     addCampaign: 'Add Campaign',
     addNews: 'Add News',
+    addItem: 'Add Item',
+    inventory: 'Inventory',
     serverStatus: 'Server Status',
     balance: 'Balance',
     buy: 'Buy',
@@ -66,7 +70,7 @@ const translations = {
 let currentLang = localStorage.getItem('lang') || 'tr';
 let currentUser = null;
 let token = localStorage.getItem('token') || null;
-let statusInterval = null; // 10 saniyelik yenileme için
+let statusInterval = null;
 
 function t(key) { return translations[currentLang][key] || key; }
 
@@ -86,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch { setLang(currentLang); }
 
-  // Tema: önce localStorage, yoksa sistem teması
+  // Tema
   const savedTheme = localStorage.getItem('theme');
   const initialTheme = savedTheme || getSystemTheme();
   document.body.classList.toggle('light', initialTheme === 'light');
@@ -141,15 +145,16 @@ function renderUI() {
       <button data-section="addAnnouncement">📢 ${t('addAnnouncement')}</button>
       <button data-section="addCampaign">🎯 ${t('addCampaign')}</button>
       <button data-section="addNews">📰 ${t('addNews')}</button>
+      <button data-section="addItem">🛒 ${t('addItem')}</button>
     `;
   } else {
     sidebarHtml = `
       <button data-section="shop">🛒 ${t('shop')}</button>
       <button data-section="campaigns">📣 ${t('campaigns')}</button>
+      <button data-section="inventory">🎒 ${t('inventory')}</button>
     `;
   }
   sidebar.innerHTML = sidebarHtml;
-  // Aktif butonu işaretleme
   sidebar.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
       sidebar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
@@ -163,8 +168,6 @@ function renderUI() {
 
 function showContent(section) {
   const content = document.getElementById('content');
-
-  // Durum yenileme aralığını kontrol et
   if (section !== 'status' && statusInterval) {
     clearInterval(statusInterval);
     statusInterval = null;
@@ -177,15 +180,15 @@ function showContent(section) {
     case 'addAnnouncement': renderAdminForm('announcement'); break;
     case 'addCampaign': renderAdminForm('campaign'); break;
     case 'addNews': renderAdminForm('news'); break;
+    case 'addItem': renderAdminForm('item'); break;
+    case 'inventory': renderInventory(); break;
     case 'profile': renderProfile(); break;
   }
 }
 
-// Sunucu durumu (modern banner, 10 saniyede bir otomatik yenilenir)
+// --- Sunucu Durumu ---
 async function renderStatus() {
   const content = document.getElementById('content');
-
-  // İlk yapıyı oluştur
   content.innerHTML = `
     <div class="status-banner" id="statusBanner">
       <div class="status-header">
@@ -211,54 +214,24 @@ async function renderStatus() {
       <div class="server-praise">
         <h2 style="margin-bottom: 15px;">🚀 Neden TurboluMC?</h2>
         <div class="praise-grid">
-          <div class="praise-item">
-            <h3>⚔️ Tamamen Dengeli Oynanış</h3>
-            <p>Korumalı claim sistemi, hile koruması ve adaletli ekonomi ile huzur içinde oyna.</p>
-          </div>
-          <div class="praise-item">
-            <h3>🌍 Dev Bir Topluluk</h3>
-            <p>Binlerce aktif oyuncuyla dolu Discord’umuz ve etkinliklerimiz seni bekliyor.</p>
-          </div>
-          <div class="praise-item">
-            <h3>🎮 Özel Mini Oyunlar</h3>
-            <p>SkyBlock, BedWars, Hunger Games gibi oyunları başka hiçbir yerde bulamayacağın kalitede oyna.</p>
-          </div>
-          <div class="praise-item">
-            <h3>💰 Ödüllü Görevler & Kampanyalar</h3>
-            <p>Her hafta yeni görevler, çekilişler ve özel eşya kampanyaları düzenliyoruz.</p>
-          </div>
-          <div class="praise-item">
-            <h3>🔧 Sürekli Güncel & Optimize</h3>
-            <p>En yeni sürüm, sıfır lag ve profesyonel ekip desteğiyle kesintisiz oyun keyfi.</p>
-          </div>
-          <div class="praise-item">
-            <h3>🎁 Yeni Başlayanlara Özel</h3>
-            <p>Sunucuya ilk adımını attığında seni hoş geldin hediyeleri ve rehberler karşılıyor!</p>
-          </div>
+          <div class="praise-item"><h3>⚔️ Tamamen Dengeli Oynanış</h3><p>Korumalı claim sistemi, hile koruması ve adaletli ekonomi ile huzur içinde oyna.</p></div>
+          <div class="praise-item"><h3>🌍 Dev Bir Topluluk</h3><p>Binlerce aktif oyuncuyla dolu Discord’umuz ve etkinliklerimiz seni bekliyor.</p></div>
+          <div class="praise-item"><h3>🎮 Özel Mini Oyunlar</h3><p>SkyBlock, BedWars, Hunger Games gibi oyunları başka hiçbir yerde bulamayacağın kalitede oyna.</p></div>
+          <div class="praise-item"><h3>💰 Ödüllü Görevler & Kampanyalar</h3><p>Her hafta yeni görevler, çekilişler ve özel eşya kampanyaları düzenliyoruz.</p></div>
+          <div class="praise-item"><h3>🔧 Sürekli Güncel & Optimize</h3><p>En yeni sürüm, sıfır lag ve profesyonel ekip desteğiyle kesintisiz oyun keyfi.</p></div>
+          <div class="praise-item"><h3>🎁 Yeni Başlayanlara Özel</h3><p>Sunucuya ilk adımını attığında seni hoş geldin hediyeleri ve rehberler karşılıyor!</p></div>
         </div>
       </div>
     </div>
   `;
-
-  // Güncelleme fonksiyonu
   async function updateStatus() {
     try {
       const res = await fetch('https://api.mcsrvstat.us/2/144.31.46.15:12443');
       const data = await res.json();
-
-      // İkon
-      if (data.icon) {
-        document.getElementById('serverIcon').src = data.icon;
-      } else {
-        document.getElementById('serverIcon').src = DEFAULT_AVATAR;
-      }
-
-      // Sunucu adı ve MOTD
+      if (data.icon) document.getElementById('serverIcon').src = data.icon;
       const motdClean = data.motd?.clean?.[0] || '';
-      document.getElementById('serverName').textContent = data.hostname || 'TurboluMC';
       document.getElementById('serverMotd').textContent = motdClean;
-
-      // Çevrimiçi durumu
+      document.getElementById('serverName').textContent = data.hostname || 'TurboluMC';
       const dot = document.getElementById('statusDot');
       const statusText = document.getElementById('statusText');
       if (data.online) {
@@ -270,27 +243,17 @@ async function renderStatus() {
         statusText.textContent = 'Çevrimdışı';
         statusText.style.color = '#ef4444';
       }
-
-      // Oyuncu sayısı
       document.getElementById('playerOnline').textContent = data.players?.online ?? 0;
       document.getElementById('playerMax').textContent = data.players?.max ?? 0;
-
-      // Versiyon
       document.getElementById('serverVersion').textContent = data.version || '?';
-    } catch (e) {
-      // Hata durumunda eski görüntü kalır.
-    }
+    } catch (e) {}
   }
-
-  // İlk çalıştır
   await updateStatus();
-
-  // Zamanlayıcıyı güncelle
   if (statusInterval) clearInterval(statusInterval);
   statusInterval = setInterval(updateStatus, 10000);
 }
 
-// Shop
+// --- Shop ---
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
@@ -299,8 +262,10 @@ async function renderShop() {
       <h2>${t('shop')}</h2>
       ${currentUser ? `<p>${t('balance')}: ${currentUser.balance}</p>` : ''}
       ${items.map(i => `
-        <div style="margin:10px 0">
-          <b>${i.name}</b> - ${i.price} puan
+        <div style="margin:10px 0" class="item-card">
+          <div>
+            <b>${i.name}</b> - ${i.price} puan
+          </div>
           <button onclick="buy('${i.id}')">${t('buy')}</button>
         </div>
       `).join('')}
@@ -323,7 +288,7 @@ async function buy(itemId) {
   }
 }
 
-// Kampanyalar
+// --- Kampanyalar ---
 async function renderCampaigns() {
   const content = document.getElementById('content');
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
@@ -332,7 +297,7 @@ async function renderCampaigns() {
   }</div>`;
 }
 
-// Admin formları
+// --- Admin Formları ---
 function renderAdminForm(type) {
   const content = document.getElementById('content');
   let formHtml = '';
@@ -355,21 +320,36 @@ function renderAdminForm(type) {
       <input id="title" placeholder="Başlık"><br>
       <textarea id="content" placeholder="İçerik"></textarea><br>
       <button onclick="submitAdmin('news')">Gönder</button>`;
+  } else if (type === 'item') {
+    formHtml = `
+      <h2>${t('addItem')}</h2>
+      <input id="itemName" placeholder="Ürün adı"><br>
+      <input id="itemPrice" type="number" placeholder="Fiyat"><br>
+      <input id="itemCommand" placeholder="Oyun içi komut (örn: give %player% diamond 1)"><br>
+      <button onclick="submitAdmin('item')">${t('save')}</button>`;
   }
   content.innerHTML = `<div class="card">${formHtml}</div>`;
 }
 
 async function submitAdmin(type) {
-  const title = document.getElementById('title')?.value;
-  const content = document.getElementById('content')?.value;
-  const description = document.getElementById('description')?.value;
-  const reward = document.getElementById('reward')?.value;
-
   let endpoint, body;
-  if (type === 'announcement') { endpoint = 'announcement'; body = { title, content }; }
-  else if (type === 'news') { endpoint = 'news'; body = { title, content }; }
-  else if (type === 'campaign') { endpoint = 'campaign'; body = { title, description, reward }; }
-
+  if (type === 'announcement') {
+    endpoint = 'announcement';
+    body = { title: document.getElementById('title').value, content: document.getElementById('content').value };
+  } else if (type === 'news') {
+    endpoint = 'news';
+    body = { title: document.getElementById('title').value, content: document.getElementById('content').value };
+  } else if (type === 'campaign') {
+    endpoint = 'campaign';
+    body = { title: document.getElementById('title').value, description: document.getElementById('description').value, reward: document.getElementById('reward').value };
+  } else if (type === 'item') {
+    endpoint = 'item';
+    body = {
+      name: document.getElementById('itemName').value,
+      price: Number(document.getElementById('itemPrice').value),
+      command: document.getElementById('itemCommand').value
+    };
+  }
   const res = await fetch(`${API}/api/admin/${endpoint}`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -379,7 +359,34 @@ async function submitAdmin(type) {
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
 }
 
-// Giriş/kayıt modal
+// --- Envanter ---
+async function renderInventory() {
+  const content = document.getElementById('content');
+  if (!currentUser) {
+    content.innerHTML = '<div class="card"><p>Önce giriş yapmalısın.</p></div>';
+    return;
+  }
+  try {
+    const res = await fetch(`${API}/api/inventory`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const items = await res.json();
+    content.innerHTML = `
+      <div class="card">
+        <h2>🎒 ${t('inventory')}</h2>
+        ${items.length === 0 ? '<p>Henüz bir eşyan yok.</p>' : items.map(i => `
+          <div class="item-card">
+            <b>${i.name}</b>
+            <p style="font-size:0.8rem; opacity:0.7">${new Date(i.purchasedAt).toLocaleString()}</p>
+          </div>
+        `).join('')}
+      </div>`;
+  } catch {
+    content.innerHTML = '<div class="card"><p>Envanter yüklenemedi.</p></div>';
+  }
+}
+
+// --- Giriş/Kayıt Modal ---
 function openAuthModal(mode) {
   const modal = document.getElementById('modal');
   const body = document.getElementById('modalBody');
@@ -413,7 +420,7 @@ async function handleAuth(mode) {
   showContent('status');
 }
 
-// Profil sayfası (tam ekran, içerik alanında)
+// --- Profil ---
 async function renderProfile() {
   const content = document.getElementById('content');
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
@@ -424,9 +431,7 @@ async function renderProfile() {
       <input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br>
       <input id="newPass" type="password" placeholder="${t('newPassword')}"><br>
       <button id="changePassBtn">${t('save')}</button>
-
       <hr style="margin:20px 0">
-
       <h3>${t('selectAvatar')}</h3>
       <div id="avatarPool" style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0">
         <img src="${DEFAULT_AVATAR}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${DEFAULT_AVATAR}')" title="Varsayılan">
@@ -439,35 +444,16 @@ async function renderProfile() {
       </div>
       <input id="customAvatar" placeholder="${t('customURL')}"><br>
       <button id="setAvatarBtn">${t('save')}</button>
-
       <hr style="margin:20px 0">
-
-      <label>${t('theme')}: 
-        <select id="themeSelect">
-          <option value="dark">${t('dark')}</option>
-          <option value="light">${t('light')}</option>
-        </select>
-      </label>
-      <label>${t('language')}: 
-        <select id="langSelect">
-          <option value="tr">Türkçe</option>
-          <option value="en">English</option>
-        </select>
-      </label>
-      <label>${t('status')}: 
-        <select id="statusSelect">
-          <option value="Online">${t('online')}</option>
-          <option value="Offline">${t('offline')}</option>
-        </select>
-      </label>
-
+      <label>${t('theme')}: <select id="themeSelect"><option value="dark">${t('dark')}</option><option value="light">${t('light')}</option></select></label>
+      <label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label>
+      <label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label>
       <div style="margin-top:20px">
         <button id="saveSettingsBtn">${t('save')}</button>
         <button id="backBtn">← Geri</button>
       </div>
     </div>
   `;
-
   document.getElementById('themeSelect').value = currentUser.theme || 'dark';
   document.getElementById('langSelect').value = currentUser.language || 'tr';
   document.getElementById('statusSelect').value = currentUser.status || 'Online';
@@ -480,7 +466,7 @@ async function renderProfile() {
   document.getElementById('backBtn').addEventListener('click', () => showContent('status'));
 }
 
-// Dosya yükleme işleyicisi
+// --- Yardımcı Fonksiyonlar ---
 async function uploadAvatar(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -489,16 +475,13 @@ async function uploadAvatar(event) {
     const base64 = e.target.result;
     currentUser.icon = base64;
     await fetch(`${API}/api/profile`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ icon: base64 })
     });
     document.getElementById('uploadStatus').innerText = '✅ Yüklendi!';
     const pool = document.getElementById('avatarPool');
     const img = document.createElement('img');
-    img.src = base64;
-    img.className = 'profile-icon';
-    img.style.cursor = 'pointer';
+    img.src = base64; img.className = 'profile-icon'; img.style.cursor = 'pointer';
     img.onclick = () => setAvatar(base64);
     pool.appendChild(img);
     setAvatar(base64);
@@ -509,8 +492,7 @@ async function uploadAvatar(event) {
 function setAvatar(url) {
   currentUser.icon = url;
   fetch(`${API}/api/profile`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ icon: url })
   }).then(() => renderUI());
   const profileIcon = document.getElementById('profileIcon');
@@ -521,8 +503,7 @@ async function changePassword() {
   const oldPass = document.getElementById('oldPass').value;
   const newPass = document.getElementById('newPass').value;
   const res = await fetch(`${API}/api/password`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass })
   });
   const data = await res.json();
@@ -534,15 +515,12 @@ async function saveProfileSettings() {
   const language = document.getElementById('langSelect').value;
   const status = document.getElementById('statusSelect').value;
   const res = await fetch(`${API}/api/profile`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ theme, language, status })
   });
   const data = await res.json();
   if (data.success) {
-    currentUser.theme = theme;
-    currentUser.language = language;
-    currentUser.status = status;
+    currentUser.theme = theme; currentUser.language = language; currentUser.status = status;
     document.body.classList.toggle('light', theme === 'light');
     localStorage.setItem('theme', theme);
     setLang(language);
@@ -553,8 +531,4 @@ async function saveProfileSettings() {
 
 function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 function logout() { localStorage.clear(); token = null; currentUser = null; location.reload(); }
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('lang', lang);
-  renderUI();
-}
+function setLang(lang) { currentLang = lang; localStorage.setItem('lang', lang); renderUI(); }
