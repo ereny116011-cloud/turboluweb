@@ -61,14 +61,24 @@ body {
   gap: 10px;
   cursor: pointer;
 }
-.nav-links { display: flex; list-style: none; gap: 2rem; }
+.nav-links { display: flex; list-style: none; gap: 1.5rem; }
 .nav-links a {
   text-decoration: none;
   color: var(--text);
-  font-weight: 500;
-  transition: color var(--transition), transform var(--transition);
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  backdrop-filter: blur(5px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.nav-links a:hover { color: var(--accent); transform: scale(1.1); }
+.nav-links a:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
 
 .user-area { display: flex; align-items: center; gap: 12px; }
 .user-area .btn-green {
@@ -131,7 +141,7 @@ body {
   box-shadow: 0 12px 40px rgba(0,0,0,0.7);
 }
 
-/* ========== HERO – BAŞLIK KARTI (ARKASINDA DÖNEN DİKDÖRTGEN EFEKT) ========== */
+/* ========== HERO – BAŞLIK KARTI (ARKASINDA DÖNEN DİSK) ========== */
 .hero-card {
   text-align: center;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
@@ -144,188 +154,4 @@ body {
   position: absolute;
   top: -50%;
   left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(from 0deg, transparent, rgba(34, 197, 94, 0.15), transparent 60%);
-  animation: spin 6s linear infinite;
-  z-index: 0;
-}
-.hero-card > * {
-  position: relative;
-  z-index: 1;
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.hero-card h1 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: white;
-}
-.hero-card h1 .fa-gamepad {
-  font-size: 3rem;
-  animation: pulse 2s infinite;
-  vertical-align: middle;
-  color: var(--accent);
-}
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-.hero-card p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; color: var(--text-secondary); }
-
-/* IP kutusu (dönen efekt YOK) */
-.ip-box {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(15px);
-  padding: 12px 24px;
-  border-radius: 50px;
-  font-family: monospace;
-  font-size: 1.4rem;
-  cursor: pointer;
-  transition: all var(--transition);
-  color: white;
-}
-.ip-box:hover { background: rgba(0,0,0,0.7); transform: scale(1.05); }
-.copy-btn {
-  background: white;
-  color: var(--accent-hover);
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.copy-btn:hover { background: #e2e8f0; transform: scale(1.1); }
-.click-info { margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8; color: white; }
-
-/* ========== ÖZELLİKLER VE DURUM KARTLARI ========== */
-.features-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-  margin-top: 1.5rem;
-}
-.feature-item {
-  flex: 1 1 250px;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(15px);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  text-align: center;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  transition: all var(--transition);
-}
-.feature-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.feature-item i {
-  font-size: 2.2rem;
-  color: var(--accent);
-  margin-bottom: 0.5rem;
-}
-.feature-item h3 { margin-bottom: 0.5rem; color: white; }
-.feature-item p { color: var(--text-secondary); font-size: 0.95rem; }
-
-.status-info p { margin: 0.5rem 0; color: var(--text); }
-.status-info strong { color: var(--accent); }
-
-/* ========== MODAL ========== */
-.modal {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(8px);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000;
-}
-.modal.hidden { display: none; }
-.modal-content {
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(30px);
-  padding: 2rem;
-  border-radius: var(--radius);
-  min-width: 350px;
-  max-width: 90%;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: var(--text);
-}
-
-/* ========== FORM ELEMANLARI ========== */
-input, textarea, select {
-  width: 100%;
-  padding: 12px 16px;
-  margin: 10px 0 18px;
-  border: 2px solid rgba(34, 197, 94, 0.5);
-  border-radius: 12px;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(10px);
-  color: var(--text);
-  font-size: 1rem;
-  outline: none;
-  transition: all var(--transition);
-}
-input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.5); }
-input:focus, textarea:focus, select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.4);
-  background: rgba(0,0,0,0.7);
-}
-
-/* ========== MODERN BUTONLAR ========== */
-button, .btn, .btn-green, #authSubmit, #changePassBtn, #setAvatarBtn, #saveSettingsBtn, #cancelModal, #logoutBtn, .copy-btn, .user-area button, nav button, .glass-card button {
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all var(--transition);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-  backdrop-filter: blur(10px);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-button:hover, .btn:hover, .btn-green:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
-}
-button:active { transform: translateY(0) scale(0.98); }
-
-#cancelModal, button[onclick*="closeModal"] {
-  background: rgba(239, 68, 68, 0.8);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-#cancelModal:hover {
-  background: rgba(239, 68, 68, 1);
-}
-#logoutBtn {
-  background: rgba(239, 68, 68, 0.8);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-#logoutBtn:hover { background: rgba(239, 68, 68, 1); }
-
-/* ========== FOOTER ========== */
-.footer {
-  text-align: center;
-  padding: 2rem;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(15px);
-  color: var(--text);
-  margin-top: auto;
-}
+ 
