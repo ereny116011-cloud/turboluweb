@@ -5,75 +5,33 @@ const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000
 
 const translations = {
   tr: {
-    register: 'Kaydol',
-    login: 'Giriş Yap',
-    logout: 'Çıkış',
-    shop: 'Market',
-    campaigns: 'Kampanyalar',
-    tasks: 'Görevler',
-    addAnnouncement: 'Duyuru Yap',
-    addCampaign: 'Kampanya Düzenle',
-    addNews: 'Haber Ekle',
-    addItem: 'Ürün Ekle',
-    addTask: 'Görev Ekle',
-    inventory: 'Envanter',
-    serverStatus: 'Sunucu Durumu',
-    balance: 'Bakiye',
-    buy: 'Satın Al',
-    profile: 'Profil Ayarları',
-    passwordChange: 'Şifre Değiştir',
-    oldPassword: 'Mevcut Şifre',
-    newPassword: 'Yeni Şifre',
-    save: 'Kaydet',
-    selectAvatar: 'Avatar Seç',
-    customURL: 'veya URL gir',
-    uploadAvatar: 'Avatar Yükle',
-    theme: 'Tema',
-    dark: 'Koyu',
-    light: 'Açık',
-    language: 'Dil',
-    status: 'Durum',
-    online: 'Çevrimiçi',
-    offline: 'Çevrimdışı',
-    complete: 'Tamamlandı',
-    taskReward: 'Ödül',
-    balanceReward: 'Bakiye',
+    register: 'Kaydol', login: 'Giriş Yap', logout: 'Çıkış',
+    shop: 'Market', campaigns: 'Kampanyalar', tasks: 'Görevler',
+    addAnnouncement: 'Duyuru Yap', addCampaign: 'Kampanya Düzenle',
+    addNews: 'Haber Ekle', addItem: 'Ürün Ekle', addTask: 'Görev Ekle',
+    inventory: 'Envanter', serverStatus: 'Sunucu Durumu',
+    balance: 'Bakiye', buy: 'Satın Al', profile: 'Profil Ayarları',
+    passwordChange: 'Şifre Değiştir', oldPassword: 'Mevcut Şifre',
+    newPassword: 'Yeni Şifre', save: 'Kaydet', selectAvatar: 'Avatar Seç',
+    customURL: 'veya URL gir', uploadAvatar: 'Avatar Yükle',
+    theme: 'Tema', dark: 'Koyu', light: 'Açık', language: 'Dil',
+    status: 'Durum', online: 'Çevrimiçi', offline: 'Çevrimdışı',
+    complete: 'Tamamlandı', taskReward: 'Ödül', balanceReward: 'Bakiye',
     itemReward: 'Eşya',
   },
   en: {
-    register: 'Register',
-    login: 'Login',
-    logout: 'Logout',
-    shop: 'Shop',
-    campaigns: 'Campaigns',
-    tasks: 'Tasks',
-    addAnnouncement: 'Add Announcement',
-    addCampaign: 'Add Campaign',
-    addNews: 'Add News',
-    addItem: 'Add Item',
-    addTask: 'Add Task',
-    inventory: 'Inventory',
-    serverStatus: 'Server Status',
-    balance: 'Balance',
-    buy: 'Buy',
-    profile: 'Profile Settings',
-    passwordChange: 'Change Password',
-    oldPassword: 'Current Password',
-    newPassword: 'New Password',
-    save: 'Save',
-    selectAvatar: 'Select Avatar',
-    customURL: 'or enter URL',
-    uploadAvatar: 'Upload Avatar',
-    theme: 'Theme',
-    dark: 'Dark',
-    light: 'Light',
-    language: 'Language',
-    status: 'Status',
-    online: 'Online',
-    offline: 'Offline',
-    complete: 'Complete',
-    taskReward: 'Reward',
-    balanceReward: 'Balance',
+    register: 'Register', login: 'Login', logout: 'Logout',
+    shop: 'Shop', campaigns: 'Campaigns', tasks: 'Tasks',
+    addAnnouncement: 'Add Announcement', addCampaign: 'Add Campaign',
+    addNews: 'Add News', addItem: 'Add Item', addTask: 'Add Task',
+    inventory: 'Inventory', serverStatus: 'Server Status',
+    balance: 'Balance', buy: 'Buy', profile: 'Profile Settings',
+    passwordChange: 'Change Password', oldPassword: 'Current Password',
+    newPassword: 'New Password', save: 'Save', selectAvatar: 'Select Avatar',
+    customURL: 'or enter URL', uploadAvatar: 'Upload Avatar',
+    theme: 'Theme', dark: 'Dark', light: 'Light', language: 'Language',
+    status: 'Status', online: 'Online', offline: 'Offline',
+    complete: 'Complete', taskReward: 'Reward', balanceReward: 'Balance',
     itemReward: 'Item',
   }
 };
@@ -89,10 +47,27 @@ function getSystemTheme() {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
+// IP kopyalama
 function kopyalaIP() {
   navigator.clipboard.writeText('turbolu.mcsh.io').then(() => {
     alert('IP adresi kopyalandı!');
   });
+}
+
+// Navbar linkleri için özel yönlendirme
+function handleNavClick(targetId) {
+  // Eğer hedef bölüm sayfada yoksa (ana sayfa açık değilse), önce ana sayfayı aç
+  if (!document.getElementById(targetId)) {
+    // Ana sayfayı göster ve içerik yüklendikten sonra kaydır
+    showContent('status');
+    setTimeout(() => {
+      const target = document.getElementById(targetId);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 200);
+  } else {
+    // Zaten ana sayfadaysak direkt kaydır
+    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -209,7 +184,7 @@ async function renderStatus() {
       </div>
     </header>
 
-    <section class="features">
+    <section id="features" class="features">
       <h2>Neden Biz?</h2>
       <div class="feature-cards">
         <div class="card"><i class="fa-solid fa-bolt icon"></i><h3>Yüksek Performans</h3><p>Lag yok, donma yok.</p></div>
@@ -218,7 +193,7 @@ async function renderStatus() {
       </div>
     </section>
 
-    <section class="status-section">
+    <section id="durum" class="status-section">
       <h2>Anlık Sunucu Durumu</h2>
       <div class="status-card">
         <div class="status-info">
