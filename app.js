@@ -57,7 +57,6 @@ function handleNavClick(targetId) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Dil
   try {
     const res = await fetch(`${API}/api/country`);
     const { tr } = await res.json();
@@ -65,7 +64,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     else setLang(currentLang);
   } catch { setLang(currentLang); }
 
-  // Oturum
   if (token) {
     try {
       const res = await fetch(`${API}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -141,12 +139,16 @@ function showContent(section) {
   }
 }
 
-// --- ANA SAYFA (ARTIK TAMAMEN KARTLAR İÇİNDE) ---
+// --- ANA SAYFA ---
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
     <div class="glass-card hero-card">
-      <h1><i class="fa-solid fa-gamepad"></i> TurboluMC Dünyasına Hoş Geldiniz!</h1>
+      <h1>
+        <i class="fa-solid fa-gamepad"></i> 
+        TurboluMC Dünyasına Hoş Geldiniz! 
+        <i class="fa-solid fa-gamepad"></i>
+      </h1>
       <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor.</p>
       <div class="ip-box" onclick="kopyalaIP()">
         <span>turbolu.mcsh.io</span>
@@ -199,8 +201,7 @@ async function renderStatus() {
   statusInterval = setInterval(updateStatus, 10000);
 }
 
-// --- MARKET, GÖREVLER, ENVANTER, KAMPANYALAR, ADMIN, PROFİL (aynı) ---
-// (Önceki tam sürümdeki ilgili fonksiyonlar aynen korunuyor, sadece card yerine glass-card kullanıldı)
+// --- MARKET ---
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
@@ -233,6 +234,7 @@ async function buy(itemId) {
   }
 }
 
+// --- GÖREVLER ---
 async function renderTasks() {
   const content = document.getElementById('content');
   if (!currentUser) { content.innerHTML = '<p>Lütfen giriş yapın.</p>'; return; }
@@ -269,6 +271,7 @@ async function completeTask(taskId) {
   }
 }
 
+// --- ENVANTER ---
 async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
@@ -285,6 +288,7 @@ async function renderInventory() {
     </div>`;
 }
 
+// --- KAMPANYALAR ---
 async function renderCampaigns() {
   const content = document.getElementById('content');
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
@@ -295,6 +299,7 @@ async function renderCampaigns() {
     </div>`;
 }
 
+// --- ADMIN FORMLARI ---
 function renderAdminForm(type) {
   const content = document.getElementById('content');
   let formHtml = '';
@@ -351,6 +356,7 @@ async function submitAdmin(type) {
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
 }
 
+// --- GİRİŞ / KAYIT ---
 function openAuthModal(mode) {
   const modal = document.getElementById('modal');
   const body = document.getElementById('modalBody');
@@ -384,6 +390,7 @@ async function handleAuth(mode) {
   showContent('status');
 }
 
+// --- PROFİL ---
 async function renderProfile() {
   const content = document.getElementById('content');
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
@@ -429,6 +436,7 @@ async function renderProfile() {
   document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
 }
 
+// --- YARDIMCI FONKSİYONLAR ---
 async function uploadAvatar(event) {
   const file = event.target.files[0];
   if (!file) return;
