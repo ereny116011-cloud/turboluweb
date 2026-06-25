@@ -1,9 +1,8 @@
-const API = 'https://shrill-salad-a498.ereny116011.workers.dev'; // API Worker adresin
+const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
 
 // Varsayılan profil resmi (gülen yüz SVG)
 const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'42\' height=\'42\' viewBox=\'0 0 42 42\'%3E%3Ccircle cx=\'21\' cy=\'21\' r=\'20\' fill=\'%2322c55e\'/%3E%3Ccircle cx=\'14\' cy=\'16\' r=\'3\' fill=\'%230f172a\'/%3E%3Ccircle cx=\'28\' cy=\'16\' r=\'3\' fill=\'%230f172a\'/%3E%3Cpath d=\'M12 26 Q21 32 30 26\' stroke=\'%230f172a\' stroke-width=\'3\' fill=\'none\' stroke-linecap=\'round\'/%3E%3C/svg%3E';
 
-// Çeviriler
 const translations = {
   tr: {
     register: 'Kaydol',
@@ -82,12 +81,18 @@ const translations = {
 let currentLang = localStorage.getItem('lang') || 'tr';
 let currentUser = null;
 let token = localStorage.getItem('token') || null;
-let statusInterval = null; // 10 saniyelik yenileme için
+let statusInterval = null;
 
 function t(key) { return translations[currentLang][key] || key; }
 
 function getSystemTheme() {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function kopyalaIP() {
+  navigator.clipboard.writeText('turbolu.mcsh.io').then(() => {
+    alert('IP adresi kopyalandı!');
+  });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -102,13 +107,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch { setLang(currentLang); }
 
-  // Tema: önce localStorage, yoksa sistem teması
+  // Tema
   const savedTheme = localStorage.getItem('theme');
   const initialTheme = savedTheme || getSystemTheme();
   document.body.classList.toggle('light', initialTheme === 'light');
-  if (!savedTheme) {
-    localStorage.setItem('theme', initialTheme);
-  }
+  if (!savedTheme) localStorage.setItem('theme', initialTheme);
 
   // Oturum
   if (token) {
@@ -121,25 +124,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.classList.toggle('light', currentUser.theme === 'light');
         localStorage.setItem('theme', currentUser.theme);
       }
-    } catch (e) {
-      logout();
-    }
+    } catch (e) { logout(); }
   }
   renderUI();
 });
 
 function renderUI() {
   const userArea = document.getElementById('userArea');
-  const sidebar = document.getElementById('sidebar');
   const content = document.getElementById('content');
 
   if (currentUser) {
+    let extraButtons = '';
+    if (currentUser.isAdmin) {
+      extraButtons = `
+        <button onclick="showContent('addAnnouncement')">📢 Duyuru</button>
+        <button onclick="showContent('addCampaign')">🎯 Kampanya</button>
+        <button onclick="showContent('addNews')">📰 Haber</button>
+        <button onclick="showContent('addItem')">🛒 Ürün</button>
+        <button onclick="showContent('addTask')">📋 Görev</button>
+      `;
+    } else {
+      extraButtons = `
+        <button onclick="showContent('shop')">🛒 ${t('shop')}</button>
+        <button onclick="showContent('tasks')">📋 ${t('tasks')}</button>
+        <button onclick="showContent('inventory')">🎒 ${t('inventory')}</button>
+        <button onclick="showContent('campaigns')">📣 ${t('campaigns')}</button>
+      `;
+    }
+
     userArea.innerHTML = `
-      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" id="profileIcon" title="${t('profile')}">
+      ${extraButtons}
+      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')" title="${t('profile')}">
       <span style="font-weight:bold">${currentUser.username}</span>
       <button id="logoutBtn">${t('logout')}</button>
     `;
-    document.getElementById('profileIcon').addEventListener('click', () => showContent('profile'));
     document.getElementById('logoutBtn').addEventListener('click', logout);
   } else {
     userArea.innerHTML = `
@@ -150,41 +168,10 @@ function renderUI() {
     document.getElementById('loginBtn').addEventListener('click', () => openAuthModal('login'));
   }
 
-  // Sidebar
-  let sidebarHtml = '';
-  if (currentUser?.isAdmin) {
-    sidebarHtml = `
-      <button data-section="addAnnouncement">📢 ${t('addAnnouncement')}</button>
-      <button data-section="addCampaign">🎯 ${t('addCampaign')}</button>
-      <button data-section="addNews">📰 ${t('addNews')}</button>
-      <button data-section="addItem">🛒 ${t('addItem')}</button>
-      <button data-section="addTask">📋 ${t('addTask')}</button>
-    `;
-  } else {
-    sidebarHtml = `
-      <button data-section="shop">🛒 ${t('shop')}</button>
-      <button data-section="tasks">📋 ${t('tasks')}</button>
-      <button data-section="campaigns">📣 ${t('campaigns')}</button>
-      <button data-section="inventory">🎒 ${t('inventory')}</button>
-    `;
-  }
-  sidebar.innerHTML = sidebarHtml;
-  // Aktif butonu işaretleme
-  sidebar.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      sidebar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      showContent(btn.dataset.section);
-    });
-  });
-
   if (!content.innerHTML.trim()) showContent('status');
 }
 
 function showContent(section) {
-  const content = document.getElementById('content');
-
-  // Durum yenileme aralığını kontrol et
   if (section !== 'status' && statusInterval) {
     clearInterval(statusInterval);
     statusInterval = null;
@@ -202,131 +189,84 @@ function showContent(section) {
     case 'addTask': renderAdminForm('task'); break;
     case 'inventory': renderInventory(); break;
     case 'profile': renderProfile(); break;
+    default: renderStatus();
   }
 }
 
-// Sunucu durumu (modern banner, 10 saniyede bir otomatik yenilenir)
+// ---------- ANA SAYFA (YENİ TASARIM) ----------
 async function renderStatus() {
   const content = document.getElementById('content');
-
-  // İlk yapıyı oluştur
   content.innerHTML = `
-    <div class="status-banner" id="statusBanner">
-      <div class="status-header">
-        <img id="serverIcon" class="server-icon" src="${DEFAULT_AVATAR}" alt="Sunucu İkonu">
-        <h1 id="serverName">TurboluMC</h1>
-        <div class="motd" id="serverMotd">⏳</div>
-      </div>
-      <div class="status-body">
-        <div class="status-indicator">
-          <span class="dot" id="statusDot"></span>
-          <span id="statusText">⏳</span>
-        </div>
-        <div class="player-count">
-          <span id="playerOnline">-</span> / <span id="playerMax">-</span>
-          <small>Oyuncu</small>
-        </div>
-        <div class="server-ip">
+    <header class="hero">
+      <div class="hero-content">
+        <h1>TurboluMC Dünyasına Hoş Geldiniz!</h1>
+        <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor.</p>
+        <div class="ip-box" onclick="kopyalaIP()">
           <span>turbolu.mcsh.io</span>
-          <button onclick="navigator.clipboard.writeText('turbolu.mcsh.io');this.textContent='Kopyalandı!';setTimeout(()=>this.textContent='Kopyala',2000)">📋 Kopyala</button>
+          <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
         </div>
-        <span id="serverVersion" class="version-tag">⏳</span>
+        <p class="click-info">IP adresine tıklayarak kopyalayabilirsin!</p>
       </div>
-      <div class="server-praise">
-        <h2 style="margin-bottom: 15px;">🚀 Neden TurboluMC?</h2>
-        <div class="praise-grid">
-          <div class="praise-item">
-            <h3>⚔️ Tamamen Dengeli Oynanış</h3>
-            <p>Korumalı claim sistemi, hile koruması ve adaletli ekonomi ile huzur içinde oyna.</p>
-          </div>
-          <div class="praise-item">
-            <h3>🌍 Dev Bir Topluluk</h3>
-            <p>Binlerce aktif oyuncuyla dolu Discord’umuz ve etkinliklerimiz seni bekliyor.</p>
-          </div>
-          <div class="praise-item">
-            <h3>🎮 Özel Mini Oyunlar</h3>
-            <p>SkyBlock, BedWars, Hunger Games gibi oyunları başka hiçbir yerde bulamayacağın kalitede oyna.</p>
-          </div>
-          <div class="praise-item">
-            <h3>💰 Ödüllü Görevler & Kampanyalar</h3>
-            <p>Her hafta yeni görevler, çekilişler ve özel eşya kampanyaları düzenliyoruz.</p>
-          </div>
-          <div class="praise-item">
-            <h3>🔧 Sürekli Güncel & Optimize</h3>
-            <p>En yeni sürüm, sıfır lag ve profesyonel ekip desteğiyle kesintisiz oyun keyfi.</p>
-          </div>
-          <div class="praise-item">
-            <h3>🎁 Yeni Başlayanlara Özel</h3>
-            <p>Sunucuya ilk adımını attığında seni hoş geldin hediyeleri ve rehberler karşılıyor!</p>
-          </div>
+    </header>
+
+    <section class="features">
+      <h2>Neden Biz?</h2>
+      <div class="feature-cards">
+        <div class="card"><i class="fa-solid fa-bolt icon"></i><h3>Yüksek Performans</h3><p>Lag yok, donma yok.</p></div>
+        <div class="card"><i class="fa-solid fa-shield-halved icon"></i><h3>Adil Oyun</h3><p>Hileye karşı sıfır tolerans.</p></div>
+        <div class="card"><i class="fa-solid fa-users icon"></i><h3>Harika Topluluk</h3><p>Aktif yönetim ve dost oyuncular.</p></div>
+      </div>
+    </section>
+
+    <section class="status-section">
+      <h2>Anlık Sunucu Durumu</h2>
+      <div class="status-card">
+        <div class="status-info">
+          <p><strong>Durum:</strong> <span id="online-durum"><i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...</span></p>
+          <p><strong>Çevrimiçi Oyuncular:</strong> <span id="oyuncu-sayisi">- / -</span></p>
+          <p><strong>Sürüm:</strong> <span id="sunucu-surum">-</span></p>
         </div>
       </div>
-    </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 Eren Yılmaz - TurboluMC. Tüm Hakları Saklıdır.</p>
+      <p class="license-text">Bu proje GNU General Public License v3.0 ile korunmaktadır.</p>
+    </footer>
   `;
 
-  // Güncelleme fonksiyonu
+  // Canlı durum güncellemesi
   async function updateStatus() {
     try {
       const res = await fetch('https://api.mcsrvstat.us/2/144.31.46.15:12443');
       const data = await res.json();
-
-      // İkon
-      if (data.icon) {
-        document.getElementById('serverIcon').src = data.icon;
-      } else {
-        document.getElementById('serverIcon').src = DEFAULT_AVATAR;
-      }
-
-      // Sunucu adı ve MOTD
-      const motdClean = data.motd?.clean?.[0] || '';
-      document.getElementById('serverName').textContent = data.hostname || 'TurboluMC';
-      document.getElementById('serverMotd').textContent = motdClean;
-
-      // Çevrimiçi durumu
-      const dot = document.getElementById('statusDot');
-      const statusText = document.getElementById('statusText');
+      const durumEl = document.getElementById('online-durum');
       if (data.online) {
-        dot.className = 'dot online';
-        statusText.textContent = 'Çevrimiçi';
-        statusText.style.color = '#22c55e';
+        durumEl.innerHTML = '<span style="color:#22c55e">🟢 Çevrimiçi</span>';
       } else {
-        dot.className = 'dot';
-        statusText.textContent = 'Çevrimdışı';
-        statusText.style.color = '#ef4444';
+        durumEl.innerHTML = '<span style="color:#ef4444">🔴 Çevrimdışı</span>';
       }
-
-      // Oyuncu sayısı
-      document.getElementById('playerOnline').textContent = data.players?.online ?? 0;
-      document.getElementById('playerMax').textContent = data.players?.max ?? 0;
-
-      // Versiyon
-      document.getElementById('serverVersion').textContent = data.version || '?';
-    } catch (e) {
-      // Hata durumunda eski görüntü kalır.
-    }
+      document.getElementById('oyuncu-sayisi').textContent = `${data.players?.online ?? 0} / ${data.players?.max ?? 0}`;
+      document.getElementById('sunucu-surum').textContent = data.version || '-';
+    } catch (e) { /* hata durumunda dokunma */ }
   }
 
-  // İlk çalıştır
-  await updateStatus();
-
-  // Zamanlayıcıyı güncelle
+  updateStatus();
   if (statusInterval) clearInterval(statusInterval);
   statusInterval = setInterval(updateStatus, 10000);
 }
 
-// Shop
+// ---------- MARKET ----------
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
   content.innerHTML = `
-    <div class="card">
-      <h2>${t('shop')}</h2>
+    <div class="card" style="max-width:800px; margin:2rem auto;">
+      <h2>🛒 ${t('shop')}</h2>
       ${currentUser ? `<p>${t('balance')}: ${currentUser.balance}</p>` : ''}
       ${items.map(i => `
-        <div style="margin:10px 0" class="item-card">
-          <div>
-            <b>${i.name}</b> - ${i.price} puan
-          </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg); border-radius:8px; margin:8px 0;">
+          <b>${i.name}</b> - ${i.price} puan
           <button onclick="buy('${i.id}')">${t('buy')}</button>
         </div>
       `).join('')}
@@ -349,66 +289,119 @@ async function buy(itemId) {
   }
 }
 
-// Kampanyalar
+// ---------- GÖREVLER ----------
+async function renderTasks() {
+  const content = document.getElementById('content');
+  if (!currentUser) {
+    content.innerHTML = '<p>Lütfen giriş yapın.</p>'; return;
+  }
+  const tasks = await fetch(`${API}/api/tasks`).then(r => r.json());
+  content.innerHTML = `
+    <div class="card" style="max-width:800px; margin:2rem auto;">
+      <h2>📋 ${t('tasks')}</h2>
+      ${tasks.map(task => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg); border-radius:8px; margin:8px 0;">
+          <div>
+            <b>${task.title}</b>
+            <p style="font-size:0.85rem; opacity:0.8">${task.description}</p>
+            <small>${t('taskReward')}: ${task.rewardType === 'balance' ? task.rewardAmount + ' puan' : task.rewardCommand}</small>
+          </div>
+          <button onclick="completeTask('${task.id}')">✅ ${t('complete')}</button>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+async function completeTask(taskId) {
+  if (!token) return alert('Giriş yapın.');
+  const res = await fetch(`${API}/api/tasks/complete`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ taskId })
+  });
+  const data = await res.json();
+  if (data.error) alert(data.error);
+  else {
+    alert('Görev tamamlandı!');
+    currentUser.balance = data.new_balance;
+    renderTasks();
+  }
+}
+
+// ---------- ENVANTER ----------
+async function renderInventory() {
+  const content = document.getElementById('content');
+  if (!currentUser) return;
+  const items = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+  content.innerHTML = `
+    <div class="card" style="max-width:800px; margin:2rem auto;">
+      <h2>🎒 ${t('inventory')}</h2>
+      ${items.length === 0 ? '<p>Henüz eşya yok.</p>' : items.map(i => `
+        <div style="padding:10px; background:var(--bg); border-radius:8px; margin:5px 0;">
+          <b>${i.name}</b>
+          <p style="font-size:0.8rem; opacity:0.7">${new Date(i.purchasedAt).toLocaleString()}</p>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+// ---------- KAMPANYALAR ----------
 async function renderCampaigns() {
   const content = document.getElementById('content');
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
-  content.innerHTML = `<div class="card"><h2>${t('campaigns')}</h2>${
-    campaigns.map(c => `<p><b>${c.title}</b>: ${c.description} (Ödül: ${c.reward})</p>`).join('')
-  }</div>`;
+  content.innerHTML = `
+    <div class="card" style="max-width:800px; margin:2rem auto;">
+      <h2>📣 ${t('campaigns')}</h2>
+      ${campaigns.map(c => `<p><b>${c.title}</b>: ${c.description} (Ödül: ${c.reward})</p>`).join('')}
+    </div>`;
 }
 
-// Admin formları
+// ---------- ADMIN FORMLARI ----------
 function renderAdminForm(type) {
   const content = document.getElementById('content');
   let formHtml = '';
   if (type === 'announcement') {
     formHtml = `
-      <h2>${t('addAnnouncement')}</h2>
+      <h2>📢 ${t('addAnnouncement')}</h2>
       <input id="title" placeholder="Başlık"><br>
       <textarea id="content" placeholder="İçerik"></textarea><br>
       <button onclick="submitAdmin('announcement')">Gönder</button>`;
   } else if (type === 'campaign') {
     formHtml = `
-      <h2>${t('addCampaign')}</h2>
+      <h2>🎯 ${t('addCampaign')}</h2>
       <input id="title" placeholder="Başlık"><br>
       <input id="description" placeholder="Açıklama"><br>
       <input id="reward" placeholder="Ödül"><br>
       <button onclick="submitAdmin('campaign')">Gönder</button>`;
   } else if (type === 'news') {
     formHtml = `
-      <h2>${t('addNews')}</h2>
+      <h2>📰 ${t('addNews')}</h2>
       <input id="title" placeholder="Başlık"><br>
       <textarea id="content" placeholder="İçerik"></textarea><br>
       <button onclick="submitAdmin('news')">Gönder</button>`;
   } else if (type === 'item') {
     formHtml = `
-      <h2>${t('addItem')}</h2>
+      <h2>🛒 ${t('addItem')}</h2>
       <input id="itemName" placeholder="Ürün adı"><br>
       <input id="itemPrice" type="number" placeholder="Fiyat"><br>
-      <input id="itemCommand" placeholder="Oyun içi komut (örn: give %player% diamond 1)"><br>
-      <button onclick="submitAdmin('item')">${t('save')}</button>`;
+      <input id="itemCommand" placeholder="Komut (örn: give %player% diamond 1)"><br>
+      <button onclick="submitAdmin('item')">Ekle</button>`;
   } else if (type === 'task') {
     formHtml = `
-      <h2>${t('addTask')}</h2>
+      <h2>📋 ${t('addTask')}</h2>
       <input id="taskTitle" placeholder="Görev başlığı"><br>
-      <textarea id="taskDescription" placeholder="Görev açıklaması"></textarea><br>
+      <textarea id="taskDescription" placeholder="Açıklama"></textarea><br>
       <select id="taskRewardType" onchange="toggleRewardFields()">
         <option value="balance">${t('balanceReward')}</option>
         <option value="item">${t('itemReward')}</option>
       </select><br>
-      <div id="balanceRewardDiv">
-        <input id="taskRewardAmount" type="number" placeholder="Bakiye miktarı">
-      </div>
-      <div id="itemRewardDiv" style="display:none">
-        <input id="taskRewardCommand" placeholder="Komut (örn: give %player% diamond 1)">
-      </div>
-      <button onclick="submitAdmin('task')">${t('save')}</button>`;
+      <div id="balanceRewardDiv"><input id="taskRewardAmount" type="number" placeholder="Bakiye miktarı"></div>
+      <div id="itemRewardDiv" style="display:none"><input id="taskRewardCommand" placeholder="Komut"></div>
+      <button onclick="submitAdmin('task')">Ekle</button>`;
   }
-  content.innerHTML = `<div class="card">${formHtml}</div>`;
+  content.innerHTML = `<div class="card" style="max-width:600px; margin:2rem auto;">${formHtml}</div>`;
 }
 
-// Görev ödül türüne göre alanları göster/gizle
 function toggleRewardFields() {
   const type = document.getElementById('taskRewardType').value;
   document.getElementById('balanceRewardDiv').style.display = type === 'balance' ? 'block' : 'none';
@@ -419,30 +412,16 @@ async function submitAdmin(type) {
   let endpoint, body;
   if (type === 'announcement') {
     endpoint = 'announcement';
-    body = {
-      title: document.getElementById('title').value,
-      content: document.getElementById('content').value
-    };
+    body = { title: document.getElementById('title').value, content: document.getElementById('content').value };
   } else if (type === 'news') {
     endpoint = 'news';
-    body = {
-      title: document.getElementById('title').value,
-      content: document.getElementById('content').value
-    };
+    body = { title: document.getElementById('title').value, content: document.getElementById('content').value };
   } else if (type === 'campaign') {
     endpoint = 'campaign';
-    body = {
-      title: document.getElementById('title').value,
-      description: document.getElementById('description').value,
-      reward: document.getElementById('reward').value
-    };
+    body = { title: document.getElementById('title').value, description: document.getElementById('description').value, reward: document.getElementById('reward').value };
   } else if (type === 'item') {
     endpoint = 'item';
-    body = {
-      name: document.getElementById('itemName').value,
-      price: Number(document.getElementById('itemPrice').value),
-      command: document.getElementById('itemCommand').value
-    };
+    body = { name: document.getElementById('itemName').value, price: Number(document.getElementById('itemPrice').value), command: document.getElementById('itemCommand').value };
   } else if (type === 'task') {
     endpoint = 'task';
     body = {
@@ -453,7 +432,6 @@ async function submitAdmin(type) {
       rewardCommand: document.getElementById('taskRewardCommand')?.value || ''
     };
   }
-
   const res = await fetch(`${API}/api/admin/${endpoint}`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -463,80 +441,7 @@ async function submitAdmin(type) {
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
 }
 
-// Envanter
-async function renderInventory() {
-  const content = document.getElementById('content');
-  if (!currentUser) {
-    content.innerHTML = '<div class="card"><p>Önce giriş yapmalısın.</p></div>';
-    return;
-  }
-  try {
-    const res = await fetch(`${API}/api/inventory`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const items = await res.json();
-    content.innerHTML = `
-      <div class="card">
-        <h2>🎒 ${t('inventory')}</h2>
-        ${items.length === 0 ? '<p>Henüz bir eşyan yok.</p>' : items.map(i => `
-          <div class="item-card">
-            <b>${i.name}</b>
-            <p style="font-size:0.8rem; opacity:0.7">${new Date(i.purchasedAt).toLocaleString()}</p>
-          </div>
-        `).join('')}
-      </div>`;
-  } catch {
-    content.innerHTML = '<div class="card"><p>Envanter yüklenemedi.</p></div>';
-  }
-}
-
-// Görevler
-async function renderTasks() {
-  const content = document.getElementById('content');
-  if (!currentUser) {
-    content.innerHTML = '<div class="card"><p>Önce giriş yapmalısın.</p></div>';
-    return;
-  }
-  try {
-    const res = await fetch(`${API}/api/tasks`);
-    const tasks = await res.json();
-    content.innerHTML = `
-      <div class="card">
-        <h2>📋 ${t('tasks')}</h2>
-        ${tasks.length === 0 ? '<p>Henüz görev eklenmemiş.</p>' : tasks.map(task => `
-          <div class="item-card">
-            <div>
-              <b>${task.title}</b>
-              <p style="font-size:0.85rem; opacity:0.8">${task.description}</p>
-              <small>${t('taskReward')}: ${task.rewardType === 'balance' ? task.rewardAmount + ' puan' : task.rewardCommand}</small>
-            </div>
-            <button onclick="completeTask('${task.id}')">✅ ${t('complete')}</button>
-          </div>
-        `).join('')}
-      </div>`;
-  } catch {
-    content.innerHTML = '<div class="card"><p>Görevler yüklenemedi.</p></div>';
-  }
-}
-
-async function completeTask(taskId) {
-  if (!token) return alert('Lütfen giriş yapın.');
-  const res = await fetch(`${API}/api/tasks/complete`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ taskId })
-  });
-  const data = await res.json();
-  if (data.error) return alert(data.error);
-  alert('Görev tamamlandı! Ödülün verildi.');
-  currentUser.balance = data.new_balance;
-  renderTasks();
-}
-
-// Giriş/kayıt modal
+// ---------- GİRİŞ / KAYIT MODAL ----------
 function openAuthModal(mode) {
   const modal = document.getElementById('modal');
   const body = document.getElementById('modalBody');
@@ -570,22 +475,21 @@ async function handleAuth(mode) {
   showContent('status');
 }
 
-// Profil sayfası (tam ekran, içerik alanında)
+// ---------- PROFİL ----------
 async function renderProfile() {
   const content = document.getElementById('content');
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
   content.innerHTML = `
-    <div class="card">
+    <div class="card" style="max-width:600px; margin:2rem auto;">
       <h2>${t('profile')}</h2>
       <h3>${t('passwordChange')}</h3>
       <input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br>
       <input id="newPass" type="password" placeholder="${t('newPassword')}"><br>
       <button id="changePassBtn">${t('save')}</button>
 
-      <hr style="margin:20px 0">
-
+      <hr>
       <h3>${t('selectAvatar')}</h3>
-      <div id="avatarPool" style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0">
+      <div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px; margin:10px 0;">
         <img src="${DEFAULT_AVATAR}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${DEFAULT_AVATAR}')" title="Varsayılan">
         ${icons.map(url => `<img src="${url}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${url}')">`).join('')}
       </div>
@@ -597,30 +501,13 @@ async function renderProfile() {
       <input id="customAvatar" placeholder="${t('customURL')}"><br>
       <button id="setAvatarBtn">${t('save')}</button>
 
-      <hr style="margin:20px 0">
-
-      <label>${t('theme')}:
-        <select id="themeSelect">
-          <option value="dark">${t('dark')}</option>
-          <option value="light">${t('light')}</option>
-        </select>
-      </label>
-      <label>${t('language')}:
-        <select id="langSelect">
-          <option value="tr">Türkçe</option>
-          <option value="en">English</option>
-        </select>
-      </label>
-      <label>${t('status')}:
-        <select id="statusSelect">
-          <option value="Online">${t('online')}</option>
-          <option value="Offline">${t('offline')}</option>
-        </select>
-      </label>
-
+      <hr>
+      <label>${t('theme')}: <select id="themeSelect"><option value="dark">${t('dark')}</option><option value="light">${t('light')}</option></select></label>
+      <label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label>
+      <label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label>
       <div style="margin-top:20px">
         <button id="saveSettingsBtn">${t('save')}</button>
-        <button id="backBtn">← Geri</button>
+        <button onclick="showContent('status')">← Geri</button>
       </div>
     </div>
   `;
@@ -634,10 +521,9 @@ async function renderProfile() {
     if (url) setAvatar(url);
   });
   document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
-  document.getElementById('backBtn').addEventListener('click', () => showContent('status'));
 }
 
-// Dosya yükleme işleyicisi
+// ---------- YARDIMCI FONKSİYONLAR ----------
 async function uploadAvatar(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -670,7 +556,7 @@ function setAvatar(url) {
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ icon: url })
   }).then(() => renderUI());
-  const profileIcon = document.getElementById('profileIcon');
+  const profileIcon = document.querySelector('.profile-icon');
   if (profileIcon) profileIcon.src = url;
 }
 
@@ -710,8 +596,4 @@ async function saveProfileSettings() {
 
 function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 function logout() { localStorage.clear(); token = null; currentUser = null; location.reload(); }
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('lang', lang);
-  renderUI();
-}
+function setLang(lang) { currentLang = lang; localStorage.setItem('lang', lang); renderUI(); }
