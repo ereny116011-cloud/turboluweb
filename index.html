@@ -3,28 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TurboluMC</title>
+  <title>TurboluMC - Resmi Web Sitesi</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div id="app">
-    <header id="topbar">
+    <!-- Üst Menü (Navbar) -->
+    <nav class="navbar">
       <div class="logo" onclick="showContent('status')" style="cursor:pointer;">
-        <span class="creeper">🟢</span> TurboluMC
+        <i class="fa-solid fa-cube"></i> TurboluMC
       </div>
+      <ul class="nav-links">
+        <li><a href="#anasayfa" onclick="showContent('status'); return false;">Anasayfa</a></li>
+        <li><a href="#ozellikler" onclick="document.getElementById('ozellikler').scrollIntoView(); return false;">Özellikler</a></li>
+        <li><a href="#durum" onclick="document.getElementById('durum').scrollIntoView(); return false;">Sunucu Durumu</a></li>
+      </ul>
+      <!-- Dinamik kullanıcı alanı (giriş/kayıt veya profil) -->
       <div class="user-area" id="userArea"></div>
-    </header>
+    </nav>
 
-    <div class="container">
-      <nav id="sidebar"></nav>
-      <main id="content"></main>
-    </div>
+    <!-- İçerik alanı (SPA) -->
+    <main id="content"></main>
 
-    <!-- Sadece giriş/kayıt için modal -->
+    <!-- Giriş/Kayıt Modal -->
     <div id="modal" class="modal hidden">
       <div class="modal-content" id="modalBody"></div>
     </div>
   </div>
+
   <script src="app.js"></script>
 </body>
 </html>
