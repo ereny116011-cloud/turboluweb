@@ -1,45 +1,70 @@
-/* ========== TURBOLUMC MODERN TEMA ========== */
+/* ========== ARKA PLAN & TEMEL DEĞİŞKENLER ========== */
 :root {
-  --bg: #0f172a;
-  --surface: #1e293b;
+  --bg: rgba(15, 23, 42, 0.75);
+  --surface: rgba(30, 41, 59, 0.7);
   --text: #f1f5f9;
   --accent: #22c55e;
   --accent-hover: #16a34a;
   --radius: 14px;
-  --shadow: 0 8px 24px rgba(0,0,0,0.5);
-  --transition: 0.3s ease;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 body.light {
-  --bg: #f8fafc;
-  --surface: #ffffff;
+  --bg: rgba(248, 250, 252, 0.75);
+  --surface: rgba(255, 255, 255, 0.7);
   --text: #0f172a;
   --accent: #16a34a;
   --accent-hover: #15803d;
-  --shadow: 0 8px 24px rgba(0,0,0,0.1);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   transition: background var(--transition), color var(--transition);
+  margin: 0;
+  padding: 0;
+  background: #0f172a; /* yedek renk */
 }
 
-#app { display: flex; flex-direction: column; min-height: 100vh; }
+/* Arka plan resmi (oyuncu odası) */
+.bg-image {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url('https://images.unsplash.com/photo-1603481588273-2f908a9a7a1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  filter: brightness(0.4) blur(8px);
+  z-index: -1;
+}
 
-/* Navbar */
+#app {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  backdrop-filter: blur(5px);
+}
+
+/* ========== NAVBAR ========== */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   position: sticky;
   top: 0;
   z-index: 100;
+}
+.light .navbar {
+  background: rgba(255, 255, 255, 0.6);
 }
 .logo {
   font-size: 1.8rem;
@@ -59,9 +84,12 @@ body {
   text-decoration: none;
   color: var(--text);
   font-weight: 500;
-  transition: color var(--transition);
+  transition: color var(--transition), transform var(--transition);
 }
-.nav-links a:hover { color: var(--accent); }
+.nav-links a:hover {
+  color: var(--accent);
+  transform: scale(1.1);
+}
 
 /* Kullanıcı Alanı */
 .user-area {
@@ -70,27 +98,37 @@ body {
   gap: 12px;
 }
 .user-area .btn-green {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
-  transition: background var(--transition), transform var(--transition);
+  transition: all var(--transition);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
-.user-area .btn-green:hover { background: var(--accent-hover); transform: translateY(-2px); }
+.user-area .btn-green:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
+}
 .user-area button, .user-area .btn {
-  background: var(--surface);
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(10px);
   color: var(--text);
   border: 1px solid var(--accent);
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 0.95rem;
   transition: all var(--transition);
 }
-.user-area button:hover, .user-area .btn:hover { background: var(--accent); color: white; transform: translateY(-2px); }
+.user-area button:hover, .user-area .btn:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+}
 .profile-icon {
   width: 38px;
   height: 38px;
@@ -100,30 +138,51 @@ body {
   cursor: pointer;
   transition: transform var(--transition);
 }
-.profile-icon:hover { transform: scale(1.1); }
+.profile-icon:hover {
+  transform: scale(1.15) rotate(5deg);
+}
 
-/* Hero Bölümü */
+/* ========== HERO ========== */
 .hero {
   text-align: center;
   padding: 4rem 2rem;
-  background: linear-gradient(145deg, var(--accent), var(--accent-hover));
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9));
   color: white;
+  position: relative;
+  overflow: hidden;
 }
-.hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-.hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; }
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.hero h1 { font-size: 2.5rem; margin-bottom: 1rem; position: relative; }
+.hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; position: relative; }
 .ip-box {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
   padding: 12px 24px;
   border-radius: 50px;
   font-family: monospace;
   font-size: 1.4rem;
   cursor: pointer;
-  transition: background var(--transition);
+  transition: all var(--transition);
+  position: relative;
 }
-.ip-box:hover { background: rgba(0,0,0,0.5); }
+.ip-box:hover {
+  background: rgba(0,0,0,0.7);
+  transform: scale(1.05);
+}
 .copy-btn {
   background: white;
   color: var(--accent-hover);
@@ -132,16 +191,20 @@ body {
   border-radius: 20px;
   font-weight: bold;
   cursor: pointer;
-  transition: background var(--transition);
+  transition: all var(--transition);
 }
-.copy-btn:hover { background: #e2e8f0; }
-.click-info { margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8; }
+.copy-btn:hover {
+  background: #e2e8f0;
+  transform: scale(1.1);
+}
+.click-info { margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8; position: relative; }
 
-/* Özellikler */
+/* ========== ÖZELLİKLER ========== */
 .features {
   padding: 3rem 2rem;
   text-align: center;
   background: var(--bg);
+  backdrop-filter: blur(15px);
 }
 .features h2 { font-size: 2rem; margin-bottom: 2rem; color: var(--accent); }
 .feature-cards {
@@ -152,58 +215,73 @@ body {
 }
 .card {
   background: var(--surface);
+  backdrop-filter: blur(15px);
   border-radius: var(--radius);
   padding: 2rem;
   max-width: 300px;
   box-shadow: var(--shadow);
-  transition: transform var(--transition);
+  transition: all var(--transition);
+  border: 1px solid rgba(255,255,255,0.1);
 }
-.card:hover { transform: translateY(-5px); }
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
 .card .icon { font-size: 2.5rem; color: var(--accent); margin-bottom: 1rem; }
 .card h3 { margin-bottom: 0.5rem; }
 
-/* Sunucu Durumu */
+/* ========== SUNUCU DURUMU ========== */
 .status-section {
   padding: 3rem 2rem;
   background: var(--surface);
+  backdrop-filter: blur(15px);
   text-align: center;
 }
 .status-section h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent); }
 .status-card {
   display: inline-block;
-  background: var(--bg);
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
   border-radius: var(--radius);
   padding: 2rem;
   box-shadow: var(--shadow);
   font-size: 1.2rem;
+  transition: all var(--transition);
+}
+.status-card:hover {
+  transform: scale(1.02);
 }
 .status-info p { margin: 0.5rem 0; }
 
-/* Modal (Giriş/Kayıt) */
+/* ========== MODAL ========== */
 .modal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
   display: flex; align-items: center; justify-content: center;
   z-index: 1000;
 }
 .modal.hidden { display: none; }
 .modal-content {
   background: var(--surface);
+  backdrop-filter: blur(25px);
   padding: 2rem;
   border-radius: var(--radius);
   min-width: 350px;
   max-width: 90%;
   box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Form elemanları */
+/* ========== FORM ELEMANLARI ========== */
 input, textarea, select {
   width: 100%;
   padding: 12px 16px;
   margin: 10px 0 18px;
   border: 2px solid var(--accent);
   border-radius: 12px;
-  background: var(--bg);
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(5px);
   color: var(--text);
   font-size: 1rem;
   outline: none;
@@ -211,27 +289,27 @@ input, textarea, select {
 }
 input:focus, textarea:focus, select:focus {
   border-color: var(--accent-hover);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3);
-  background: var(--surface);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.4);
+  background: rgba(0,0,0,0.5);
 }
 
-/* Footer */
+/* ========== FOOTER ========== */
 .footer {
   text-align: center;
   padding: 2rem;
-  background: var(--surface);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
   color: var(--text);
   margin-top: auto;
 }
 
-/* Oyun kolu ikonu efekti */
+/* ========== OYUN KOLU İKONU ========== */
 .hero h1 .fa-gamepad {
   font-size: 3rem;
   margin-right: 15px;
   animation: pulse 2s infinite;
   vertical-align: middle;
 }
-
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.2); }
