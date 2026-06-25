@@ -223,3 +223,17 @@ input:focus, textarea:focus, select:focus {
   color: var(--text);
   margin-top: auto;
 }
+
+/* Oyun kolu ikonu efekti */
+.hero h1 .fa-gamepad {
+  font-size: 3rem;
+  margin-right: 15px;
+  animation: pulse 2s infinite;
+  vertical-align: middle;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
