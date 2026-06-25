@@ -165,14 +165,14 @@ function showContent(section) {
   }
 }
 
-// ---------- ANA SAYFA ----------
+// ---------- ANA SAYFA (YAZILAR UZATILDI, OYUN KOLU İKONU) ----------
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
     <header class="hero">
       <div class="hero-content">
-        <h1>TurboluMC Dünyasına Hoş Geldiniz!</h1>
-        <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor.</p>
+        <h1><i class="fa-solid fa-gamepad"></i> TurboluMC Dünyasına Hoş Geldiniz!</h1>
+        <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor. Hayalindeki Minecraft dünyasına adım at, arkadaşlarınla keşfet, yap, yarış ve eğlen!</p>
         <div class="ip-box" onclick="kopyalaIP()">
           <span>turbolu.mcsh.io</span>
           <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
@@ -184,9 +184,9 @@ async function renderStatus() {
     <section id="features" class="features">
       <h2>Neden Biz?</h2>
       <div class="feature-cards">
-        <div class="card"><i class="fa-solid fa-bolt icon"></i><h3>Yüksek Performans</h3><p>Lag yok, donma yok.</p></div>
-        <div class="card"><i class="fa-solid fa-shield-halved icon"></i><h3>Adil Oyun</h3><p>Hileye karşı sıfır tolerans.</p></div>
-        <div class="card"><i class="fa-solid fa-users icon"></i><h3>Harika Topluluk</h3><p>Aktif yönetim ve dost oyuncular.</p></div>
+        <div class="card"><i class="fa-solid fa-bolt icon"></i><h3>Yüksek Performans</h3><p>Donma ve lag olmadan, en zorlu anlarda bile akıcı bir oyun deneyimi sunan gelişmiş altyapımızla her saniye keyif al.</p></div>
+        <div class="card"><i class="fa-solid fa-shield-halved icon"></i><h3>Adil Oyun</h3><p>Hileye sıfır tolerans, her oyuncu eşit şartlarda. Gelişmiş koruma sistemlerimizle sadece yeteneğin konuşur.</p></div>
+        <div class="card"><i class="fa-solid fa-users icon"></i><h3>Harika Topluluk</h3><p>Yardımsever oyuncular ve her an aktif yönetim ekibiyle kocaman bir ailenin parçası ol. Etkinlikler, yarışmalar ve sürprizlerle dolu.</p></div>
       </div>
     </section>
 
