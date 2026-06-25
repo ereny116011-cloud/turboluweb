@@ -54,18 +54,15 @@ function kopyalaIP() {
   });
 }
 
-// Navbar linkleri için özel yönlendirme
+// Navbar kaydırma yardımcısı
 function handleNavClick(targetId) {
-  // Eğer hedef bölüm sayfada yoksa (ana sayfa açık değilse), önce ana sayfayı aç
   if (!document.getElementById(targetId)) {
-    // Ana sayfayı göster ve içerik yüklendikten sonra kaydır
     showContent('status');
     setTimeout(() => {
       const target = document.getElementById(targetId);
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 200);
   } else {
-    // Zaten ana sayfadaysak direkt kaydır
     document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
@@ -168,7 +165,7 @@ function showContent(section) {
   }
 }
 
-// ---------- ANA SAYFA (YENİ TASARIM) ----------
+// ---------- ANA SAYFA ----------
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
@@ -210,7 +207,6 @@ async function renderStatus() {
     </footer>
   `;
 
-  // Canlı durum güncellemesi
   async function updateStatus() {
     try {
       const res = await fetch('https://api.mcsrvstat.us/2/144.31.46.15:12443');
