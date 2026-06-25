@@ -1,31 +1,378 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TurboluMC - Resmi Web Sitesi</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <div class="bg-image"></div>
-    <div id="app">
-        <nav class="navbar">
-            <div class="logo" onclick="showContent('status')" style="cursor:pointer;">
-                <i class="fa-solid fa-cube"></i> TurboluMC
-            </div>
-            <ul class="nav-links">
-                <li><a href="#" onclick="showContent('status'); return false;">Anasayfa</a></li>
-                <li><a href="#" onclick="handleNavClick('features'); return false;">Özellikler</a></li>
-                <li><a href="#" onclick="handleNavClick('durum'); return false;">Sunucu Durumu</a></li>
-            </ul>
-            <div class="user-area" id="userArea"></div>
-        </nav>
-        <main id="content"></main>
-        <div id="modal" class="modal hidden">
-            <div class="modal-content" id="modalBody"></div>
-        </div>
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
+/* ========== ARKA PLAN & TEMEL DEĞİŞKENLER ========== */
+:root {
+  --bg: rgba(34, 197, 94, 0.12);
+  --surface: rgba(0, 0, 0, 0.45);
+  --text: #ffffff;
+  --text-secondary: rgba(255,255,255,0.8);
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --radius: 14px;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+body.light {
+  --bg: rgba(34, 197, 94, 0.08);
+  --surface: rgba(0, 0, 0, 0.35);
+  --text: #ffffff;
+  --text-secondary: rgba(255,255,255,0.85);
+  --accent: #4ade80;
+  --accent-hover: #22c55e;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+  margin: 0;
+  padding: 0;
+  background: #0f172a;
+}
+
+/* Arka plan resmi (oyuncu odası) */
+.bg-image {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url('https://images.unsplash.com/photo-1603481588273-2f908a9a7a1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  filter: brightness(0.6) blur(15px);
+  z-index: -1;
+  transition: filter var(--transition), background-image var(--transition);
+}
+/* Açık temada gündüz oyuncu odası */
+body.light .bg-image {
+  background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+  filter: brightness(1.0) blur(15px);
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  backdrop-filter: blur(3px);
+}
+
+/* ========== NAVBAR ========== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.light .navbar {
+  background: rgba(0, 0, 0, 0.3);
+}
+.logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+.nav-links a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  transition: color var(--transition), transform var(--transition);
+}
+.nav-links a:hover {
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+/* Kullanıcı Alanı */
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.user-area .btn-green {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  backdrop-filter: blur(10px);
+}
+.user-area .btn-green:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
+}
+.user-area button, .user-area .btn {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(15px);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all var(--transition);
+}
+.user-area button:hover, .user-area .btn:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+}
+.profile-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+  cursor: pointer;
+  transition: transform var(--transition);
+}
+.profile-icon:hover {
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* ========== HERO ========== */
+.hero {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.8), rgba(22, 163, 74, 0.8));
+  color: white;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.hero h1 { font-size: 2.5rem; margin-bottom: 1rem; position: relative; color: white; }
+.hero p { font-size: 1.2rem; opacity: 0.95; margin-bottom: 2rem; position: relative; color: white; }
+.ip-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(15px);
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-family: monospace;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  color: white;
+}
+.ip-box:hover {
+  background: rgba(0,0,0,0.6);
+  transform: scale(1.05);
+}
+.copy-btn {
+  background: white;
+  color: var(--accent-hover);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.copy-btn:hover {
+  background: #e2e8f0;
+  transform: scale(1.1);
+}
+.click-info { margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8; position: relative; color: white; }
+
+/* ========== ÖZELLİKLER ========== */
+.features {
+  padding: 3rem 2rem;
+  text-align: center;
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(25px);
+}
+.features h2 { font-size: 2rem; margin-bottom: 2rem; color: var(--accent); }
+.feature-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+.card {
+  background: var(--surface);
+  backdrop-filter: blur(25px);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 300px;
+  box-shadow: var(--shadow);
+  transition: all var(--transition);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: var(--text);
+}
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.card .icon { font-size: 2.5rem; color: var(--accent); margin-bottom: 1rem; }
+.card h3 { margin-bottom: 0.5rem; color: var(--text); }
+.card p { color: var(--text-secondary); }
+
+/* ========== SUNUCU DURUMU ========== */
+.status-section {
+  padding: 3rem 2rem;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(25px);
+  text-align: center;
+}
+.status-section h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent); }
+.status-card {
+  display: inline-block;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  font-size: 1.2rem;
+  transition: all var(--transition);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: var(--text);
+}
+.status-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+.status-info p { margin: 0.5rem 0; color: var(--text); }
+.status-info strong { color: var(--accent); }
+
+/* ========== MODAL ========== */
+.modal {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(30px);
+  padding: 2rem;
+  border-radius: var(--radius);
+  min-width: 350px;
+  max-width: 90%;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text);
+}
+
+/* ========== FORM ELEMANLARI ========== */
+input, textarea, select {
+  width: 100%;
+  padding: 12px 16px;
+  margin: 10px 0 18px;
+  border: 2px solid rgba(34, 197, 94, 0.5);
+  border-radius: 12px;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: all var(--transition);
+}
+input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.5); }
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.4);
+  background: rgba(0,0,0,0.6);
+}
+
+/* Modern buton stilleri */
+button, .btn, button[type="submit"], .btn-green, #authSubmit, #changePassBtn, #setAvatarBtn, #saveSettingsBtn, #cancelModal, #logoutBtn, .copy-btn, .server-ip button, .user-area button, nav button, .card button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  backdrop-filter: blur(10px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+button:hover, .btn:hover, button[type="submit"]:hover, .btn-green:hover, #authSubmit:hover, #changePassBtn:hover, #setAvatarBtn:hover, #saveSettingsBtn:hover, #cancelModal:hover, #logoutBtn:hover, .copy-btn:hover, .server-ip button:hover, .user-area button:hover, nav button:hover, .card button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+}
+button:active, .btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+#cancelModal, button[onclick*="closeModal"] {
+  background: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+#cancelModal:hover, button[onclick*="closeModal"]:hover {
+  background: rgba(239, 68, 68, 1);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5);
+}
+
+#logoutBtn {
+  background: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+#logoutBtn:hover {
+  background: rgba(239, 68, 68, 1);
+}
+
+/* ========== FOOTER ========== */
+.footer {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(15px);
+  color: var(--text);
+  margin-top: auto;
+}
+
+/* ========== OYUN KOLU İKONU ========== */
+.hero h1 .fa-gamepad {
+  font-size: 3rem;
+  margin-right: 15px;
+  animation: pulse 2s infinite;
+  vertical-align: middle;
+  color: white;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
