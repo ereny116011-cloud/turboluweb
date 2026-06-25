@@ -1,8 +1,9 @@
 /* ========== ARKA PLAN & TEMEL DEĞİŞKENLER ========== */
 :root {
-  --bg: rgba(34, 197, 94, 0.12);          /* çok hafif yeşil cam */
-  --surface: rgba(34, 197, 94, 0.18);     /* hafif yeşil cam */
-  --text: #f1f5f9;
+  --bg: rgba(34, 197, 94, 0.12);
+  --surface: rgba(0, 0, 0, 0.45);        /* koyu yüzey – beyaz yazı okunaklı */
+  --text: #ffffff;                        /* her zaman beyaz */
+  --text-secondary: rgba(255,255,255,0.8);
   --accent: #22c55e;
   --accent-hover: #16a34a;
   --radius: 14px;
@@ -10,12 +11,13 @@
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 body.light {
-  --bg: rgba(22, 163, 74, 0.08);
-  --surface: rgba(22, 163, 74, 0.12);
-  --text: #0f172a;
-  --accent: #16a34a;
-  --accent-hover: #15803d;
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --bg: rgba(34, 197, 94, 0.08);
+  --surface: rgba(0, 0, 0, 0.35);        /* açık temada da koyu yüzey – beyaz yazı okunaklı */
+  --text: #ffffff;                        /* beyaz yazı */
+  --text-secondary: rgba(255,255,255,0.85);
+  --accent: #4ade80;                      /* daha parlak yeşil */
+  --accent-hover: #22c55e;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,10 +28,10 @@ body {
   transition: background var(--transition), color var(--transition);
   margin: 0;
   padding: 0;
-  background: #0f172a; /* yedek */
+  background: #0f172a;
 }
 
-/* Arka plan resmi (oyuncu odası) – cam efekti için bol blur */
+/* Arka plan resmi (oyuncu odası) */
 .bg-image {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -37,8 +39,13 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  filter: brightness(0.6) blur(15px);   /* daha yumuşak ve renkli */
+  filter: brightness(0.6) blur(15px);
   z-index: -1;
+  transition: filter var(--transition);
+}
+/* Açık temada arka plan aydınlık olsun */
+body.light .bg-image {
+  filter: brightness(1.0) blur(15px);     /* daha parlak, canlı oda resmi */
 }
 
 #app {
@@ -56,7 +63,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: rgba(34, 197, 94, 0.25);   /* yeşil cam */
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(20px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   position: sticky;
@@ -64,7 +71,7 @@ body {
   z-index: 100;
 }
 .light .navbar {
-  background: rgba(22, 163, 74, 0.2);
+  background: rgba(0, 0, 0, 0.3);
 }
 .logo {
   font-size: 1.8rem;
@@ -114,7 +121,7 @@ body {
   box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
 }
 .user-area button, .user-area .btn {
-  background: rgba(34, 197, 94, 0.25);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(15px);
   color: var(--text);
   border: 1px solid var(--accent);
@@ -165,8 +172,8 @@ body {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-.hero h1 { font-size: 2.5rem; margin-bottom: 1rem; position: relative; }
-.hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; position: relative; }
+.hero h1 { font-size: 2.5rem; margin-bottom: 1rem; position: relative; color: white; }
+.hero p { font-size: 1.2rem; opacity: 0.95; margin-bottom: 2rem; position: relative; color: white; }
 .ip-box {
   display: inline-flex;
   align-items: center;
@@ -180,6 +187,7 @@ body {
   cursor: pointer;
   transition: all var(--transition);
   position: relative;
+  color: white;
 }
 .ip-box:hover {
   background: rgba(0,0,0,0.6);
@@ -199,13 +207,13 @@ body {
   background: #e2e8f0;
   transform: scale(1.1);
 }
-.click-info { margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8; position: relative; }
+.click-info { margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8; position: relative; color: white; }
 
 /* ========== ÖZELLİKLER ========== */
 .features {
   padding: 3rem 2rem;
   text-align: center;
-  background: var(--bg);
+  background: rgba(0,0,0,0.2);
   backdrop-filter: blur(25px);
 }
 .features h2 { font-size: 2rem; margin-bottom: 2rem; color: var(--accent); }
@@ -224,25 +232,27 @@ body {
   box-shadow: var(--shadow);
   transition: all var(--transition);
   border: 1px solid rgba(34, 197, 94, 0.3);
+  color: var(--text);
 }
 .card:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 0 20px 50px rgba(0,0,0,0.6);
 }
 .card .icon { font-size: 2.5rem; color: var(--accent); margin-bottom: 1rem; }
-.card h3 { margin-bottom: 0.5rem; }
+.card h3 { margin-bottom: 0.5rem; color: var(--text); }
+.card p { color: var(--text-secondary); }
 
 /* ========== SUNUCU DURUMU ========== */
 .status-section {
   padding: 3rem 2rem;
-  background: var(--surface);
+  background: rgba(0,0,0,0.25);
   backdrop-filter: blur(25px);
   text-align: center;
 }
 .status-section h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent); }
 .status-card {
   display: inline-block;
-  background: rgba(34, 197, 94, 0.2);
+  background: rgba(0,0,0,0.35);
   backdrop-filter: blur(20px);
   border-radius: var(--radius);
   padding: 2rem;
@@ -250,31 +260,34 @@ body {
   font-size: 1.2rem;
   transition: all var(--transition);
   border: 1px solid rgba(34, 197, 94, 0.4);
+  color: var(--text);
 }
 .status-card:hover {
   transform: scale(1.02);
   box-shadow: 0 15px 40px rgba(0,0,0,0.5);
 }
-.status-info p { margin: 0.5rem 0; }
+.status-info p { margin: 0.5rem 0; color: var(--text); }
+.status-info strong { color: var(--accent); }
 
 /* ========== MODAL ========== */
 .modal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
   backdrop-filter: blur(8px);
   display: flex; align-items: center; justify-content: center;
   z-index: 1000;
 }
 .modal.hidden { display: none; }
 .modal-content {
-  background: rgba(34, 197, 94, 0.2);
+  background: rgba(0,0,0,0.55);
   backdrop-filter: blur(30px);
   padding: 2rem;
   border-radius: var(--radius);
   min-width: 350px;
   max-width: 90%;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text);
 }
 
 /* ========== FORM ELEMANLARI ========== */
@@ -284,20 +297,21 @@ input, textarea, select {
   margin: 10px 0 18px;
   border: 2px solid rgba(34, 197, 94, 0.5);
   border-radius: 12px;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0,0,0,0.4);
   backdrop-filter: blur(10px);
   color: var(--text);
   font-size: 1rem;
   outline: none;
   transition: all var(--transition);
 }
+input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.5); }
 input:focus, textarea:focus, select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.4);
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
 }
 
-/* Modern buton stilleri – tüm sayfadaki butonları kapsar */
+/* Modern buton stilleri */
 button, .btn, button[type="submit"], .btn-green, #authSubmit, #changePassBtn, #setAvatarBtn, #saveSettingsBtn, #cancelModal, #logoutBtn, .copy-btn, .server-ip button, .user-area button, nav button, .card button {
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: white;
@@ -321,7 +335,6 @@ button:active, .btn:active {
   transform: translateY(0) scale(0.98);
 }
 
-/* İptal/Vazgeç butonları için alternatif stil */
 #cancelModal, button[onclick*="closeModal"] {
   background: rgba(239, 68, 68, 0.8);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
@@ -331,7 +344,6 @@ button:active, .btn:active {
   box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5);
 }
 
-/* Çıkış butonu */
 #logoutBtn {
   background: rgba(239, 68, 68, 0.8);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
@@ -344,7 +356,7 @@ button:active, .btn:active {
 .footer {
   text-align: center;
   padding: 2rem;
-  background: rgba(34, 197, 94, 0.2);
+  background: rgba(0,0,0,0.4);
   backdrop-filter: blur(15px);
   color: var(--text);
   margin-top: auto;
@@ -356,6 +368,7 @@ button:active, .btn:active {
   margin-right: 15px;
   animation: pulse 2s infinite;
   vertical-align: middle;
+  color: white;
 }
 @keyframes pulse {
   0% { transform: scale(1); }
