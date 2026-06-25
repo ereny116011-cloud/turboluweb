@@ -1,7 +1,7 @@
 /* ========== ARKA PLAN & TEMEL DEĞİŞKENLER ========== */
 :root {
-  --bg: rgba(15, 23, 42, 0.55);          /* daha saydam */
-  --surface: rgba(30, 41, 59, 0.5);      /* daha saydam */
+  --bg: rgba(34, 197, 94, 0.12);          /* çok hafif yeşil cam */
+  --surface: rgba(34, 197, 94, 0.18);     /* hafif yeşil cam */
   --text: #f1f5f9;
   --accent: #22c55e;
   --accent-hover: #16a34a;
@@ -10,8 +10,8 @@
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 body.light {
-  --bg: rgba(248, 250, 252, 0.55);
-  --surface: rgba(255, 255, 255, 0.5);
+  --bg: rgba(22, 163, 74, 0.08);
+  --surface: rgba(22, 163, 74, 0.12);
   --text: #0f172a;
   --accent: #16a34a;
   --accent-hover: #15803d;
@@ -26,10 +26,10 @@ body {
   transition: background var(--transition), color var(--transition);
   margin: 0;
   padding: 0;
-  background: #0f172a; /* yedek renk */
+  background: #0f172a; /* yedek */
 }
 
-/* Arka plan resmi (oyuncu odası) – bulanıklık artırıldı */
+/* Arka plan resmi (oyuncu odası) – cam efekti için bol blur */
 .bg-image {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -37,7 +37,7 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  filter: brightness(0.4) blur(12px);   /* daha fazla bulanıklık, daha sanatsal */
+  filter: brightness(0.6) blur(15px);   /* daha yumuşak ve renkli */
   z-index: -1;
 }
 
@@ -47,7 +47,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(3px);
 }
 
 /* ========== NAVBAR ========== */
@@ -56,7 +56,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: rgba(15, 23, 42, 0.5);    /* daha saydam */
+  background: rgba(34, 197, 94, 0.25);   /* yeşil cam */
   backdrop-filter: blur(20px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   position: sticky;
@@ -64,7 +64,7 @@ body {
   z-index: 100;
 }
 .light .navbar {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(22, 163, 74, 0.2);
 }
 .logo {
   font-size: 1.8rem;
@@ -114,7 +114,7 @@ body {
   box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
 }
 .user-area button, .user-area .btn {
-  background: rgba(30, 41, 59, 0.4);
+  background: rgba(34, 197, 94, 0.25);
   backdrop-filter: blur(15px);
   color: var(--text);
   border: 1px solid var(--accent);
@@ -147,7 +147,7 @@ body {
 .hero {
   text-align: center;
   padding: 4rem 2rem;
-  background: linear-gradient(145deg, rgba(34, 197, 94, 0.85), rgba(22, 163, 74, 0.85));
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.8), rgba(22, 163, 74, 0.8));
   color: white;
   position: relative;
   overflow: hidden;
@@ -171,7 +171,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.4);
   backdrop-filter: blur(15px);
   padding: 12px 24px;
   border-radius: 50px;
@@ -182,7 +182,7 @@ body {
   position: relative;
 }
 .ip-box:hover {
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.6);
   transform: scale(1.05);
 }
 .copy-btn {
@@ -206,7 +206,7 @@ body {
   padding: 3rem 2rem;
   text-align: center;
   background: var(--bg);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(25px);
 }
 .features h2 { font-size: 2rem; margin-bottom: 2rem; color: var(--accent); }
 .feature-cards {
@@ -217,13 +217,13 @@ body {
 }
 .card {
   background: var(--surface);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(25px);
   border-radius: var(--radius);
   padding: 2rem;
   max-width: 300px;
   box-shadow: var(--shadow);
   transition: all var(--transition);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 .card:hover {
   transform: translateY(-8px) scale(1.02);
@@ -236,20 +236,20 @@ body {
 .status-section {
   padding: 3rem 2rem;
   background: var(--surface);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(25px);
   text-align: center;
 }
 .status-section h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent); }
 .status-card {
   display: inline-block;
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(15px);
+  background: rgba(34, 197, 94, 0.2);
+  backdrop-filter: blur(20px);
   border-radius: var(--radius);
   padding: 2rem;
   box-shadow: var(--shadow);
   font-size: 1.2rem;
   transition: all var(--transition);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(34, 197, 94, 0.4);
 }
 .status-card:hover {
   transform: scale(1.02);
@@ -260,15 +260,15 @@ body {
 /* ========== MODAL ========== */
 .modal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.5);
   backdrop-filter: blur(8px);
   display: flex; align-items: center; justify-content: center;
   z-index: 1000;
 }
 .modal.hidden { display: none; }
 .modal-content {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(25px);
+  background: rgba(34, 197, 94, 0.2);
+  backdrop-filter: blur(30px);
   padding: 2rem;
   border-radius: var(--radius);
   min-width: 350px;
@@ -284,7 +284,7 @@ input, textarea, select {
   margin: 10px 0 18px;
   border: 2px solid rgba(34, 197, 94, 0.5);
   border-radius: 12px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.3);
   backdrop-filter: blur(10px);
   color: var(--text);
   font-size: 1rem;
@@ -294,7 +294,7 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.4);
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.5);
 }
 
 /* Modern buton stilleri – tüm sayfadaki butonları kapsar */
@@ -321,7 +321,7 @@ button:active, .btn:active {
   transform: translateY(0) scale(0.98);
 }
 
-/* İptal/Vazgeç butonları için alternatif stil (modal kapatma) */
+/* İptal/Vazgeç butonları için alternatif stil */
 #cancelModal, button[onclick*="closeModal"] {
   background: rgba(239, 68, 68, 0.8);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
@@ -344,7 +344,7 @@ button:active, .btn:active {
 .footer {
   text-align: center;
   padding: 2rem;
-  background: rgba(0,0,0,0.5);
+  background: rgba(34, 197, 94, 0.2);
   backdrop-filter: blur(15px);
   color: var(--text);
   margin-top: auto;
