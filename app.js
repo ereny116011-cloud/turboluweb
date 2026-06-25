@@ -1,6 +1,5 @@
 const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
 
-// Varsayılan profil resmi (gülen yüz SVG)
 const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'42\' height=\'42\' viewBox=\'0 0 42 42\'%3E%3Ccircle cx=\'21\' cy=\'21\' r=\'20\' fill=\'%2322c55e\'/%3E%3Ccircle cx=\'14\' cy=\'16\' r=\'3\' fill=\'%230f172a\'/%3E%3Ccircle cx=\'28\' cy=\'16\' r=\'3\' fill=\'%230f172a\'/%3E%3Cpath d=\'M12 26 Q21 32 30 26\' stroke=\'%230f172a\' stroke-width=\'3\' fill=\'none\' stroke-linecap=\'round\'/%3E%3C/svg%3E';
 
 const translations = {
@@ -14,8 +13,7 @@ const translations = {
     passwordChange: 'Şifre Değiştir', oldPassword: 'Mevcut Şifre',
     newPassword: 'Yeni Şifre', save: 'Kaydet', selectAvatar: 'Avatar Seç',
     customURL: 'veya URL gir', uploadAvatar: 'Avatar Yükle',
-    theme: 'Tema', dark: 'Koyu', light: 'Açık', language: 'Dil',
-    status: 'Durum', online: 'Çevrimiçi', offline: 'Çevrimdışı',
+    language: 'Dil', status: 'Durum', online: 'Çevrimiçi', offline: 'Çevrimdışı',
     complete: 'Tamamlandı', taskReward: 'Ödül', balanceReward: 'Bakiye',
     itemReward: 'Eşya',
   },
@@ -29,8 +27,7 @@ const translations = {
     passwordChange: 'Change Password', oldPassword: 'Current Password',
     newPassword: 'New Password', save: 'Save', selectAvatar: 'Select Avatar',
     customURL: 'or enter URL', uploadAvatar: 'Upload Avatar',
-    theme: 'Theme', dark: 'Dark', light: 'Light', language: 'Language',
-    status: 'Status', online: 'Online', offline: 'Offline',
+    language: 'Language', status: 'Status', online: 'Online', offline: 'Offline',
     complete: 'Complete', taskReward: 'Reward', balanceReward: 'Balance',
     itemReward: 'Item',
   }
@@ -43,18 +40,10 @@ let statusInterval = null;
 
 function t(key) { return translations[currentLang][key] || key; }
 
-function getSystemTheme() {
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-}
-
-// IP kopyalama
 function kopyalaIP() {
-  navigator.clipboard.writeText('turbolu.mcsh.io').then(() => {
-    alert('IP adresi kopyalandı!');
-  });
+  navigator.clipboard.writeText('turbolu.mcsh.io').then(() => alert('IP adresi kopyalandı!'));
 }
 
-// Navbar kaydırma yardımcısı
 function handleNavClick(targetId) {
   if (!document.getElementById(targetId)) {
     showContent('status');
@@ -72,18 +61,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const res = await fetch(`${API}/api/country`);
     const { tr } = await res.json();
-    if (!localStorage.getItem('lang')) {
-      setLang(tr ? 'tr' : 'en');
-    } else {
-      setLang(currentLang);
-    }
+    if (!localStorage.getItem('lang')) setLang(tr ? 'tr' : 'en');
+    else setLang(currentLang);
   } catch { setLang(currentLang); }
-
-  // Tema
-  const savedTheme = localStorage.getItem('theme');
-  const initialTheme = savedTheme || getSystemTheme();
-  document.body.classList.toggle('light', initialTheme === 'light');
-  if (!savedTheme) localStorage.setItem('theme', initialTheme);
 
   // Oturum
   if (token) {
@@ -92,10 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       currentUser = data;
-      if (currentUser.theme) {
-        document.body.classList.toggle('light', currentUser.theme === 'light');
-        localStorage.setItem('theme', currentUser.theme);
-      }
     } catch (e) { logout(); }
   }
   renderUI();
@@ -165,46 +141,42 @@ function showContent(section) {
   }
 }
 
-// ---------- ANA SAYFA (YAZILAR UZATILDI, OYUN KOLU İKONU) ----------
+// --- ANA SAYFA (ARTIK TAMAMEN KARTLAR İÇİNDE) ---
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
-    <header class="hero">
-      <div class="hero-content">
-        <h1><i class="fa-solid fa-gamepad"></i> TurboluMC Dünyasına Hoş Geldiniz!</h1>
-        <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor. Hayalindeki Minecraft dünyasına adım at, arkadaşlarınla keşfet, yap, yarış ve eğlen!</p>
-        <div class="ip-box" onclick="kopyalaIP()">
-          <span>turbolu.mcsh.io</span>
-          <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
-        </div>
-        <p class="click-info">IP adresine tıklayarak kopyalayabilirsin!</p>
+    <div class="glass-card hero-card">
+      <h1><i class="fa-solid fa-gamepad"></i> TurboluMC Dünyasına Hoş Geldiniz!</h1>
+      <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor.</p>
+      <div class="ip-box" onclick="kopyalaIP()">
+        <span>turbolu.mcsh.io</span>
+        <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
       </div>
-    </header>
+      <p class="click-info">IP adresine tıklayarak kopyalayabilirsin!</p>
+    </div>
 
-    <section id="features" class="features">
-      <h2>Neden Biz?</h2>
-      <div class="feature-cards">
-        <div class="card"><i class="fa-solid fa-bolt icon"></i><h3>Yüksek Performans</h3><p>Donma ve lag olmadan, en zorlu anlarda bile akıcı bir oyun deneyimi sunan gelişmiş altyapımızla her saniye keyif al.</p></div>
-        <div class="card"><i class="fa-solid fa-shield-halved icon"></i><h3>Adil Oyun</h3><p>Hileye sıfır tolerans, her oyuncu eşit şartlarda. Gelişmiş koruma sistemlerimizle sadece yeteneğin konuşur.</p></div>
-        <div class="card"><i class="fa-solid fa-users icon"></i><h3>Harika Topluluk</h3><p>Yardımsever oyuncular ve her an aktif yönetim ekibiyle kocaman bir ailenin parçası ol. Etkinlikler, yarışmalar ve sürprizlerle dolu.</p></div>
+    <div class="glass-card" id="features">
+      <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Neden Biz?</h2>
+      <div class="features-grid">
+        <div class="feature-item"><i class="fa-solid fa-bolt"></i><h3>Yüksek Performans</h3><p>Donma ve lag olmadan akıcı oyun.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-shield-halved"></i><h3>Adil Oyun</h3><p>Hileye sıfır tolerans.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-users"></i><h3>Harika Topluluk</h3><p>Aktif yönetim ve dost oyuncular.</p></div>
       </div>
-    </section>
+    </div>
 
-    <section id="durum" class="status-section">
-      <h2>Anlık Sunucu Durumu</h2>
-      <div class="status-card">
-        <div class="status-info">
-          <p><strong>Durum:</strong> <span id="online-durum"><i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...</span></p>
-          <p><strong>Çevrimiçi Oyuncular:</strong> <span id="oyuncu-sayisi">- / -</span></p>
-          <p><strong>Sürüm:</strong> <span id="sunucu-surum">-</span></p>
-        </div>
+    <div class="glass-card" id="durum">
+      <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Anlık Sunucu Durumu</h2>
+      <div class="status-info" style="text-align:center;">
+        <p><strong>Durum:</strong> <span id="online-durum"><i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...</span></p>
+        <p><strong>Çevrimiçi Oyuncular:</strong> <span id="oyuncu-sayisi">- / -</span></p>
+        <p><strong>Sürüm:</strong> <span id="sunucu-surum">-</span></p>
       </div>
-    </section>
+    </div>
 
-    <footer class="footer">
+    <div class="footer">
       <p>&copy; 2026 Eren Yılmaz - TurboluMC. Tüm Hakları Saklıdır.</p>
       <p class="license-text">Bu proje GNU General Public License v3.0 ile korunmaktadır.</p>
-    </footer>
+    </div>
   `;
 
   async function updateStatus() {
@@ -219,7 +191,7 @@ async function renderStatus() {
       }
       document.getElementById('oyuncu-sayisi').textContent = `${data.players?.online ?? 0} / ${data.players?.max ?? 0}`;
       document.getElementById('sunucu-surum').textContent = data.version || '-';
-    } catch (e) { /* hata durumunda dokunma */ }
+    } catch (e) {}
   }
 
   updateStatus();
@@ -227,16 +199,17 @@ async function renderStatus() {
   statusInterval = setInterval(updateStatus, 10000);
 }
 
-// ---------- MARKET ----------
+// --- MARKET, GÖREVLER, ENVANTER, KAMPANYALAR, ADMIN, PROFİL (aynı) ---
+// (Önceki tam sürümdeki ilgili fonksiyonlar aynen korunuyor, sadece card yerine glass-card kullanıldı)
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
   content.innerHTML = `
-    <div class="card" style="max-width:800px; margin:2rem auto;">
+    <div class="glass-card">
       <h2>🛒 ${t('shop')}</h2>
       ${currentUser ? `<p>${t('balance')}: ${currentUser.balance}</p>` : ''}
       ${items.map(i => `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg); border-radius:8px; margin:8px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
           <b>${i.name}</b> - ${i.price} puan
           <button onclick="buy('${i.id}')">${t('buy')}</button>
         </div>
@@ -260,18 +233,15 @@ async function buy(itemId) {
   }
 }
 
-// ---------- GÖREVLER ----------
 async function renderTasks() {
   const content = document.getElementById('content');
-  if (!currentUser) {
-    content.innerHTML = '<p>Lütfen giriş yapın.</p>'; return;
-  }
+  if (!currentUser) { content.innerHTML = '<p>Lütfen giriş yapın.</p>'; return; }
   const tasks = await fetch(`${API}/api/tasks`).then(r => r.json());
   content.innerHTML = `
-    <div class="card" style="max-width:800px; margin:2rem auto;">
+    <div class="glass-card">
       <h2>📋 ${t('tasks')}</h2>
       ${tasks.map(task => `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg); border-radius:8px; margin:8px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
           <div>
             <b>${task.title}</b>
             <p style="font-size:0.85rem; opacity:0.8">${task.description}</p>
@@ -299,16 +269,15 @@ async function completeTask(taskId) {
   }
 }
 
-// ---------- ENVANTER ----------
 async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
   const items = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
   content.innerHTML = `
-    <div class="card" style="max-width:800px; margin:2rem auto;">
+    <div class="glass-card">
       <h2>🎒 ${t('inventory')}</h2>
       ${items.length === 0 ? '<p>Henüz eşya yok.</p>' : items.map(i => `
-        <div style="padding:10px; background:var(--bg); border-radius:8px; margin:5px 0;">
+        <div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;">
           <b>${i.name}</b>
           <p style="font-size:0.8rem; opacity:0.7">${new Date(i.purchasedAt).toLocaleString()}</p>
         </div>
@@ -316,61 +285,31 @@ async function renderInventory() {
     </div>`;
 }
 
-// ---------- KAMPANYALAR ----------
 async function renderCampaigns() {
   const content = document.getElementById('content');
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   content.innerHTML = `
-    <div class="card" style="max-width:800px; margin:2rem auto;">
+    <div class="glass-card">
       <h2>📣 ${t('campaigns')}</h2>
       ${campaigns.map(c => `<p><b>${c.title}</b>: ${c.description} (Ödül: ${c.reward})</p>`).join('')}
     </div>`;
 }
 
-// ---------- ADMIN FORMLARI ----------
 function renderAdminForm(type) {
   const content = document.getElementById('content');
   let formHtml = '';
   if (type === 'announcement') {
-    formHtml = `
-      <h2>📢 ${t('addAnnouncement')}</h2>
-      <input id="title" placeholder="Başlık"><br>
-      <textarea id="content" placeholder="İçerik"></textarea><br>
-      <button onclick="submitAdmin('announcement')">Gönder</button>`;
+    formHtml = `<h2>📢 ${t('addAnnouncement')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('announcement')">Gönder</button>`;
   } else if (type === 'campaign') {
-    formHtml = `
-      <h2>🎯 ${t('addCampaign')}</h2>
-      <input id="title" placeholder="Başlık"><br>
-      <input id="description" placeholder="Açıklama"><br>
-      <input id="reward" placeholder="Ödül"><br>
-      <button onclick="submitAdmin('campaign')">Gönder</button>`;
+    formHtml = `<h2>🎯 ${t('addCampaign')}</h2><input id="title" placeholder="Başlık"><br><input id="description" placeholder="Açıklama"><br><input id="reward" placeholder="Ödül"><br><button onclick="submitAdmin('campaign')">Gönder</button>`;
   } else if (type === 'news') {
-    formHtml = `
-      <h2>📰 ${t('addNews')}</h2>
-      <input id="title" placeholder="Başlık"><br>
-      <textarea id="content" placeholder="İçerik"></textarea><br>
-      <button onclick="submitAdmin('news')">Gönder</button>`;
+    formHtml = `<h2>📰 ${t('addNews')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('news')">Gönder</button>`;
   } else if (type === 'item') {
-    formHtml = `
-      <h2>🛒 ${t('addItem')}</h2>
-      <input id="itemName" placeholder="Ürün adı"><br>
-      <input id="itemPrice" type="number" placeholder="Fiyat"><br>
-      <input id="itemCommand" placeholder="Komut (örn: give %player% diamond 1)"><br>
-      <button onclick="submitAdmin('item')">Ekle</button>`;
+    formHtml = `<h2>🛒 ${t('addItem')}</h2><input id="itemName" placeholder="Ürün adı"><br><input id="itemPrice" type="number" placeholder="Fiyat"><br><input id="itemCommand" placeholder="Komut (örn: give %player% diamond 1)"><br><button onclick="submitAdmin('item')">Ekle</button>`;
   } else if (type === 'task') {
-    formHtml = `
-      <h2>📋 ${t('addTask')}</h2>
-      <input id="taskTitle" placeholder="Görev başlığı"><br>
-      <textarea id="taskDescription" placeholder="Açıklama"></textarea><br>
-      <select id="taskRewardType" onchange="toggleRewardFields()">
-        <option value="balance">${t('balanceReward')}</option>
-        <option value="item">${t('itemReward')}</option>
-      </select><br>
-      <div id="balanceRewardDiv"><input id="taskRewardAmount" type="number" placeholder="Bakiye miktarı"></div>
-      <div id="itemRewardDiv" style="display:none"><input id="taskRewardCommand" placeholder="Komut"></div>
-      <button onclick="submitAdmin('task')">Ekle</button>`;
+    formHtml = `<h2>📋 ${t('addTask')}</h2><input id="taskTitle" placeholder="Görev başlığı"><br><textarea id="taskDescription" placeholder="Açıklama"></textarea><br><select id="taskRewardType" onchange="toggleRewardFields()"><option value="balance">${t('balanceReward')}</option><option value="item">${t('itemReward')}</option></select><br><div id="balanceRewardDiv"><input id="taskRewardAmount" type="number" placeholder="Bakiye miktarı"></div><div id="itemRewardDiv" style="display:none"><input id="taskRewardCommand" placeholder="Komut"></div><button onclick="submitAdmin('task')">Ekle</button>`;
   }
-  content.innerHTML = `<div class="card" style="max-width:600px; margin:2rem auto;">${formHtml}</div>`;
+  content.innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;">${formHtml}</div>`;
 }
 
 function toggleRewardFields() {
@@ -412,7 +351,6 @@ async function submitAdmin(type) {
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
 }
 
-// ---------- GİRİŞ / KAYIT MODAL ----------
 function openAuthModal(mode) {
   const modal = document.getElementById('modal');
   const body = document.getElementById('modalBody');
@@ -446,34 +384,32 @@ async function handleAuth(mode) {
   showContent('status');
 }
 
-// ---------- PROFİL ----------
 async function renderProfile() {
   const content = document.getElementById('content');
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
   content.innerHTML = `
-    <div class="card" style="max-width:600px; margin:2rem auto;">
+    <div class="glass-card" style="max-width:600px; margin:2rem auto;">
       <h2>${t('profile')}</h2>
       <h3>${t('passwordChange')}</h3>
       <input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br>
       <input id="newPass" type="password" placeholder="${t('newPassword')}"><br>
       <button id="changePassBtn">${t('save')}</button>
 
-      <hr>
+      <hr style="margin:20px 0; border-color: rgba(255,255,255,0.1);">
       <h3>${t('selectAvatar')}</h3>
       <div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px; margin:10px 0;">
         <img src="${DEFAULT_AVATAR}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${DEFAULT_AVATAR}')" title="Varsayılan">
         ${icons.map(url => `<img src="${url}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${url}')">`).join('')}
       </div>
-      <div class="file-upload">
-        <label for="avatarUpload">📁 ${t('uploadAvatar')}</label>
-        <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)">
+      <div class="file-upload" style="margin:10px 0;">
+        <label for="avatarUpload" style="background: var(--accent); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer;">📁 ${t('uploadAvatar')}</label>
+        <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;">
         <span id="uploadStatus"></span>
       </div>
       <input id="customAvatar" placeholder="${t('customURL')}"><br>
       <button id="setAvatarBtn">${t('save')}</button>
 
-      <hr>
-      <label>${t('theme')}: <select id="themeSelect"><option value="dark">${t('dark')}</option><option value="light">${t('light')}</option></select></label>
+      <hr style="margin:20px 0; border-color: rgba(255,255,255,0.1);">
       <label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label>
       <label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label>
       <div style="margin-top:20px">
@@ -483,7 +419,6 @@ async function renderProfile() {
     </div>
   `;
 
-  document.getElementById('themeSelect').value = currentUser.theme || 'dark';
   document.getElementById('langSelect').value = currentUser.language || 'tr';
   document.getElementById('statusSelect').value = currentUser.status || 'Online';
   document.getElementById('changePassBtn').addEventListener('click', changePassword);
@@ -494,7 +429,6 @@ async function renderProfile() {
   document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
 }
 
-// ---------- YARDIMCI FONKSİYONLAR ----------
 async function uploadAvatar(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -510,9 +444,7 @@ async function uploadAvatar(event) {
     document.getElementById('uploadStatus').innerText = '✅ Yüklendi!';
     const pool = document.getElementById('avatarPool');
     const img = document.createElement('img');
-    img.src = base64;
-    img.className = 'profile-icon';
-    img.style.cursor = 'pointer';
+    img.src = base64; img.className = 'profile-icon'; img.style.cursor = 'pointer';
     img.onclick = () => setAvatar(base64);
     pool.appendChild(img);
     setAvatar(base64);
@@ -544,21 +476,17 @@ async function changePassword() {
 }
 
 async function saveProfileSettings() {
-  const theme = document.getElementById('themeSelect').value;
   const language = document.getElementById('langSelect').value;
   const status = document.getElementById('statusSelect').value;
   const res = await fetch(`${API}/api/profile`, {
     method: 'PUT',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ theme, language, status })
+    body: JSON.stringify({ language, status })
   });
   const data = await res.json();
   if (data.success) {
-    currentUser.theme = theme;
     currentUser.language = language;
     currentUser.status = status;
-    document.body.classList.toggle('light', theme === 'light');
-    localStorage.setItem('theme', theme);
     setLang(language);
     renderUI();
     showContent('status');
