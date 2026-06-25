@@ -137,10 +137,18 @@ body {
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
   border: 1px solid rgba(34, 197, 94, 0.4);
 }
-.hero-card h1 { font-size: 2.5rem; margin-bottom: 1rem; color: white; }
+.hero-card h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: white;
+}
 .hero-card h1 .fa-gamepad {
   font-size: 3rem;
-  margin-right: 15px;
   animation: pulse 2s infinite;
   vertical-align: middle;
   color: var(--accent);
@@ -151,6 +159,8 @@ body {
   100% { transform: scale(1); }
 }
 .hero-card p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; color: var(--text-secondary); }
+
+/* IP kutusu ve arkasındaki dönen şekil */
 .ip-box {
   display: inline-flex;
   align-items: center;
@@ -164,6 +174,26 @@ body {
   cursor: pointer;
   transition: all var(--transition);
   color: white;
+  position: relative;
+}
+.ip-box::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130px;
+  height: 130px;
+  margin-top: -65px;
+  margin-left: -65px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--accent), transparent 60%, var(--accent));
+  animation: spin 4s linear infinite;
+  z-index: -1;
+  opacity: 0.4;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 .ip-box:hover { background: rgba(0,0,0,0.7); transform: scale(1.05); }
 .copy-btn {
