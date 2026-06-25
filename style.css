@@ -115,7 +115,7 @@ body {
 }
 .profile-icon:hover { transform: scale(1.15) rotate(5deg); }
 
-/* ========== ANA İÇERİK KARTLARI (HER SAYFA İÇİN) ========== */
+/* ========== ANA İÇERİK KARTLARI ========== */
 .glass-card {
   background: var(--surface);
   backdrop-filter: blur(20px);
@@ -131,12 +131,34 @@ body {
   box-shadow: 0 12px 40px rgba(0,0,0,0.7);
 }
 
-/* ========== HERO – ANA BAŞLIK KARTI ========== */
+/* ========== HERO – BAŞLIK KARTI (ARKASINDA DÖNEN DİKDÖRTGEN EFEKT) ========== */
 .hero-card {
   text-align: center;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
   border: 1px solid rgba(34, 197, 94, 0.4);
+  position: relative;
+  overflow: hidden;
 }
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(34, 197, 94, 0.15), transparent 60%);
+  animation: spin 6s linear infinite;
+  z-index: 0;
+}
+.hero-card > * {
+  position: relative;
+  z-index: 1;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .hero-card h1 {
   display: flex;
   align-items: center;
@@ -160,7 +182,7 @@ body {
 }
 .hero-card p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; color: var(--text-secondary); }
 
-/* IP kutusu ve arkasındaki dönen şekil */
+/* IP kutusu (dönen efekt YOK) */
 .ip-box {
   display: inline-flex;
   align-items: center;
@@ -174,26 +196,6 @@ body {
   cursor: pointer;
   transition: all var(--transition);
   color: white;
-  position: relative;
-}
-.ip-box::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 130px;
-  height: 130px;
-  margin-top: -65px;
-  margin-left: -65px;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, var(--accent), transparent 60%, var(--accent));
-  animation: spin 4s linear infinite;
-  z-index: -1;
-  opacity: 0.4;
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 .ip-box:hover { background: rgba(0,0,0,0.7); transform: scale(1.05); }
 .copy-btn {
