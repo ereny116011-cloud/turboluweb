@@ -8,10 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Arka plan katmanı (bulanık oyuncu odası) -->
     <div class="bg-image"></div>
-
-    <!-- Ana kapsayıcı (içerik burada olacak) -->
     <div id="app">
         <nav class="navbar">
             <div class="logo" onclick="showContent('status')" style="cursor:pointer;">
@@ -24,14 +21,11 @@
             </ul>
             <div class="user-area" id="userArea"></div>
         </nav>
-
         <main id="content"></main>
-
         <div id="modal" class="modal hidden">
             <div class="modal-content" id="modalBody"></div>
         </div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
