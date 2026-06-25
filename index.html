@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TurboluMC - Resmi Web Sitesi</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurboluMC - Resmi Web Sitesi</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome İkonları için -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div id="app">
+
     <!-- Üst Menü (Navbar) -->
     <nav class="navbar">
-      <div class="logo" onclick="showContent('status')" style="cursor:pointer;">
-        <i class="fa-solid fa-cube"></i> TurboluMC
-      </div>
-      <ul class="nav-links">
-        <li><a href="#anasayfa" onclick="showContent('status'); return false;">Anasayfa</a></li>
-        <li><a href="#ozellikler" onclick="document.getElementById('ozellikler').scrollIntoView(); return false;">Özellikler</a></li>
-        <li><a href="#durum" onclick="document.getElementById('durum').scrollIntoView(); return false;">Sunucu Durumu</a></li>
-      </ul>
-      <!-- Dinamik kullanıcı alanı (giriş/kayıt veya profil) -->
-      <div class="user-area" id="userArea"></div>
+        <div class="logo" onclick="showContent('status')" style="cursor:pointer;">
+            <i class="fa-solid fa-cube"></i> TurboluMC
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" onclick="showContent('status'); return false;">Anasayfa</a></li>
+            <li><a href="#" onclick="handleNavClick('features'); return false;">Özellikler</a></li>
+            <li><a href="#" onclick="handleNavClick('durum'); return false;">Sunucu Durumu</a></li>
+        </ul>
+        <!-- Dinamik kullanıcı alanı (giriş/kayıt veya profil) -->
+        <div class="user-area" id="userArea"></div>
     </nav>
 
     <!-- İçerik alanı (SPA) -->
@@ -30,8 +31,7 @@
     <div id="modal" class="modal hidden">
       <div class="modal-content" id="modalBody"></div>
     </div>
-  </div>
 
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
