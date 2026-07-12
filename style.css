@@ -31,22 +31,79 @@ body {
   display: flex; flex-direction: column; min-height: 100vh;
 }
 
-/* Navbar */
+/* ========== NAVBAR – TEK SATIR ========== */
 .navbar {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 0.8rem 1.5rem;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(25px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(25px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  position: sticky; top: 0; z-index: 100;
-  flex-wrap: wrap; gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: nowrap;           /* tek satıra zorla */
+  gap: 5px;
 }
 .logo {
-  font-size: 1.5rem; font-weight: bold; color: var(--accent);
-  display: flex; align-items: center; gap: 10px; cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
 }
-.user-area { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
 
-/* İçerik kartları */
+/* Butonlar – daha kompakt */
+.user-area button,
+.user-area .btn,
+button, .btn, .btn-green, #authSubmit, #changePassBtn, #setAvatarBtn, #saveSettingsBtn, #cancelModal, #logoutBtn, .copy-btn, nav button, .glass-card button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all var(--transition);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  backdrop-filter: blur(10px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+button:hover, .btn:hover, .btn-green:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
+}
+button:active { transform: translateY(0) scale(0.98); }
+
+#cancelModal, button[onclick*="closeModal"] {
+  background: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+#cancelModal:hover { background: rgba(239, 68, 68, 1); }
+#logoutBtn { background: rgba(239, 68, 68, 0.8); }
+#logoutBtn:hover { background: rgba(239, 68, 68, 1); }
+
+/* Profil simgesi */
+.profile-icon {
+  width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
+  border: 2px solid var(--accent); cursor: pointer; transition: transform var(--transition);
+}
+.profile-icon:hover { transform: scale(1.15) rotate(5deg); }
+
+/* ========== İÇERİK KARTLARI ========== */
 .glass-card {
   background: var(--surface); backdrop-filter: blur(20px);
   border-radius: var(--radius); padding: 1.5rem;
@@ -143,49 +200,30 @@ input:focus, textarea:focus, select:focus {
   background: rgba(0,0,0,0.7);
 }
 
-button, .btn, .btn-green, #authSubmit, #changePassBtn, #setAvatarBtn, #saveSettingsBtn, #cancelModal, #logoutBtn, .copy-btn, .user-area button, nav button, .glass-card button {
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-  color: white; border: none; padding: 8px 16px; border-radius: 10px;
-  font-weight: bold; cursor: pointer; font-size: 0.85rem;
-  transition: all var(--transition);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); backdrop-filter: blur(10px);
-  text-transform: uppercase; letter-spacing: 0.5px;
-}
-button:hover, .btn:hover, .btn-green:hover {
-  transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
-}
-button:active { transform: translateY(0) scale(0.98); }
-
-#cancelModal, button[onclick*="closeModal"] {
-  background: rgba(239, 68, 68, 0.8); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-#cancelModal:hover { background: rgba(239, 68, 68, 1); }
-#logoutBtn { background: rgba(239, 68, 68, 0.8); }
-#logoutBtn:hover { background: rgba(239, 68, 68, 1); }
-
 .footer {
   text-align: center; padding: 1.5rem; background: rgba(0,0,0,0.5);
   backdrop-filter: blur(15px); color: var(--text); margin-top: auto;
   font-size: 0.85rem;
 }
 
-/* Kampanya durumları */
 .campaign-expired { opacity: 0.5; border-left: 3px solid #ef4444 !important; }
 .campaign-active { border-left: 3px solid #22c55e !important; }
 
-/* Profil simgesi */
-.profile-icon {
-  width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
-  border: 2px solid var(--accent); cursor: pointer; transition: transform var(--transition);
+.announcement-item, .news-item {
+  padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; margin: 8px 0;
 }
-.profile-icon:hover { transform: scale(1.15) rotate(5deg); }
+.announcement-item h3, .news-item h3 { color: var(--accent); margin-bottom: 5px; }
+.announcement-item small, .news-item small { opacity: 0.6; font-size: 0.8rem; }
 
-/* ========== MOBİL UYUMLU MEDIA QUERY ========== */
+/* ========== MOBİL – wrap serbest ========== */
 @media (max-width: 768px) {
-  .navbar { padding: 0.6rem 1rem; }
-  .logo { font-size: 1.3rem; }
-  .user-area { gap: 5px; }
-  .user-area button, .user-area .btn { padding: 6px 10px; font-size: 0.8rem; }
+  .navbar {
+    flex-wrap: wrap;    /* mobilde alt satıra geçebilir */
+    padding: 0.5rem 1rem;
+  }
+  .logo { font-size: 1.2rem; }
+  .user-area { gap: 4px; flex-wrap: wrap; }
+  .user-area button, .user-area .btn { padding: 5px 8px; font-size: 0.7rem; }
   .hero-card h1 { font-size: 1.5rem; }
   .hero-card h1 .fa-gamepad { font-size: 2rem; }
   .glass-card { padding: 1rem; margin: 1rem auto; width: calc(100% - 1.5rem); }
