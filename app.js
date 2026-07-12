@@ -11,6 +11,8 @@ const translations = {
     addAnnouncement: 'Duyuru Yap', addCampaign: 'Kampanya Düzenle',
     addNews: 'Haber Ekle', addItem: 'Ürün Ekle',
     manageCampaigns: 'Kampanyaları Yönet',
+    manageAnnouncements: 'Duyuruları Yönet',
+    manageNews: 'Haberleri Yönet',
     inventory: 'Taleplerim', serverStatus: 'Sunucu Durumu',
     balance: 'Bakiye', buy: 'Satın Al', profile: 'Profil Ayarları',
     passwordChange: 'Şifre Değiştir', oldPassword: 'Mevcut Şifre',
@@ -30,6 +32,8 @@ const translations = {
     addAnnouncement: 'Add Announcement', addCampaign: 'Add Campaign',
     addNews: 'Add News', addItem: 'Add Item',
     manageCampaigns: 'Manage Campaigns',
+    manageAnnouncements: 'Manage Announcements',
+    manageNews: 'Manage News',
     inventory: 'My Requests', serverStatus: 'Server Status',
     balance: 'Balance', buy: 'Buy', profile: 'Profile Settings',
     passwordChange: 'Change Password', oldPassword: 'Current Password',
@@ -89,7 +93,6 @@ async function requestNotificationPermission() {
   if (result) { localStorage.setItem('notificationsEnabled', 'true'); alert('✅ Bildirimler aktif edildi!'); }
 }
 
-// Sayfa yüklendi
 document.addEventListener('DOMContentLoaded', async () => {
   if ('serviceWorker' in navigator) { try { await navigator.serviceWorker.register('/sw.js'); } catch (e) {} }
   try {
@@ -115,12 +118,14 @@ function renderUI() {
     let extraButtons = '';
     if (currentUser.isAdmin) {
       extraButtons = `
-        <button onclick="showContent('requests')">📋 Talepler</button>
-        <button onclick="showContent('addAnnouncement')">📢 Duyuru</button>
-        <button onclick="showContent('addCampaign')">🎯 Kampanya</button>
-        <button onclick="showContent('manageCampaigns')">📊 Yönet</button>
-        <button onclick="showContent('addNews')">📰 Haber</button>
-        <button onclick="showContent('addItem')">🛒 Ürün</button>
+        <button onclick="showContent('requests')">📋 ${t('requests')}</button>
+        <button onclick="showContent('addAnnouncement')">📢 ${t('addAnnouncement')}</button>
+        <button onclick="showContent('manageAnnouncements')">📋 ${t('manageAnnouncements')}</button>
+        <button onclick="showContent('addCampaign')">🎯 ${t('addCampaign')}</button>
+        <button onclick="showContent('manageCampaigns')">📊 ${t('manageCampaigns')}</button>
+        <button onclick="showContent('addNews')">📰 ${t('addNews')}</button>
+        <button onclick="showContent('manageNews')">📋 ${t('manageNews')}</button>
+        <button onclick="showContent('addItem')">🛒 ${t('addItem')}</button>
       `;
     } else {
       extraButtons = `
@@ -162,6 +167,8 @@ function showContent(section) {
     case 'announcements': renderAnnouncements(); break;
     case 'news': renderNews(); break;
     case 'manageCampaigns': renderManageCampaigns(); break;
+    case 'manageAnnouncements': renderManageAnnouncements(); break;
+    case 'manageNews': renderManageNews(); break;
     case 'addAnnouncement': renderAdminForm('announcement'); break;
     case 'addCampaign': renderAdminForm('campaign'); break;
     case 'addNews': renderAdminForm('news'); break;
@@ -276,6 +283,34 @@ async function renderNews() {
   content.innerHTML = `<div class="glass-card"><h2>📰 ${t('news')}</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${n.title}</h3><p>${n.content}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
+// DUYURULARI YÖNET (ADMIN – SİLME İLE)
+async function renderManageAnnouncements() {
+  if (!currentUser?.isAdmin) return;
+  const content = document.getElementById('content');
+  const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
+  content.innerHTML = `<div class="glass-card"><h2>📋 ${t('manageAnnouncements')}</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between; align-items:center;"><div><b>${a.title}</b><br><small>${new Date(a.date).toLocaleString()}</small></div><button onclick="deleteAnnouncement('${a.id}')" style="background:rgba(239,68,68,0.8);">🗑️ ${t('delete')}</button></div>`).join('')}</div>`;
+}
+
+async function deleteAnnouncement(id) {
+  if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
+  await fetch(`${API}/api/admin/announcement`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+  renderManageAnnouncements();
+}
+
+// HABERLERİ YÖNET (ADMIN – SİLME İLE)
+async function renderManageNews() {
+  if (!currentUser?.isAdmin) return;
+  const content = document.getElementById('content');
+  const news = await fetch(`${API}/api/news`).then(r => r.json());
+  content.innerHTML = `<div class="glass-card"><h2>📋 ${t('manageNews')}</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between; align-items:center;"><div><b>${n.title}</b><br><small>${new Date(n.date).toLocaleString()}</small></div><button onclick="deleteNews('${n.id}')" style="background:rgba(239,68,68,0.8);">🗑️ ${t('delete')}</button></div>`).join('')}</div>`;
+}
+
+async function deleteNews(id) {
+  if (!confirm('Bu haberi silmek istediğinize emin misiniz?')) return;
+  await fetch(`${API}/api/admin/news`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+  renderManageNews();
+}
+
 // KAMPANYALAR (KULLANICI)
 async function renderCampaigns() {
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
@@ -374,4 +409,4 @@ async function saveProfileSettings() {
 
 function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 function logout() { localStorage.clear(); token = null; currentUser = null; location.reload(); }
-function setLang(lang) { currentLang = lang; localStorage.setItem('lang', lang); renderUI(); }
+function setLang(lang) { currentLang = lang; localStorage.setItem('lang', lang); renderUI(); }s
