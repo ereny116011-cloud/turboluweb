@@ -5,31 +5,31 @@ const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000
 const translations = {
   tr: {
     register: 'Kaydol', login: 'Giriş Yap', logout: 'Çıkış',
-    shop: 'Market', campaigns: 'Kampanyalar', tasks: 'Görevler',
+    shop: 'Market', campaigns: 'Kampanyalar',
     addAnnouncement: 'Duyuru Yap', addCampaign: 'Kampanya Düzenle',
-    addNews: 'Haber Ekle', addItem: 'Ürün Ekle', addTask: 'Görev Ekle',
-    inventory: 'Envanter', serverStatus: 'Sunucu Durumu',
+    addNews: 'Haber Ekle', addItem: 'Ürün Ekle',
+    inventory: 'Taleplerim', serverStatus: 'Sunucu Durumu',
     balance: 'Bakiye', buy: 'Satın Al', profile: 'Profil Ayarları',
     passwordChange: 'Şifre Değiştir', oldPassword: 'Mevcut Şifre',
     newPassword: 'Yeni Şifre', save: 'Kaydet', selectAvatar: 'Avatar Seç',
     customURL: 'veya URL gir', uploadAvatar: 'Avatar Yükle',
     language: 'Dil', status: 'Durum', online: 'Çevrimiçi', offline: 'Çevrimdışı',
-    complete: 'Tamamlandı', taskReward: 'Ödül', balanceReward: 'Bakiye',
-    itemReward: 'Eşya',
+    requests: 'Bekleyen Talepler', complete: 'Tamamlandı', reject: 'Reddet',
+    pending: 'Bekliyor', completed: 'Tamamlandı', rejected: 'Reddedildi',
   },
   en: {
     register: 'Register', login: 'Login', logout: 'Logout',
-    shop: 'Shop', campaigns: 'Campaigns', tasks: 'Tasks',
+    shop: 'Shop', campaigns: 'Campaigns',
     addAnnouncement: 'Add Announcement', addCampaign: 'Add Campaign',
-    addNews: 'Add News', addItem: 'Add Item', addTask: 'Add Task',
-    inventory: 'Inventory', serverStatus: 'Server Status',
+    addNews: 'Add News', addItem: 'Add Item',
+    inventory: 'My Requests', serverStatus: 'Server Status',
     balance: 'Balance', buy: 'Buy', profile: 'Profile Settings',
     passwordChange: 'Change Password', oldPassword: 'Current Password',
     newPassword: 'New Password', save: 'Save', selectAvatar: 'Select Avatar',
     customURL: 'or enter URL', uploadAvatar: 'Upload Avatar',
     language: 'Language', status: 'Status', online: 'Online', offline: 'Offline',
-    complete: 'Complete', taskReward: 'Reward', balanceReward: 'Balance',
-    itemReward: 'Item',
+    requests: 'Pending Requests', complete: 'Complete', reject: 'Reject',
+    pending: 'Pending', completed: 'Completed', rejected: 'Rejected',
   }
 };
 
@@ -41,19 +41,7 @@ let statusInterval = null;
 function t(key) { return translations[currentLang][key] || key; }
 
 function kopyalaIP() {
-  navigator.clipboard.writeText('turbolu.mcsh.io').then(() => alert('IP adresi kopyalandı!'));
-}
-
-function handleNavClick(targetId) {
-  if (!document.getElementById(targetId)) {
-    showContent('status');
-    setTimeout(() => {
-      const target = document.getElementById(targetId);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 200);
-  } else {
-    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  navigator.clipboard.writeText('turbolumc.seedloaf.gg').then(() => alert('IP adresi kopyalandı!'));
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -83,17 +71,16 @@ function renderUI() {
     let extraButtons = '';
     if (currentUser.isAdmin) {
       extraButtons = `
-        <button onclick="showContent('addAnnouncement')">📢 Duyuru</button>
-        <button onclick="showContent('addCampaign')">🎯 Kampanya</button>
-        <button onclick="showContent('addNews')">📰 Haber</button>
-        <button onclick="showContent('addItem')">🛒 Ürün</button>
-        <button onclick="showContent('addTask')">📋 Görev</button>
+        <button onclick="showContent('requests')">📋 ${t('requests')}</button>
+        <button onclick="showContent('addAnnouncement')">📢 ${t('addAnnouncement')}</button>
+        <button onclick="showContent('addCampaign')">🎯 ${t('addCampaign')}</button>
+        <button onclick="showContent('addNews')">📰 ${t('addNews')}</button>
+        <button onclick="showContent('addItem')">🛒 ${t('addItem')}</button>
       `;
     } else {
       extraButtons = `
         <button onclick="showContent('shop')">🛒 ${t('shop')}</button>
-        <button onclick="showContent('tasks')">📋 ${t('tasks')}</button>
-        <button onclick="showContent('inventory')">🎒 ${t('inventory')}</button>
+        <button onclick="showContent('inventory')">📦 ${t('inventory')}</button>
         <button onclick="showContent('campaigns')">📣 ${t('campaigns')}</button>
       `;
     }
@@ -126,13 +113,12 @@ function showContent(section) {
   switch (section) {
     case 'status': renderStatus(); break;
     case 'shop': renderShop(); break;
-    case 'tasks': renderTasks(); break;
     case 'campaigns': renderCampaigns(); break;
     case 'addAnnouncement': renderAdminForm('announcement'); break;
     case 'addCampaign': renderAdminForm('campaign'); break;
     case 'addNews': renderAdminForm('news'); break;
     case 'addItem': renderAdminForm('item'); break;
-    case 'addTask': renderAdminForm('task'); break;
+    case 'requests': renderRequests(); break;
     case 'inventory': renderInventory(); break;
     case 'profile': renderProfile(); break;
     default: renderStatus();
@@ -151,7 +137,7 @@ async function renderStatus() {
       </h1>
       <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor.</p>
       <div class="ip-box" onclick="kopyalaIP()">
-        <span>turbolu.mcsh.io</span>
+        <span>turbolumc.seedloaf.gg</span>
         <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
       </div>
       <p class="click-info">IP adresine tıklayarak kopyalayabilirsin!</p>
@@ -183,7 +169,7 @@ async function renderStatus() {
 
   async function updateStatus() {
     try {
-      const res = await fetch('https://api.mcsrvstat.us/2/144.31.46.15:12443');
+      const res = await fetch('https://api.mcsrvstat.us/2/turbolumc.seedloaf.gg');
       const data = await res.json();
       const durumEl = document.getElementById('online-durum');
       if (data.online) {
@@ -201,17 +187,21 @@ async function renderStatus() {
   statusInterval = setInterval(updateStatus, 10000);
 }
 
-// --- MARKET ---
+// --- MARKET (TALEP SİSTEMİ) ---
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
   content.innerHTML = `
     <div class="glass-card">
       <h2>🛒 ${t('shop')}</h2>
-      ${currentUser ? `<p>${t('balance')}: ${currentUser.balance}</p>` : ''}
+      <p style="margin-bottom:1rem; opacity:0.8;">Ürünleri satın alabilir, taleplerinizi "Taleplerim" sekmesinden takip edebilirsiniz.</p>
+      ${currentUser ? `<p>${t('balance')}: <strong>${currentUser.balance}</strong> puan</p>` : ''}
       ${items.map(i => `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
-          <b>${i.name}</b> - ${i.price} puan
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
+          <div>
+            <b>${i.name}</b>
+            <p style="font-size:0.85rem; opacity:0.7;">${i.price} puan</p>
+          </div>
           <button onclick="buy('${i.id}')">${t('buy')}</button>
         </div>
       `).join('')}
@@ -228,64 +218,85 @@ async function buy(itemId) {
   const data = await res.json();
   if (data.error) alert(data.error);
   else {
-    alert('Satın alındı!');
+    alert('✅ Talep alındı! En kısa sürede teslim edilecektir.');
     currentUser.balance = data.new_balance;
     renderShop();
   }
 }
 
-// --- GÖREVLER ---
-async function renderTasks() {
-  const content = document.getElementById('content');
-  if (!currentUser) { content.innerHTML = '<p>Lütfen giriş yapın.</p>'; return; }
-  const tasks = await fetch(`${API}/api/tasks`).then(r => r.json());
-  content.innerHTML = `
-    <div class="glass-card">
-      <h2>📋 ${t('tasks')}</h2>
-      ${tasks.map(task => `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
-          <div>
-            <b>${task.title}</b>
-            <p style="font-size:0.85rem; opacity:0.8">${task.description}</p>
-            <small>${t('taskReward')}: ${task.rewardType === 'balance' ? task.rewardAmount + ' puan' : task.rewardCommand}</small>
-          </div>
-          <button onclick="completeTask('${task.id}')">✅ ${t('complete')}</button>
-        </div>
-      `).join('')}
-    </div>`;
-}
-
-async function completeTask(taskId) {
-  if (!token) return alert('Giriş yapın.');
-  const res = await fetch(`${API}/api/tasks/complete`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ taskId })
-  });
-  const data = await res.json();
-  if (data.error) alert(data.error);
-  else {
-    alert('Görev tamamlandı!');
-    currentUser.balance = data.new_balance;
-    renderTasks();
-  }
-}
-
-// --- ENVANTER ---
+// --- TALEPLERİM (KULLANICI) ---
 async function renderInventory() {
   const content = document.getElementById('content');
-  if (!currentUser) return;
-  const items = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+  if (!currentUser) { content.innerHTML = '<p>Lütfen giriş yapın.</p>'; return; }
+  const requests = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
   content.innerHTML = `
     <div class="glass-card">
-      <h2>🎒 ${t('inventory')}</h2>
-      ${items.length === 0 ? '<p>Henüz eşya yok.</p>' : items.map(i => `
-        <div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;">
-          <b>${i.name}</b>
-          <p style="font-size:0.8rem; opacity:0.7">${new Date(i.purchasedAt).toLocaleString()}</p>
+      <h2>📦 ${t('inventory')}</h2>
+      ${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `
+        <div style="padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <b>${r.item}</b> (${r.price} puan)
+            <p style="font-size:0.8rem; opacity:0.7;">${new Date(r.date).toLocaleString()}</p>
+          </div>
+          <span style="padding:4px 12px; border-radius:20px; font-size:0.85rem;
+            ${r.status === 'completed' ? 'background:#22c55e;' : ''}
+            ${r.status === 'pending' ? 'background:#eab308;' : ''}
+            ${r.status === 'rejected' ? 'background:#ef4444;' : ''}
+          ">${t(r.status)}</span>
         </div>
       `).join('')}
     </div>`;
+}
+
+// --- BEKLEYEN TALEPLER (ADMIN) ---
+async function renderRequests() {
+  const content = document.getElementById('content');
+  if (!currentUser?.isAdmin) { content.innerHTML = '<p>Yetkisiz.</p>'; return; }
+  const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+  content.innerHTML = `
+    <div class="glass-card">
+      <h2>📋 ${t('requests')}</h2>
+      ${requests.length === 0 ? '<p>Bekleyen talep yok.</p>' : requests.map(r => `
+        <div style="padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <b>${r.user}</b> → ${r.item} (${r.price} puan)
+              <p style="font-size:0.8rem; opacity:0.7;">${new Date(r.date).toLocaleString()}</p>
+              ${r.command ? `<p style="font-size:0.8rem; color: var(--accent);">Komut: ${r.command.replace('%player%', r.user)}</p>` : ''}
+            </div>
+            <div style="display:flex; gap:8px;">
+              ${r.status === 'pending' ? `
+                <button onclick="completeRequest('${r.id}')">✅ ${t('complete')}</button>
+                <button onclick="rejectRequest('${r.id}')" style="background:rgba(239,68,68,0.8);">❌ ${t('reject')}</button>
+              ` : `<span>${t(r.status)}</span>`}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+async function completeRequest(requestId) {
+  const res = await fetch(`${API}/api/admin/complete-request`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requestId })
+  });
+  const data = await res.json();
+  if (data.success) { alert('Talep tamamlandı.'); renderRequests(); }
+  else alert(data.error || 'Hata');
+}
+
+async function rejectRequest(requestId) {
+  if (!confirm('Reddederseniz bakiye iade edilir. Emin misiniz?')) return;
+  const res = await fetch(`${API}/api/admin/reject-request`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requestId })
+  });
+  const data = await res.json();
+  if (data.success) { alert('Talep reddedildi, bakiye iade edildi.'); renderRequests(); }
+  else alert(data.error || 'Hata');
 }
 
 // --- KAMPANYALAR ---
@@ -311,16 +322,8 @@ function renderAdminForm(type) {
     formHtml = `<h2>📰 ${t('addNews')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('news')">Gönder</button>`;
   } else if (type === 'item') {
     formHtml = `<h2>🛒 ${t('addItem')}</h2><input id="itemName" placeholder="Ürün adı"><br><input id="itemPrice" type="number" placeholder="Fiyat"><br><input id="itemCommand" placeholder="Komut (örn: give %player% diamond 1)"><br><button onclick="submitAdmin('item')">Ekle</button>`;
-  } else if (type === 'task') {
-    formHtml = `<h2>📋 ${t('addTask')}</h2><input id="taskTitle" placeholder="Görev başlığı"><br><textarea id="taskDescription" placeholder="Açıklama"></textarea><br><select id="taskRewardType" onchange="toggleRewardFields()"><option value="balance">${t('balanceReward')}</option><option value="item">${t('itemReward')}</option></select><br><div id="balanceRewardDiv"><input id="taskRewardAmount" type="number" placeholder="Bakiye miktarı"></div><div id="itemRewardDiv" style="display:none"><input id="taskRewardCommand" placeholder="Komut"></div><button onclick="submitAdmin('task')">Ekle</button>`;
   }
   content.innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;">${formHtml}</div>`;
-}
-
-function toggleRewardFields() {
-  const type = document.getElementById('taskRewardType').value;
-  document.getElementById('balanceRewardDiv').style.display = type === 'balance' ? 'block' : 'none';
-  document.getElementById('itemRewardDiv').style.display = type === 'item' ? 'block' : 'none';
 }
 
 async function submitAdmin(type) {
@@ -337,15 +340,6 @@ async function submitAdmin(type) {
   } else if (type === 'item') {
     endpoint = 'item';
     body = { name: document.getElementById('itemName').value, price: Number(document.getElementById('itemPrice').value), command: document.getElementById('itemCommand').value };
-  } else if (type === 'task') {
-    endpoint = 'task';
-    body = {
-      title: document.getElementById('taskTitle').value,
-      description: document.getElementById('taskDescription').value,
-      rewardType: document.getElementById('taskRewardType').value,
-      rewardAmount: Number(document.getElementById('taskRewardAmount')?.value || 0),
-      rewardCommand: document.getElementById('taskRewardCommand')?.value || ''
-    };
   }
   const res = await fetch(`${API}/api/admin/${endpoint}`, {
     method: 'POST',
@@ -401,7 +395,6 @@ async function renderProfile() {
       <input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br>
       <input id="newPass" type="password" placeholder="${t('newPassword')}"><br>
       <button id="changePassBtn">${t('save')}</button>
-
       <hr style="margin:20px 0; border-color: rgba(255,255,255,0.1);">
       <h3>${t('selectAvatar')}</h3>
       <div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px; margin:10px 0;">
@@ -415,7 +408,6 @@ async function renderProfile() {
       </div>
       <input id="customAvatar" placeholder="${t('customURL')}"><br>
       <button id="setAvatarBtn">${t('save')}</button>
-
       <hr style="margin:20px 0; border-color: rgba(255,255,255,0.1);">
       <label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label>
       <label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label>
@@ -425,7 +417,6 @@ async function renderProfile() {
       </div>
     </div>
   `;
-
   document.getElementById('langSelect').value = currentUser.language || 'tr';
   document.getElementById('statusSelect').value = currentUser.status || 'Online';
   document.getElementById('changePassBtn').addEventListener('click', changePassword);
@@ -444,11 +435,7 @@ async function uploadAvatar(event) {
   reader.onload = async (e) => {
     const base64 = e.target.result;
     currentUser.icon = base64;
-    await fetch(`${API}/api/profile`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ icon: base64 })
-    });
+    await fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ icon: base64 }) });
     document.getElementById('uploadStatus').innerText = '✅ Yüklendi!';
     const pool = document.getElementById('avatarPool');
     const img = document.createElement('img');
@@ -462,11 +449,7 @@ async function uploadAvatar(event) {
 
 function setAvatar(url) {
   currentUser.icon = url;
-  fetch(`${API}/api/profile`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ icon: url })
-  }).then(() => renderUI());
+  fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ icon: url }) }).then(() => renderUI());
   const profileIcon = document.querySelector('.profile-icon');
   if (profileIcon) profileIcon.src = url;
 }
@@ -474,11 +457,7 @@ function setAvatar(url) {
 async function changePassword() {
   const oldPass = document.getElementById('oldPass').value;
   const newPass = document.getElementById('newPass').value;
-  const res = await fetch(`${API}/api/password`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass })
-  });
+  const res = await fetch(`${API}/api/password`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }) });
   const data = await res.json();
   alert(data.success ? 'Şifre değiştirildi' : (data.error || 'Hata'));
 }
@@ -486,19 +465,10 @@ async function changePassword() {
 async function saveProfileSettings() {
   const language = document.getElementById('langSelect').value;
   const status = document.getElementById('statusSelect').value;
-  const res = await fetch(`${API}/api/profile`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ language, status })
-  });
+  const res = await fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ language, status }) });
   const data = await res.json();
-  if (data.success) {
-    currentUser.language = language;
-    currentUser.status = status;
-    setLang(language);
-    renderUI();
-    showContent('status');
-  } else alert(data.error || 'Hata');
+  if (data.success) { currentUser.language = language; currentUser.status = status; setLang(language); renderUI(); showContent('status'); }
+  else alert(data.error || 'Hata');
 }
 
 function closeModal() { document.getElementById('modal').classList.add('hidden'); }
