@@ -8,6 +8,7 @@ const translations = {
     shop: 'Market', campaigns: 'Kampanyalar',
     addAnnouncement: 'Duyuru Yap', addCampaign: 'Kampanya Düzenle',
     addNews: 'Haber Ekle', addItem: 'Ürün Ekle',
+    manageCampaigns: 'Kampanyaları Yönet',
     inventory: 'Taleplerim', serverStatus: 'Sunucu Durumu',
     balance: 'Bakiye', buy: 'Satın Al', profile: 'Profil Ayarları',
     passwordChange: 'Şifre Değiştir', oldPassword: 'Mevcut Şifre',
@@ -16,12 +17,15 @@ const translations = {
     language: 'Dil', status: 'Durum', online: 'Çevrimiçi', offline: 'Çevrimdışı',
     requests: 'Bekleyen Talepler', complete: 'Tamamlandı', reject: 'Reddet',
     pending: 'Bekliyor', completed: 'Tamamlandı', rejected: 'Reddedildi',
+    delete: 'Sil', endDate: 'Bitiş Tarihi', noEndDate: 'Süresiz',
+    expired: 'Süresi Doldu',
   },
   en: {
     register: 'Register', login: 'Login', logout: 'Logout',
     shop: 'Shop', campaigns: 'Campaigns',
     addAnnouncement: 'Add Announcement', addCampaign: 'Add Campaign',
     addNews: 'Add News', addItem: 'Add Item',
+    manageCampaigns: 'Manage Campaigns',
     inventory: 'My Requests', serverStatus: 'Server Status',
     balance: 'Balance', buy: 'Buy', profile: 'Profile Settings',
     passwordChange: 'Change Password', oldPassword: 'Current Password',
@@ -30,6 +34,8 @@ const translations = {
     language: 'Language', status: 'Status', online: 'Online', offline: 'Offline',
     requests: 'Pending Requests', complete: 'Complete', reject: 'Reject',
     pending: 'Pending', completed: 'Completed', rejected: 'Rejected',
+    delete: 'Delete', endDate: 'End Date', noEndDate: 'No End Date',
+    expired: 'Expired',
   }
 };
 
@@ -74,6 +80,7 @@ function renderUI() {
         <button onclick="showContent('requests')">📋 ${t('requests')}</button>
         <button onclick="showContent('addAnnouncement')">📢 ${t('addAnnouncement')}</button>
         <button onclick="showContent('addCampaign')">🎯 ${t('addCampaign')}</button>
+        <button onclick="showContent('manageCampaigns')">📊 ${t('manageCampaigns')}</button>
         <button onclick="showContent('addNews')">📰 ${t('addNews')}</button>
         <button onclick="showContent('addItem')">🛒 ${t('addItem')}</button>
       `;
@@ -114,6 +121,7 @@ function showContent(section) {
     case 'status': renderStatus(); break;
     case 'shop': renderShop(); break;
     case 'campaigns': renderCampaigns(); break;
+    case 'manageCampaigns': renderManageCampaigns(); break;
     case 'addAnnouncement': renderAdminForm('announcement'); break;
     case 'addCampaign': renderAdminForm('campaign'); break;
     case 'addNews': renderAdminForm('news'); break;
@@ -299,15 +307,67 @@ async function rejectRequest(requestId) {
   else alert(data.error || 'Hata');
 }
 
-// --- KAMPANYALAR ---
+// --- KAMPANYALAR (KULLANICI GÖRÜNÜMÜ) ---
 async function renderCampaigns() {
   const content = document.getElementById('content');
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
+  const now = new Date();
   content.innerHTML = `
     <div class="glass-card">
       <h2>📣 ${t('campaigns')}</h2>
-      ${campaigns.map(c => `<p><b>${c.title}</b>: ${c.description} (Ödül: ${c.reward})</p>`).join('')}
+      ${campaigns.length === 0 ? '<p>Henüz kampanya yok.</p>' : campaigns.map(c => {
+        const expired = c.endDate && new Date(c.endDate) < now;
+        return `
+          <div class="${expired ? 'campaign-expired' : 'campaign-active'}" style="padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
+            <b>${c.title}</b>
+            <p style="font-size:0.9rem; opacity:0.8;">${c.description}</p>
+            <p style="font-size:0.85rem;">🎁 ${c.reward}</p>
+            <p style="font-size:0.8rem; opacity:0.6;">
+              ${c.endDate ? new Date(c.endDate).toLocaleString() : t('noEndDate')}
+              ${expired ? ` ⚠️ ${t('expired')}` : ''}
+            </p>
+          </div>`;
+      }).join('')}
     </div>`;
+}
+
+// --- KAMPANYALARI YÖNET (ADMIN – SİLME VE LİSTELEME) ---
+async function renderManageCampaigns() {
+  const content = document.getElementById('content');
+  if (!currentUser?.isAdmin) { content.innerHTML = '<p>Yetkisiz.</p>'; return; }
+  const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
+  const now = new Date();
+  content.innerHTML = `
+    <div class="glass-card">
+      <h2>📊 ${t('manageCampaigns')}</h2>
+      ${campaigns.length === 0 ? '<p>Henüz kampanya yok.</p>' : campaigns.map(c => {
+        const expired = c.endDate && new Date(c.endDate) < now;
+        return `
+          <div class="${expired ? 'campaign-expired' : 'campaign-active'}" style="padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <b>${c.title}</b>
+              <p style="font-size:0.85rem; opacity:0.8;">${c.description} | 🎁 ${c.reward}</p>
+              <p style="font-size:0.8rem; opacity:0.6;">
+                📅 ${c.endDate ? new Date(c.endDate).toLocaleString() : t('noEndDate')}
+                ${expired ? ` ⚠️ ${t('expired')}` : ''}
+              </p>
+            </div>
+            <button onclick="deleteCampaign('${c.id}')" style="background:rgba(239,68,68,0.8);">🗑️ ${t('delete')}</button>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+async function deleteCampaign(id) {
+  if (!confirm('Bu kampanyayı silmek istediğinize emin misiniz?')) return;
+  const res = await fetch(`${API}/api/admin/campaign`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id })
+  });
+  const data = await res.json();
+  if (data.success) { alert('Kampanya silindi.'); renderManageCampaigns(); }
+  else alert(data.error || 'Hata');
 }
 
 // --- ADMIN FORMLARI ---
@@ -317,7 +377,13 @@ function renderAdminForm(type) {
   if (type === 'announcement') {
     formHtml = `<h2>📢 ${t('addAnnouncement')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('announcement')">Gönder</button>`;
   } else if (type === 'campaign') {
-    formHtml = `<h2>🎯 ${t('addCampaign')}</h2><input id="title" placeholder="Başlık"><br><input id="description" placeholder="Açıklama"><br><input id="reward" placeholder="Ödül"><br><button onclick="submitAdmin('campaign')">Gönder</button>`;
+    formHtml = `<h2>🎯 ${t('addCampaign')}</h2>
+      <input id="title" placeholder="Başlık"><br>
+      <input id="description" placeholder="Açıklama"><br>
+      <input id="reward" placeholder="Ödül"><br>
+      <label style="font-size:0.9rem; margin-bottom:5px;">📅 ${t('endDate')}:</label>
+      <input id="endDate" type="datetime-local"><br>
+      <button onclick="submitAdmin('campaign')">Gönder</button>`;
   } else if (type === 'news') {
     formHtml = `<h2>📰 ${t('addNews')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('news')">Gönder</button>`;
   } else if (type === 'item') {
@@ -336,7 +402,12 @@ async function submitAdmin(type) {
     body = { title: document.getElementById('title').value, content: document.getElementById('content').value };
   } else if (type === 'campaign') {
     endpoint = 'campaign';
-    body = { title: document.getElementById('title').value, description: document.getElementById('description').value, reward: document.getElementById('reward').value };
+    body = {
+      title: document.getElementById('title').value,
+      description: document.getElementById('description').value,
+      reward: document.getElementById('reward').value,
+      endDate: document.getElementById('endDate')?.value || null
+    };
   } else if (type === 'item') {
     endpoint = 'item';
     body = { name: document.getElementById('itemName').value, price: Number(document.getElementById('itemPrice').value), command: document.getElementById('itemCommand').value };
