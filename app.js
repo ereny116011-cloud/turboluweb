@@ -1,4 +1,5 @@
 const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
+const VAPID_PUBLIC_KEY = 'OLUŞTURDUĞUN_PUBLİC_KEY_BURAYA'; // <-- BURAYI GÜNCELLE
 
 const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'42\' height=\'42\' viewBox=\'0 0 42 42\'%3E%3Ccircle cx=\'21\' cy=\'21\' r=\'20\' fill=\'%2322c55e\'/%3E%3Ccircle cx=\'14\' cy=\'16\' r=\'3\' fill=\'%230f172a\'/%3E%3Ccircle cx=\'28\' cy=\'16\' r=\'3\' fill=\'%230f172a\'/%3E%3Cpath d=\'M12 26 Q21 32 30 26\' stroke=\'%230f172a\' stroke-width=\'3\' fill=\'none\' stroke-linecap=\'round\'/%3E%3C/svg%3E';
 
@@ -19,6 +20,12 @@ const translations = {
     pending: 'Bekliyor', completed: 'Tamamlandı', rejected: 'Reddedildi',
     delete: 'Sil', endDate: 'Bitiş Tarihi', noEndDate: 'Süresiz',
     expired: 'Süresi Doldu',
+    notifications: 'Bildirimler',
+    enableNotifications: 'Bildirimleri Aç',
+    notifyAnnouncements: 'Duyurular',
+    notifyNews: 'Haberler',
+    notifyCampaigns: 'Kampanyalar',
+    notifyItems: 'Yeni Ürünler',
   },
   en: {
     register: 'Register', login: 'Login', logout: 'Logout',
@@ -36,6 +43,12 @@ const translations = {
     pending: 'Pending', completed: 'Completed', rejected: 'Rejected',
     delete: 'Delete', endDate: 'End Date', noEndDate: 'No End Date',
     expired: 'Expired',
+    notifications: 'Notifications',
+    enableNotifications: 'Enable Notifications',
+    notifyAnnouncements: 'Announcements',
+    notifyNews: 'News',
+    notifyCampaigns: 'Campaigns',
+    notifyItems: 'New Items',
   }
 };
 
@@ -43,6 +56,7 @@ let currentLang = localStorage.getItem('lang') || 'tr';
 let currentUser = null;
 let token = localStorage.getItem('token') || null;
 let statusInterval = null;
+let notificationPreferences = JSON.parse(localStorage.getItem('notifyPrefs') || '{"announcements":true,"news":true,"campaigns":true,"items":true}');
 
 function t(key) { return translations[currentLang][key] || key; }
 
@@ -50,7 +64,95 @@ function kopyalaIP() {
   navigator.clipboard.writeText('turbolumc.seedloaf.gg').then(() => alert('IP adresi kopyalandı!'));
 }
 
+// ========== BİLDİRİM SİSTEMİ ==========
+async function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+async function subscribeToPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    alert('Tarayıcınız bildirimleri desteklemiyor.');
+    return null;
+  }
+
+  const permission = await Notification.requestPermission();
+  if (permission !== 'granted') {
+    alert('Bildirim izni verilmedi.');
+    return null;
+  }
+
+  const registration = await navigator.serviceWorker.register('/sw.js');
+  const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: await urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+  });
+
+  // Subscription'ı Worker'a kaydet
+  const subData = subscription.toJSON();
+  await fetch(`${API}/api/notification/subscribe`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      subscription: subData,
+      preferences: notificationPreferences,
+      isAdmin: currentUser?.isAdmin || false
+    })
+  });
+
+  return subscription;
+}
+
+async function requestNotificationPermission() {
+  if (!token) return alert('Önce giriş yapmalısınız.');
+  
+  const result = await subscribeToPush();
+  if (result) {
+    localStorage.setItem('notificationsEnabled', 'true');
+    alert('✅ Bildirimler aktif edildi!');
+  }
+}
+
+function saveNotificationPreferences() {
+  notificationPreferences = {
+    announcements: document.getElementById('notifyAnnouncements').checked,
+    news: document.getElementById('notifyNews').checked,
+    campaigns: document.getElementById('notifyCampaigns').checked,
+    items: document.getElementById('notifyItems').checked,
+  };
+  localStorage.setItem('notifyPrefs', JSON.stringify(notificationPreferences));
+  
+  // Tercihleri sunucuya da bildir
+  if (token) {
+    fetch(`${API}/api/notification/preferences`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ preferences: notificationPreferences })
+    });
+  }
+}
+
+// Sayfa yüklendiğinde service worker'ı kaydet
 document.addEventListener('DOMContentLoaded', async () => {
+  if ('serviceWorker' in navigator) {
+    try {
+      await navigator.serviceWorker.register('/sw.js');
+    } catch (e) { /* hata olursa sessiz kal */ }
+  }
+
+  // Dil
   try {
     const res = await fetch(`${API}/api/country`);
     const { tr } = await res.json();
@@ -94,6 +196,7 @@ function renderUI() {
 
     userArea.innerHTML = `
       ${extraButtons}
+      <button onclick="requestNotificationPermission()" title="${t('enableNotifications')}">🔔</button>
       <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')" title="${t('profile')}">
       <span style="font-weight:bold">${currentUser.username}</span>
       <button id="logoutBtn">${t('logout')}</button>
@@ -241,307 +344,4 @@ async function renderInventory() {
     <div class="glass-card">
       <h2>📦 ${t('inventory')}</h2>
       ${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `
-        <div style="padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0; display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <b>${r.item}</b> (${r.price} puan)
-            <p style="font-size:0.8rem; opacity:0.7;">${new Date(r.date).toLocaleString()}</p>
-          </div>
-          <span style="padding:4px 12px; border-radius:20px; font-size:0.85rem;
-            ${r.status === 'completed' ? 'background:#22c55e;' : ''}
-            ${r.status === 'pending' ? 'background:#eab308;' : ''}
-            ${r.status === 'rejected' ? 'background:#ef4444;' : ''}
-          ">${t(r.status)}</span>
-        </div>
-      `).join('')}
-    </div>`;
-}
-
-// --- BEKLEYEN TALEPLER (ADMIN) ---
-async function renderRequests() {
-  const content = document.getElementById('content');
-  if (!currentUser?.isAdmin) { content.innerHTML = '<p>Yetkisiz.</p>'; return; }
-  const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
-  content.innerHTML = `
-    <div class="glass-card">
-      <h2>📋 ${t('requests')}</h2>
-      ${requests.length === 0 ? '<p>Bekleyen talep yok.</p>' : requests.map(r => `
-        <div style="padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <b>${r.user}</b> → ${r.item} (${r.price} puan)
-              <p style="font-size:0.8rem; opacity:0.7;">${new Date(r.date).toLocaleString()}</p>
-              ${r.command ? `<p style="font-size:0.8rem; color: var(--accent);">Komut: ${r.command.replace('%player%', r.user)}</p>` : ''}
-            </div>
-            <div style="display:flex; gap:8px;">
-              ${r.status === 'pending' ? `
-                <button onclick="completeRequest('${r.id}')">✅ ${t('complete')}</button>
-                <button onclick="rejectRequest('${r.id}')" style="background:rgba(239,68,68,0.8);">❌ ${t('reject')}</button>
-              ` : `<span>${t(r.status)}</span>`}
-            </div>
-          </div>
-        </div>
-      `).join('')}
-    </div>`;
-}
-
-async function completeRequest(requestId) {
-  const res = await fetch(`${API}/api/admin/complete-request`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ requestId })
-  });
-  const data = await res.json();
-  if (data.success) { alert('Talep tamamlandı.'); renderRequests(); }
-  else alert(data.error || 'Hata');
-}
-
-async function rejectRequest(requestId) {
-  if (!confirm('Reddederseniz bakiye iade edilir. Emin misiniz?')) return;
-  const res = await fetch(`${API}/api/admin/reject-request`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ requestId })
-  });
-  const data = await res.json();
-  if (data.success) { alert('Talep reddedildi, bakiye iade edildi.'); renderRequests(); }
-  else alert(data.error || 'Hata');
-}
-
-// --- KAMPANYALAR (KULLANICI GÖRÜNÜMÜ) ---
-async function renderCampaigns() {
-  const content = document.getElementById('content');
-  const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
-  const now = new Date();
-  content.innerHTML = `
-    <div class="glass-card">
-      <h2>📣 ${t('campaigns')}</h2>
-      ${campaigns.length === 0 ? '<p>Henüz kampanya yok.</p>' : campaigns.map(c => {
-        const expired = c.endDate && new Date(c.endDate) < now;
-        return `
-          <div class="${expired ? 'campaign-expired' : 'campaign-active'}" style="padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
-            <b>${c.title}</b>
-            <p style="font-size:0.9rem; opacity:0.8;">${c.description}</p>
-            <p style="font-size:0.85rem;">🎁 ${c.reward}</p>
-            <p style="font-size:0.8rem; opacity:0.6;">
-              ${c.endDate ? new Date(c.endDate).toLocaleString() : t('noEndDate')}
-              ${expired ? ` ⚠️ ${t('expired')}` : ''}
-            </p>
-          </div>`;
-      }).join('')}
-    </div>`;
-}
-
-// --- KAMPANYALARI YÖNET (ADMIN – SİLME VE LİSTELEME) ---
-async function renderManageCampaigns() {
-  const content = document.getElementById('content');
-  if (!currentUser?.isAdmin) { content.innerHTML = '<p>Yetkisiz.</p>'; return; }
-  const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
-  const now = new Date();
-  content.innerHTML = `
-    <div class="glass-card">
-      <h2>📊 ${t('manageCampaigns')}</h2>
-      ${campaigns.length === 0 ? '<p>Henüz kampanya yok.</p>' : campaigns.map(c => {
-        const expired = c.endDate && new Date(c.endDate) < now;
-        return `
-          <div class="${expired ? 'campaign-expired' : 'campaign-active'}" style="padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <b>${c.title}</b>
-              <p style="font-size:0.85rem; opacity:0.8;">${c.description} | 🎁 ${c.reward}</p>
-              <p style="font-size:0.8rem; opacity:0.6;">
-                📅 ${c.endDate ? new Date(c.endDate).toLocaleString() : t('noEndDate')}
-                ${expired ? ` ⚠️ ${t('expired')}` : ''}
-              </p>
-            </div>
-            <button onclick="deleteCampaign('${c.id}')" style="background:rgba(239,68,68,0.8);">🗑️ ${t('delete')}</button>
-          </div>`;
-      }).join('')}
-    </div>`;
-}
-
-async function deleteCampaign(id) {
-  if (!confirm('Bu kampanyayı silmek istediğinize emin misiniz?')) return;
-  const res = await fetch(`${API}/api/admin/campaign`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id })
-  });
-  const data = await res.json();
-  if (data.success) { alert('Kampanya silindi.'); renderManageCampaigns(); }
-  else alert(data.error || 'Hata');
-}
-
-// --- ADMIN FORMLARI ---
-function renderAdminForm(type) {
-  const content = document.getElementById('content');
-  let formHtml = '';
-  if (type === 'announcement') {
-    formHtml = `<h2>📢 ${t('addAnnouncement')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('announcement')">Gönder</button>`;
-  } else if (type === 'campaign') {
-    formHtml = `<h2>🎯 ${t('addCampaign')}</h2>
-      <input id="title" placeholder="Başlık"><br>
-      <input id="description" placeholder="Açıklama"><br>
-      <input id="reward" placeholder="Ödül"><br>
-      <label style="font-size:0.9rem; margin-bottom:5px;">📅 ${t('endDate')}:</label>
-      <input id="endDate" type="datetime-local"><br>
-      <button onclick="submitAdmin('campaign')">Gönder</button>`;
-  } else if (type === 'news') {
-    formHtml = `<h2>📰 ${t('addNews')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('news')">Gönder</button>`;
-  } else if (type === 'item') {
-    formHtml = `<h2>🛒 ${t('addItem')}</h2><input id="itemName" placeholder="Ürün adı"><br><input id="itemPrice" type="number" placeholder="Fiyat"><br><input id="itemCommand" placeholder="Komut (örn: give %player% diamond 1)"><br><button onclick="submitAdmin('item')">Ekle</button>`;
-  }
-  content.innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;">${formHtml}</div>`;
-}
-
-async function submitAdmin(type) {
-  let endpoint, body;
-  if (type === 'announcement') {
-    endpoint = 'announcement';
-    body = { title: document.getElementById('title').value, content: document.getElementById('content').value };
-  } else if (type === 'news') {
-    endpoint = 'news';
-    body = { title: document.getElementById('title').value, content: document.getElementById('content').value };
-  } else if (type === 'campaign') {
-    endpoint = 'campaign';
-    body = {
-      title: document.getElementById('title').value,
-      description: document.getElementById('description').value,
-      reward: document.getElementById('reward').value,
-      endDate: document.getElementById('endDate')?.value || null
-    };
-  } else if (type === 'item') {
-    endpoint = 'item';
-    body = { name: document.getElementById('itemName').value, price: Number(document.getElementById('itemPrice').value), command: document.getElementById('itemCommand').value };
-  }
-  const res = await fetch(`${API}/api/admin/${endpoint}`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  const data = await res.json();
-  alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
-}
-
-// --- GİRİŞ / KAYIT ---
-function openAuthModal(mode) {
-  const modal = document.getElementById('modal');
-  const body = document.getElementById('modalBody');
-  body.innerHTML = `
-    <h3>${mode === 'register' ? t('register') : t('login')}</h3>
-    <input id="authUsername" placeholder="Kullanıcı adı"><br>
-    <input id="authPassword" type="password" placeholder="Parola"><br>
-    <button class="btn-green" id="authSubmit">${mode === 'register' ? t('register') : t('login')}</button>
-    <button id="cancelModal">Vazgeç</button>
-  `;
-  document.getElementById('authSubmit').addEventListener('click', () => handleAuth(mode));
-  document.getElementById('cancelModal').addEventListener('click', closeModal);
-  modal.classList.remove('hidden');
-}
-
-async function handleAuth(mode) {
-  const username = document.getElementById('authUsername').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const res = await fetch(`${API}/api/${mode}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  });
-  const data = await res.json();
-  if (data.error) return alert(data.error);
-  localStorage.setItem('token', data.token);
-  token = data.token;
-  currentUser = { username: data.username, balance: data.balance, isAdmin: data.isAdmin };
-  closeModal();
-  renderUI();
-  showContent('status');
-}
-
-// --- PROFİL ---
-async function renderProfile() {
-  const content = document.getElementById('content');
-  const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
-  content.innerHTML = `
-    <div class="glass-card" style="max-width:600px; margin:2rem auto;">
-      <h2>${t('profile')}</h2>
-      <h3>${t('passwordChange')}</h3>
-      <input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br>
-      <input id="newPass" type="password" placeholder="${t('newPassword')}"><br>
-      <button id="changePassBtn">${t('save')}</button>
-      <hr style="margin:20px 0; border-color: rgba(255,255,255,0.1);">
-      <h3>${t('selectAvatar')}</h3>
-      <div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px; margin:10px 0;">
-        <img src="${DEFAULT_AVATAR}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${DEFAULT_AVATAR}')" title="Varsayılan">
-        ${icons.map(url => `<img src="${url}" class="profile-icon" style="cursor:pointer" onclick="setAvatar('${url}')">`).join('')}
-      </div>
-      <div class="file-upload" style="margin:10px 0;">
-        <label for="avatarUpload" style="background: var(--accent); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer;">📁 ${t('uploadAvatar')}</label>
-        <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;">
-        <span id="uploadStatus"></span>
-      </div>
-      <input id="customAvatar" placeholder="${t('customURL')}"><br>
-      <button id="setAvatarBtn">${t('save')}</button>
-      <hr style="margin:20px 0; border-color: rgba(255,255,255,0.1);">
-      <label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label>
-      <label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label>
-      <div style="margin-top:20px">
-        <button id="saveSettingsBtn">${t('save')}</button>
-        <button onclick="showContent('status')">← Geri</button>
-      </div>
-    </div>
-  `;
-  document.getElementById('langSelect').value = currentUser.language || 'tr';
-  document.getElementById('statusSelect').value = currentUser.status || 'Online';
-  document.getElementById('changePassBtn').addEventListener('click', changePassword);
-  document.getElementById('setAvatarBtn').addEventListener('click', () => {
-    const url = document.getElementById('customAvatar').value.trim();
-    if (url) setAvatar(url);
-  });
-  document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
-}
-
-// --- YARDIMCI FONKSİYONLAR ---
-async function uploadAvatar(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result;
-    currentUser.icon = base64;
-    await fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ icon: base64 }) });
-    document.getElementById('uploadStatus').innerText = '✅ Yüklendi!';
-    const pool = document.getElementById('avatarPool');
-    const img = document.createElement('img');
-    img.src = base64; img.className = 'profile-icon'; img.style.cursor = 'pointer';
-    img.onclick = () => setAvatar(base64);
-    pool.appendChild(img);
-    setAvatar(base64);
-  };
-  reader.readAsDataURL(file);
-}
-
-function setAvatar(url) {
-  currentUser.icon = url;
-  fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ icon: url }) }).then(() => renderUI());
-  const profileIcon = document.querySelector('.profile-icon');
-  if (profileIcon) profileIcon.src = url;
-}
-
-async function changePassword() {
-  const oldPass = document.getElementById('oldPass').value;
-  const newPass = document.getElementById('newPass').value;
-  const res = await fetch(`${API}/api/password`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }) });
-  const data = await res.json();
-  alert(data.success ? 'Şifre değiştirildi' : (data.error || 'Hata'));
-}
-
-async function saveProfileSettings() {
-  const language = document.getElementById('langSelect').value;
-  const status = document.getElementById('statusSelect').value;
-  const res = await fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ language, status }) });
-  const data = await res.json();
-  if (data.success) { currentUser.language = language; currentUser.status = status; setLang(language); renderUI(); showContent('status'); }
-  else alert(data.error || 'Hata');
-}
-
-function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-function logout() { localStorage.clear(); token = null; currentUser = null; location.reload(); }
-function setLang(lang) { currentLang = lang; localStorage.setItem('lang', lang); renderUI(); }
+        <div style="padding:12px; background:rgba(0,0,0,0.3); border
