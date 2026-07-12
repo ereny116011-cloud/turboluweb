@@ -7,6 +7,7 @@ const translations = {
   tr: {
     register: 'Kaydol', login: 'Giriş Yap', logout: 'Çıkış',
     shop: 'Market', campaigns: 'Kampanyalar',
+    announcements: 'Duyurular', news: 'Haberler',
     addAnnouncement: 'Duyuru Yap', addCampaign: 'Kampanya Düzenle',
     addNews: 'Haber Ekle', addItem: 'Ürün Ekle',
     manageCampaigns: 'Kampanyaları Yönet',
@@ -25,6 +26,7 @@ const translations = {
   en: {
     register: 'Register', login: 'Login', logout: 'Logout',
     shop: 'Shop', campaigns: 'Campaigns',
+    announcements: 'Announcements', news: 'News',
     addAnnouncement: 'Add Announcement', addCampaign: 'Add Campaign',
     addNews: 'Add News', addItem: 'Add Item',
     manageCampaigns: 'Manage Campaigns',
@@ -108,6 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 function renderUI() {
   const userArea = document.getElementById('userArea');
   const content = document.getElementById('content');
+
   if (currentUser) {
     let extraButtons = '';
     if (currentUser.isAdmin) {
@@ -121,16 +124,19 @@ function renderUI() {
       `;
     } else {
       extraButtons = `
-        <button onclick="showContent('shop')">🛒 Market</button>
-        <button onclick="showContent('inventory')">📦 Taleplerim</button>
-        <button onclick="showContent('campaigns')">📣 Kampanyalar</button>
+        <button onclick="showContent('shop')">🛒 ${t('shop')}</button>
+        <button onclick="showContent('inventory')">📦 ${t('inventory')}</button>
+        <button onclick="showContent('campaigns')">📣 ${t('campaigns')}</button>
+        <button onclick="showContent('announcements')">📢 ${t('announcements')}</button>
+        <button onclick="showContent('news')">📰 ${t('news')}</button>
       `;
     }
+
     userArea.innerHTML = `
       ${extraButtons}
-      <button onclick="requestNotificationPermission()" title="Bildirim">🔔</button>
-      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')">
-      <span style="font-weight:bold;">${currentUser.username}</span>
+      <button onclick="requestNotificationPermission()" title="${t('enableNotifications')}">🔔</button>
+      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')" title="${t('profile')}">
+      <span style="font-weight:bold">${currentUser.username}</span>
       <button id="logoutBtn">${t('logout')}</button>
     `;
     document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -142,15 +148,19 @@ function renderUI() {
     document.getElementById('registerBtn').addEventListener('click', () => openAuthModal('register'));
     document.getElementById('loginBtn').addEventListener('click', () => openAuthModal('login'));
   }
+
   if (!content.innerHTML.trim()) showContent('status');
 }
 
 function showContent(section) {
   if (section !== 'status' && statusInterval) { clearInterval(statusInterval); statusInterval = null; }
+
   switch (section) {
     case 'status': renderStatus(); break;
     case 'shop': renderShop(); break;
     case 'campaigns': renderCampaigns(); break;
+    case 'announcements': renderAnnouncements(); break;
+    case 'news': renderNews(); break;
     case 'manageCampaigns': renderManageCampaigns(); break;
     case 'addAnnouncement': renderAdminForm('announcement'); break;
     case 'addCampaign': renderAdminForm('campaign'); break;
@@ -197,6 +207,7 @@ async function renderStatus() {
       <p class="license-text">Bu proje GNU General Public License v3.0 ile korunmaktadır.</p>
     </div>
   `;
+
   async function updateStatus() {
     try {
       const res = await fetch('https://api.mcsrvstat.us/2/turbolumc.seedloaf.gg'); const data = await res.json();
@@ -206,6 +217,7 @@ async function renderStatus() {
       document.getElementById('sunucu-surum').textContent = data.version || '-';
     } catch (e) {}
   }
+
   updateStatus();
   if (statusInterval) clearInterval(statusInterval);
   statusInterval = setInterval(updateStatus, 10000);
@@ -215,7 +227,7 @@ async function renderStatus() {
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>🛒 Market</h2>${currentUser ? `<p>Bakiye: <strong>${currentUser.balance}</strong> puan</p>` : ''}${items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;"><div><b>${i.name}</b><p style="font-size:0.85rem; opacity:0.7;">${i.price} puan</p></div><button onclick="buy('${i.id}')">Satın Al</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2>🛒 ${t('shop')}</h2>${currentUser ? `<p>${t('balance')}: <strong>${currentUser.balance}</strong> puan</p>` : ''}${items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;"><div><b>${i.name}</b><p style="font-size:0.85rem; opacity:0.7;">${i.price} puan</p></div><button onclick="buy('${i.id}')">${t('buy')}</button></div>`).join('')}</div>`;
 }
 async function buy(itemId) {
   if (!token) return alert('Lütfen giriş yapın.');
@@ -230,7 +242,7 @@ async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
   const requests = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📦 Taleplerim</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between;"><div><b>${r.item}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}">${t(r.status)}</span></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2>📦 ${t('inventory')}</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between;"><div><b>${r.item}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}">${t(r.status)}</span></div>`).join('')}</div>`;
 }
 
 // BEKLEYEN TALEPLER (ADMIN)
@@ -238,7 +250,7 @@ async function renderRequests() {
   if (!currentUser?.isAdmin) return;
   const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
   const content = document.getElementById('content');
-  content.innerHTML = `<div class="glass-card"><h2>📋 Bekleyen Talepler</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;"><div style="display:flex; justify-content:space-between;"><div><b>${r.user}</b> → ${r.item} (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><div>${r.status==='pending'?`<button onclick="completeRequest('${r.id}')">✅</button><button onclick="rejectRequest('${r.id}')" style="background:rgba(239,68,68,0.8);">❌</button>`:`<span>${t(r.status)}</span>`}</div></div></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2>📋 ${t('requests')}</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;"><div style="display:flex; justify-content:space-between;"><div><b>${r.user}</b> → ${r.item} (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><div>${r.status==='pending'?`<button onclick="completeRequest('${r.id}')">✅</button><button onclick="rejectRequest('${r.id}')" style="background:rgba(239,68,68,0.8);">❌</button>`:`<span>${t(r.status)}</span>`}</div></div></div>`).join('')}</div>`;
 }
 async function completeRequest(id) {
   await fetch(`${API}/api/admin/complete-request`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: id }) });
@@ -250,11 +262,25 @@ async function rejectRequest(id) {
   renderRequests();
 }
 
+// DUYURULAR (HERKESE AÇIK)
+async function renderAnnouncements() {
+  const content = document.getElementById('content');
+  const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
+  content.innerHTML = `<div class="glass-card"><h2>📢 ${t('announcements')}</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div class="announcement-item"><h3>${a.title}</h3><p>${a.content}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
+}
+
+// HABERLER (HERKESE AÇIK)
+async function renderNews() {
+  const content = document.getElementById('content');
+  const news = await fetch(`${API}/api/news`).then(r => r.json());
+  content.innerHTML = `<div class="glass-card"><h2>📰 ${t('news')}</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${n.title}</h3><p>${n.content}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
+}
+
 // KAMPANYALAR (KULLANICI)
 async function renderCampaigns() {
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = new Date();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 Kampanyalar</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div>`}).join('')}</div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 ${t('campaigns')}</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():t('noEndDate')} ${expired?'⚠️ '+t('expired'):''}</small></div>`}).join('')}</div>`;
 }
 
 // KAMPANYA YÖNET (ADMIN)
@@ -262,7 +288,7 @@ async function renderManageCampaigns() {
   if (!currentUser?.isAdmin) return;
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = new Date();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📊 Kampanyaları Yönet</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between;"><div><b>${c.title}</b><br><small>${c.description} | 🎁 ${c.reward}</small><br><small>📅 ${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div><button onclick="deleteCampaign('${c.id}')" style="background:rgba(239,68,68,0.8);">🗑️ Sil</button></div>`}).join('')}</div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📊 ${t('manageCampaigns')}</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between;"><div><b>${c.title}</b><br><small>${c.description} | 🎁 ${c.reward}</small><br><small>📅 ${c.endDate?new Date(c.endDate).toLocaleString():t('noEndDate')} ${expired?'⚠️ '+t('expired'):''}</small></div><button onclick="deleteCampaign('${c.id}')" style="background:rgba(239,68,68,0.8);">🗑️ ${t('delete')}</button></div>`}).join('')}</div>`;
 }
 async function deleteCampaign(id) {
   if (!confirm('Emin misiniz?')) return;
@@ -273,10 +299,10 @@ async function deleteCampaign(id) {
 // ADMIN FORMLARI
 function renderAdminForm(type) {
   let html = '';
-  if (type === 'announcement') html = '<h2>📢 Duyuru Yap</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin(\'announcement\')">Gönder</button>';
-  else if (type === 'campaign') html = '<h2>🎯 Kampanya Düzenle</h2><input id="title" placeholder="Başlık"><br><input id="description" placeholder="Açıklama"><br><input id="reward" placeholder="Ödül"><br><label>📅 Bitiş Tarihi:</label><input id="endDate" type="datetime-local"><br><button onclick="submitAdmin(\'campaign\')">Gönder</button>';
-  else if (type === 'news') html = '<h2>📰 Haber Ekle</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin(\'news\')">Gönder</button>';
-  else if (type === 'item') html = '<h2>🛒 Ürün Ekle</h2><input id="itemName" placeholder="Ürün adı"><br><input id="itemPrice" type="number" placeholder="Fiyat"><br><input id="itemCommand" placeholder="Komut"><br><button onclick="submitAdmin(\'item\')">Ekle</button>';
+  if (type === 'announcement') html = `<h2>📢 ${t('addAnnouncement')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('announcement')">${t('save')}</button>`;
+  else if (type === 'campaign') html = `<h2>🎯 ${t('addCampaign')}</h2><input id="title" placeholder="Başlık"><br><input id="description" placeholder="Açıklama"><br><input id="reward" placeholder="Ödül"><br><label>📅 ${t('endDate')}:</label><input id="endDate" type="datetime-local"><br><button onclick="submitAdmin('campaign')">${t('save')}</button>`;
+  else if (type === 'news') html = `<h2>📰 ${t('addNews')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('news')">${t('save')}</button>`;
+  else if (type === 'item') html = `<h2>🛒 ${t('addItem')}</h2><input id="itemName" placeholder="Ürün adı"><br><input id="itemPrice" type="number" placeholder="Fiyat"><br><input id="itemCommand" placeholder="Komut"><br><button onclick="submitAdmin('item')">${t('save')}</button>`;
   document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;">${html}</div>`;
 }
 
@@ -294,7 +320,7 @@ async function submitAdmin(type) {
 // GİRİŞ/KAYIT
 function openAuthModal(mode) {
   const modal = document.getElementById('modal'); modal.classList.remove('hidden');
-  document.getElementById('modalBody').innerHTML = `<h3>${mode==='register'?'Kaydol':'Giriş Yap'}</h3><input id="authUsername" placeholder="Kullanıcı adı"><br><input id="authPassword" type="password" placeholder="Parola"><br><button class="btn-green" id="authSubmit">${mode==='register'?'Kaydol':'Giriş'}</button><button id="cancelModal">Vazgeç</button>`;
+  document.getElementById('modalBody').innerHTML = `<h3>${mode==='register'?t('register'):t('login')}</h3><input id="authUsername" placeholder="Kullanıcı adı"><br><input id="authPassword" type="password" placeholder="Parola"><br><button class="btn-green" id="authSubmit">${mode==='register'?t('register'):t('login')}</button><button id="cancelModal">Vazgeç</button>`;
   document.getElementById('authSubmit').addEventListener('click', () => handleAuth(mode));
   document.getElementById('cancelModal').addEventListener('click', closeModal);
 }
@@ -312,7 +338,7 @@ async function handleAuth(mode) {
 // PROFİL
 async function renderProfile() {
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
-  document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;"><h2>Profil Ayarları</h2><h3>Şifre Değiştir</h3><input id="oldPass" type="password" placeholder="Mevcut Şifre"><br><input id="newPass" type="password" placeholder="Yeni Şifre"><br><button id="changePassBtn">Kaydet</button><hr><h3>Avatar Seç</h3><div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px;"><img src="${DEFAULT_AVATAR}" class="profile-icon" onclick="setAvatar('${DEFAULT_AVATAR}')">${icons.map(url=>`<img src="${url}" class="profile-icon" onclick="setAvatar('${url}')">`).join('')}</div><div class="file-upload"><label for="avatarUpload" style="background:var(--accent); color:white; padding:8px 16px; border-radius:8px; cursor:pointer;">📁 Yükle</label><input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;"><span id="uploadStatus"></span></div><input id="customAvatar" placeholder="veya URL gir"><br><button id="setAvatarBtn">Kaydet</button><hr><label>Dil: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label><label>Durum: <select id="statusSelect"><option value="Online">Çevrimiçi</option><option value="Offline">Çevrimdışı</option></select></label><div style="margin-top:20px"><button id="saveSettingsBtn">Kaydet</button><button onclick="showContent('status')">← Geri</button></div></div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;"><h2>${t('profile')}</h2><h3>${t('passwordChange')}</h3><input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br><input id="newPass" type="password" placeholder="${t('newPassword')}"><br><button id="changePassBtn">${t('save')}</button><hr><h3>${t('selectAvatar')}</h3><div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px;"><img src="${DEFAULT_AVATAR}" class="profile-icon" onclick="setAvatar('${DEFAULT_AVATAR}')">${icons.map(url=>`<img src="${url}" class="profile-icon" onclick="setAvatar('${url}')">`).join('')}</div><div class="file-upload"><label for="avatarUpload" style="background:var(--accent); color:white; padding:8px 16px; border-radius:8px; cursor:pointer;">📁 ${t('uploadAvatar')}</label><input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;"><span id="uploadStatus"></span></div><input id="customAvatar" placeholder="${t('customURL')}"><br><button id="setAvatarBtn">${t('save')}</button><hr><label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label><label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label><div style="margin-top:20px"><button id="saveSettingsBtn">${t('save')}</button><button onclick="showContent('status')">← Geri</button></div></div>`;
   document.getElementById('langSelect').value = currentUser.language || 'tr';
   document.getElementById('statusSelect').value = currentUser.status || 'Online';
   document.getElementById('changePassBtn').addEventListener('click', changePassword);
