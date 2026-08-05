@@ -1,4 +1,3 @@
-/* ========== DEĞİŞKENLER ========== */
 :root {
   --bg: rgba(0, 0, 0, 0.3);
   --surface: rgba(0, 0, 0, 0.55);
@@ -31,55 +30,36 @@ body {
   display: flex; flex-direction: column; min-height: 100vh;
 }
 
-/* ========== NAVBAR – TEK SATIR ========== */
+/* Navbar */
 .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex; justify-content: space-between; align-items: center;
   padding: 0.6rem 1.2rem;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(25px);
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(25px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  flex-wrap: nowrap;           /* tek satıra zorla */
-  gap: 5px;
+  position: sticky; top: 0; z-index: 100;
+  flex-wrap: nowrap; gap: 5px;
 }
 .logo {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
+  font-size: 1.3rem; font-weight: bold; color: var(--accent);
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
   white-space: nowrap;
 }
 .user-area {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  display: flex; align-items: center; gap: 5px;
   flex-wrap: nowrap;
 }
 
-/* Butonlar – daha kompakt */
-.user-area button,
-.user-area .btn,
-button, .btn, .btn-green, #authSubmit, #changePassBtn, #setAvatarBtn, #saveSettingsBtn, #cancelModal, #logoutBtn, .copy-btn, nav button, .glass-card button {
+/* Butonlar */
+button, .btn, .btn-green, #authSubmit, #changePassBtn, #setAvatarBtn, #saveSettingsBtn,
+#cancelModal, #logoutBtn, .copy-btn, .user-area button, nav button, .glass-card button {
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.75rem;
+  color: white; border: none;
+  padding: 6px 10px; border-radius: 8px;
+  font-weight: bold; cursor: pointer; font-size: 0.75rem;
   transition: all var(--transition);
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
   backdrop-filter: blur(10px);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-transform: uppercase; letter-spacing: 0.5px;
   white-space: nowrap;
 }
 button:hover, .btn:hover, .btn-green:hover {
@@ -96,14 +76,13 @@ button:active { transform: translateY(0) scale(0.98); }
 #logoutBtn { background: rgba(239, 68, 68, 0.8); }
 #logoutBtn:hover { background: rgba(239, 68, 68, 1); }
 
-/* Profil simgesi */
 .profile-icon {
   width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
   border: 2px solid var(--accent); cursor: pointer; transition: transform var(--transition);
 }
 .profile-icon:hover { transform: scale(1.15) rotate(5deg); }
 
-/* ========== İÇERİK KARTLARI ========== */
+/* İçerik kartları */
 .glass-card {
   background: var(--surface); backdrop-filter: blur(20px);
   border-radius: var(--radius); padding: 1.5rem;
@@ -174,7 +153,6 @@ button:active { transform: translateY(0) scale(0.98); }
 .status-info p { margin: 0.5rem 0; color: var(--text); font-size: 0.95rem; }
 .status-info strong { color: var(--accent); }
 
-/* Modal */
 .modal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
@@ -215,12 +193,8 @@ input:focus, textarea:focus, select:focus {
 .announcement-item h3, .news-item h3 { color: var(--accent); margin-bottom: 5px; }
 .announcement-item small, .news-item small { opacity: 0.6; font-size: 0.8rem; }
 
-/* ========== MOBİL – wrap serbest ========== */
 @media (max-width: 768px) {
-  .navbar {
-    flex-wrap: wrap;    /* mobilde alt satıra geçebilir */
-    padding: 0.5rem 1rem;
-  }
+  .navbar { flex-wrap: wrap; padding: 0.5rem 1rem; }
   .logo { font-size: 1.2rem; }
   .user-area { gap: 4px; flex-wrap: wrap; }
   .user-area button, .user-area .btn { padding: 5px 8px; font-size: 0.7rem; }
