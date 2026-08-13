@@ -11,39 +11,42 @@
     <div class="bg-image"></div>
 
     <div class="portal-container">
-        <!-- Üst Başlık -->
         <header class="portal-header">
             <div class="portal-logo" onclick="window.location.href='/'">
-                <svg width="40" height="40" viewBox="0 0 30 30">
-                    <rect width="30" height="30" fill="#22c55e"/>
-                    <rect x="8" y="8" width="4" height="4" fill="#000"/>
-                    <rect x="18" y="8" width="4" height="4" fill="#000"/>
-                    <rect x="8" y="18" width="14" height="4" fill="#000"/>
+                <svg width="40" height="40" viewBox="0 0 8 8">
+                    <rect width="8" height="8" fill="#22c55e"/>
+                    <rect x="1" y="1" width="2" height="2" fill="#000"/>
+                    <rect x="5" y="1" width="2" height="2" fill="#000"/>
+                    <rect x="2" y="4" width="4" height="1" fill="#000"/>
+                    <rect x="1" y="5" width="6" height="1" fill="#000"/>
+                    <rect x="0" y="6" width="8" height="1" fill="#000"/>
                 </svg>
                 Turbolu Studios
             </div>
             <p>Projelerimize göz atın!</p>
         </header>
 
-        <!-- Proje Kartları -->
         <div class="project-grid">
-            <!-- TurboluMC Kartı -->
-            <a href="/mc/" class="project-card" style="--accent: #22c55e;">
+            <a href="/mc/" class="project-card">
                 <div class="project-icon">
-                    <i class="fa-solid fa-gamepad"></i>
+                    <svg width="60" height="60" viewBox="0 0 8 8">
+                        <rect width="8" height="8" fill="#22c55e"/>
+                        <rect x="1" y="1" width="2" height="2" fill="#000"/>
+                        <rect x="5" y="1" width="2" height="2" fill="#000"/>
+                        <rect x="2" y="4" width="4" height="1" fill="#000"/>
+                        <rect x="1" y="5" width="6" height="1" fill="#000"/>
+                        <rect x="0" y="6" width="8" height="1" fill="#000"/>
+                    </svg>
                 </div>
                 <div class="project-info">
                     <h2>TurboluMC</h2>
-                    <p>Minecraft Sunucumuz - Hayatta kalma, ekonomi, mini oyunlar ve çok daha fazlası!</p>
+                    <p>Minecraft Sunucumuz</p>
                     <span class="project-badge">Aktif</span>
                 </div>
             </a>
 
-            <!-- Gelecek Proje Yeri -->
-            <a href="#" class="project-card future" style="--accent: #64748b;" onclick="alert('Yakında!'); return false;">
-                <div class="project-icon">
-                    <i class="fa-solid fa-question"></i>
-                </div>
+            <a href="#" class="project-card future" onclick="alert('Yakında!'); return false;">
+                <div class="project-icon">❓</div>
                 <div class="project-info">
                     <h2>Yeni Proje</h2>
                     <p>Çok yakında...</p>
@@ -52,7 +55,6 @@
             </a>
         </div>
 
-        <!-- Alt Bilgi -->
         <footer class="portal-footer">
             <p>&copy; 2026 Turbolu Studios. Tüm Hakları Saklıdır.</p>
         </footer>
