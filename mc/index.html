@@ -6,17 +6,28 @@
     <title>TurboluMC - Resmi Web Sitesi</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/mc/manifest.json">
     <meta name="theme-color" content="#22c55e">
 </head>
 <body>
     <div class="bg-image"></div>
     <div id="app">
         <nav class="navbar">
-            <div class="logo" onclick="showContent('status')" style="cursor:pointer;">
-                <i class="fa-solid fa-cube"></i> TurboluMC
+            <div class="logo" onclick="window.location.href='/'">
+                <svg width="30" height="30" viewBox="0 0 30 30">
+                    <rect width="30" height="30" fill="#22c55e"/>
+                    <rect x="8" y="8" width="4" height="4" fill="#000"/>
+                    <rect x="18" y="8" width="4" height="4" fill="#000"/>
+                    <rect x="8" y="18" width="14" height="4" fill="#000"/>
+                </svg>
+                TurboluMC
             </div>
-            <div class="user-area" id="userArea"></div>
+            <div class="user-area" id="userArea">
+                <!-- Dinamik butonlar buraya gelecek -->
+            </div>
+            <button class="home-btn" onclick="window.location.href='/'">
+                <i class="fa-solid fa-house"></i> Ana Sayfa
+            </button>
         </nav>
         <main id="content"></main>
         <div id="modal" class="modal hidden">
