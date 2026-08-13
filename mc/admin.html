@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Admin Panel</h1>
+  <div id="adminContent" style="display:none;">
+    <h3>Duyuru Ekle</h3>
+    <input id="dTitle" placeholder="Başlık"><br>
+    <textarea id="dContent" placeholder="İçerik"></textarea><br>
+    <button onclick="addAnnouncement()">Ekle</button>
+
+    <h3>Haber Ekle</h3>
+    <input id="nTitle" placeholder="Başlık"><br>
+    <textarea id="nContent" placeholder="İçerik"></textarea><br>
+    <button onclick="addNews()">Ekle</button>
+
+    <h3>Ürün Ekle</h3>
+    <input id="iName" placeholder="Ürün adı"><br>
+    <input id="iPrice" type="number" placeholder="Fiyat"><br>
+    <input id="iCommand" placeholder="Komut (oyun içi)"><br>
+    <button onclick="addItem()">Ekle</button>
+  </div>
+  <div id="loginMessage">Admin girişi yapın (TurboluMC)</div>
+  <a href="index.html">Ana Sayfa</a>
+  <script src="app.js"></script>
+  <script>
+    if (getUser() && getUser().username === 'TurboluMC') {
+      document.getElementById('adminContent').style.display = 'block';
+      document.getElementById('loginMessage').style.display = 'none';
+    }
+    async function addAnnouncement() {
+      const title = document.getElementById('dTitle').value;
+      const content = document.getElementById('dContent').value;
+      await apiPost('/api/admin/announcement', { title, content });
+      alert('Eklendi');
+    }
+    async function addNews() {
+      const title = document.getElementById('nTitle').value;
+      const content = document.getElementById('nContent').value;
+      await apiPost('/api/admin/news', { title, content });
+      alert('Eklendi');
+    }
+    async function addItem() {
+      const name = document.getElementById('iName').value;
+      const price = Number(document.getElementById('iPrice').value);
+      const command = document.getElementById('iCommand').value;
+      await apiPost('/api/admin/item', { name, price, command });
+      alert('Eklendi');
+    }
+  </script>
+</body>
+</html>

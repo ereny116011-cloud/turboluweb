@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Profil - TurboluMC</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header><h1>👤 Profil</h1><a href="index.html">← Ana Sayfa</a></header>
+    <div class="card" id="profileInfo">
+      <p>Kullanıcı adı: <span id="displayName"></span></p>
+      <p>Bakiye: <span id="displayBalance"></span></p>
+    </div>
+  </div>
+  <script src="app.js"></script>
+  <script>
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      document.getElementById('displayName').textContent = user.username;
+      document.getElementById('displayBalance').textContent = user.balance;
+    } else {
+      document.getElementById('profileInfo').innerHTML = '<p>Lütfen önce giriş yapın.</p>';
+    }
+  </script>
+</body>
+</html>
