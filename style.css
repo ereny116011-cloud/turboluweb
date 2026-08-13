@@ -1,4 +1,3 @@
-/* ========== TURBOLU STUDIOS PORTAL ========== */
 :root {
   --bg: #0f172a;
   --surface: rgba(0, 0, 0, 0.55);
@@ -91,10 +90,7 @@ body {
   animation: spin 8s linear infinite;
   z-index: 0;
 }
-.project-card > * {
-  position: relative;
-  z-index: 1;
-}
+.project-card > * { position: relative; z-index: 1; }
 
 .project-icon {
   width: 80px;
@@ -140,12 +136,8 @@ body {
   color: #94a3b8;
   border-color: rgba(100, 116, 139, 0.4);
 }
-.project-card.future .project-info h2 {
-  color: #94a3b8;
-}
-.project-card.future .project-badge {
-  background: #64748b;
-}
+.project-card.future .project-info h2 { color: #94a3b8; }
+.project-card.future .project-badge { background: #64748b; }
 
 .portal-footer {
   text-align: center;
