@@ -57,9 +57,16 @@ let notificationPreferences = JSON.parse(localStorage.getItem('notifyPrefs') || 
 function t(key) { return translations[currentLang][key] || key; }
 
 function kopyalaIP() {
-  navigator.clipboard.writeText('turbolumc.aternos.me').then(() => {
-    alert('✅ IP kopyalandı!\n\n📌 Ana IP: turbolumc.aternos.me\n⚠️ Giremediyseniz alternatif IP: turbolu.aternos.me:13795\n❓ Bağlantı sorunu yaşarsanız admin ile iletişime geçiniz.');
-  });
+  navigator.clipboard.writeText('turbolumc.aternos.me');
+  const altInfo = document.getElementById('alt-ip-info');
+  if (altInfo) {
+    altInfo.innerHTML = `
+      <p style="margin-top: 12px; font-size: 0.9rem; opacity: 0.9; animation: fadeIn 0.3s ease;">
+        ✅ IP Kopyalandı!<br>
+        ⚠️ Giremediyseniz alternatif IP: <strong style="color: var(--accent);">turbolu.aternos.me:13795</strong><br>
+        ❓ Bağlantı sorunu yaşarsanız admin ile iletişime geçiniz.
+      </p>`;
+  }
 }
 
 // ========== BİLDİRİM ==========
@@ -78,7 +85,7 @@ async function subscribeToPush() {
   }
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') { alert('Bildirim izni verilmedi.'); return null; }
-  const registration = await navigator.serviceWorker.register('/sw.js');
+  const registration = await navigator.serviceWorker.register('/mc/sw.js');
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey: await urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
@@ -99,7 +106,7 @@ async function requestNotificationPermission() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if ('serviceWorker' in navigator) { try { await navigator.serviceWorker.register('/sw.js'); } catch (e) {} }
+  if ('serviceWorker' in navigator) { try { await navigator.serviceWorker.register('/mc/sw.js'); } catch (e) {} }
   try {
     const res = await fetch(`${API}/api/country`); const { tr } = await res.json();
     if (!localStorage.getItem('lang')) setLang(tr ? 'tr' : 'en'); else setLang(currentLang);
@@ -185,7 +192,7 @@ function showContent(section) {
   }
 }
 
-// ANA SAYFA
+// ========== TURBOLUMC ANA SAYFA ==========
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
@@ -197,10 +204,7 @@ async function renderStatus() {
         <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
       </div>
       <p class="click-info">IP adresine tıklayarak kopyalayabilirsin!</p>
-      <p style="margin-top:10px; font-size:0.9rem; opacity:0.8;">
-        ⚠️ Giremediyseniz alternatif IP: <strong style="color: var(--accent);">turbolu.aternos.me:13795</strong><br>
-        ❓ Bağlantı sorunu yaşarsanız admin ile iletişime geçiniz.
-      </p>
+      <div id="alt-ip-info"></div>
     </div>
     <div class="glass-card" id="features">
       <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Neden Biz?</h2>
@@ -239,7 +243,7 @@ async function renderStatus() {
   statusInterval = setInterval(updateStatus, 10000);
 }
 
-// MARKET
+// ========== MARKET ==========
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
@@ -253,7 +257,7 @@ async function buy(itemId) {
   else { alert('✅ Talep alındı!'); currentUser.balance = data.new_balance; renderShop(); }
 }
 
-// TALEPLERİM
+// ========== TALEPLERİM ==========
 async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
@@ -261,7 +265,7 @@ async function renderInventory() {
   content.innerHTML = `<div class="glass-card"><h2>📦 ${t('inventory')}</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between;"><div><b>${r.item}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}">${t(r.status)}</span></div>`).join('')}</div>`;
 }
 
-// BEKLEYEN TALEPLER (ADMIN)
+// ========== BEKLEYEN TALEPLER (ADMIN) ==========
 async function renderRequests() {
   if (!currentUser?.isAdmin) return;
   const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
@@ -278,56 +282,54 @@ async function rejectRequest(id) {
   renderRequests();
 }
 
-// DUYURULAR (HERKESE AÇIK)
+// ========== DUYURULAR ==========
 async function renderAnnouncements() {
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📢 ${t('announcements')}</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div class="announcement-item"><h3>${a.title}</h3><p>${a.content}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
-// HABERLER (HERKESE AÇIK)
+// ========== HABERLER ==========
 async function renderNews() {
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📰 ${t('news')}</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${n.title}</h3><p>${n.content}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
-// DUYURULARI YÖNET (ADMIN – SİLME İLE)
+// ========== DUYURULARI YÖNET (ADMIN) ==========
 async function renderManageAnnouncements() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📋 ${t('manageAnnouncements')}</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between; align-items:center;"><div><b>${a.title}</b><br><small>${new Date(a.date).toLocaleString()}</small></div><button onclick="deleteAnnouncement('${a.id}')" style="background:rgba(239,68,68,0.8);">🗑️ ${t('delete')}</button></div>`).join('')}</div>`;
 }
-
 async function deleteAnnouncement(id) {
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
   await fetch(`${API}/api/admin/announcement`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
   renderManageAnnouncements();
 }
 
-// HABERLERİ YÖNET (ADMIN – SİLME İLE)
+// ========== HABERLERİ YÖNET (ADMIN) ==========
 async function renderManageNews() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📋 ${t('manageNews')}</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between; align-items:center;"><div><b>${n.title}</b><br><small>${new Date(n.date).toLocaleString()}</small></div><button onclick="deleteNews('${n.id}')" style="background:rgba(239,68,68,0.8);">🗑️ ${t('delete')}</button></div>`).join('')}</div>`;
 }
-
 async function deleteNews(id) {
   if (!confirm('Bu haberi silmek istediğinize emin misiniz?')) return;
   await fetch(`${API}/api/admin/news`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
   renderManageNews();
 }
 
-// KAMPANYALAR (KULLANICI)
+// ========== KAMPANYALAR ==========
 async function renderCampaigns() {
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = new Date();
   document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 ${t('campaigns')}</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():t('noEndDate')} ${expired?'⚠️ '+t('expired'):''}</small></div>`}).join('')}</div>`;
 }
 
-// KAMPANYA YÖNET (ADMIN)
+// ========== KAMPANYA YÖNET (ADMIN) ==========
 async function renderManageCampaigns() {
   if (!currentUser?.isAdmin) return;
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
@@ -340,7 +342,7 @@ async function deleteCampaign(id) {
   renderManageCampaigns();
 }
 
-// ADMIN FORMLARI
+// ========== ADMIN FORMLARI ==========
 function renderAdminForm(type) {
   let html = '';
   if (type === 'announcement') html = `<h2>📢 ${t('addAnnouncement')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('announcement')">${t('save')}</button>`;
@@ -361,7 +363,7 @@ async function submitAdmin(type) {
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
 }
 
-// GİRİŞ/KAYIT
+// ========== GİRİŞ/KAYIT ==========
 function openAuthModal(mode) {
   const modal = document.getElementById('modal'); modal.classList.remove('hidden');
   document.getElementById('modalBody').innerHTML = `<h3>${mode==='register'?t('register'):t('login')}</h3><input id="authUsername" placeholder="Kullanıcı adı"><br><input id="authPassword" type="password" placeholder="Parola"><br><button class="btn-green" id="authSubmit">${mode==='register'?t('register'):t('login')}</button><button id="cancelModal">Vazgeç</button>`;
@@ -379,7 +381,7 @@ async function handleAuth(mode) {
   closeModal(); renderUI(); showContent('status');
 }
 
-// PROFİL
+// ========== PROFİL ==========
 async function renderProfile() {
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
   document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;"><h2>${t('profile')}</h2><h3>${t('passwordChange')}</h3><input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br><input id="newPass" type="password" placeholder="${t('newPassword')}"><br><button id="changePassBtn">${t('save')}</button><hr><h3>${t('selectAvatar')}</h3><div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px;"><img src="${DEFAULT_AVATAR}" class="profile-icon" onclick="setAvatar('${DEFAULT_AVATAR}')">${icons.map(url=>`<img src="${url}" class="profile-icon" onclick="setAvatar('${url}')">`).join('')}</div><div class="file-upload"><label for="avatarUpload" style="background:var(--accent); color:white; padding:8px 16px; border-radius:8px; cursor:pointer;">📁 ${t('uploadAvatar')}</label><input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;"><span id="uploadStatus"></span></div><input id="customAvatar" placeholder="${t('customURL')}"><br><button id="setAvatarBtn">${t('save')}</button><hr><label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label><label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label><div style="margin-top:20px"><button id="saveSettingsBtn">${t('save')}</button><button onclick="showContent('status')">← Geri</button></div></div>`;
