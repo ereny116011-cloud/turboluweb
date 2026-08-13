@@ -69,7 +69,6 @@ function kopyalaIP() {
   }
 }
 
-// ========== BİLDİRİM ==========
 async function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -192,7 +191,6 @@ function showContent(section) {
   }
 }
 
-// ========== TURBOLUMC ANA SAYFA ==========
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
@@ -243,7 +241,6 @@ async function renderStatus() {
   statusInterval = setInterval(updateStatus, 10000);
 }
 
-// ========== MARKET ==========
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
@@ -257,7 +254,6 @@ async function buy(itemId) {
   else { alert('✅ Talep alındı!'); currentUser.balance = data.new_balance; renderShop(); }
 }
 
-// ========== TALEPLERİM ==========
 async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
@@ -265,7 +261,6 @@ async function renderInventory() {
   content.innerHTML = `<div class="glass-card"><h2>📦 ${t('inventory')}</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between;"><div><b>${r.item}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}">${t(r.status)}</span></div>`).join('')}</div>`;
 }
 
-// ========== BEKLEYEN TALEPLER (ADMIN) ==========
 async function renderRequests() {
   if (!currentUser?.isAdmin) return;
   const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
@@ -282,21 +277,18 @@ async function rejectRequest(id) {
   renderRequests();
 }
 
-// ========== DUYURULAR ==========
 async function renderAnnouncements() {
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📢 ${t('announcements')}</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div class="announcement-item"><h3>${a.title}</h3><p>${a.content}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
-// ========== HABERLER ==========
 async function renderNews() {
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📰 ${t('news')}</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${n.title}</h3><p>${n.content}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
-// ========== DUYURULARI YÖNET (ADMIN) ==========
 async function renderManageAnnouncements() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
@@ -309,7 +301,6 @@ async function deleteAnnouncement(id) {
   renderManageAnnouncements();
 }
 
-// ========== HABERLERİ YÖNET (ADMIN) ==========
 async function renderManageNews() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
@@ -322,14 +313,12 @@ async function deleteNews(id) {
   renderManageNews();
 }
 
-// ========== KAMPANYALAR ==========
 async function renderCampaigns() {
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = new Date();
   document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 ${t('campaigns')}</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():t('noEndDate')} ${expired?'⚠️ '+t('expired'):''}</small></div>`}).join('')}</div>`;
 }
 
-// ========== KAMPANYA YÖNET (ADMIN) ==========
 async function renderManageCampaigns() {
   if (!currentUser?.isAdmin) return;
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
@@ -342,7 +331,6 @@ async function deleteCampaign(id) {
   renderManageCampaigns();
 }
 
-// ========== ADMIN FORMLARI ==========
 function renderAdminForm(type) {
   let html = '';
   if (type === 'announcement') html = `<h2>📢 ${t('addAnnouncement')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('announcement')">${t('save')}</button>`;
@@ -363,7 +351,6 @@ async function submitAdmin(type) {
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
 }
 
-// ========== GİRİŞ/KAYIT ==========
 function openAuthModal(mode) {
   const modal = document.getElementById('modal'); modal.classList.remove('hidden');
   document.getElementById('modalBody').innerHTML = `<h3>${mode==='register'?t('register'):t('login')}</h3><input id="authUsername" placeholder="Kullanıcı adı"><br><input id="authPassword" type="password" placeholder="Parola"><br><button class="btn-green" id="authSubmit">${mode==='register'?t('register'):t('login')}</button><button id="cancelModal">Vazgeç</button>`;
@@ -381,7 +368,6 @@ async function handleAuth(mode) {
   closeModal(); renderUI(); showContent('status');
 }
 
-// ========== PROFİL ==========
 async function renderProfile() {
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
   document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;"><h2>${t('profile')}</h2><h3>${t('passwordChange')}</h3><input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br><input id="newPass" type="password" placeholder="${t('newPassword')}"><br><button id="changePassBtn">${t('save')}</button><hr><h3>${t('selectAvatar')}</h3><div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px;"><img src="${DEFAULT_AVATAR}" class="profile-icon" onclick="setAvatar('${DEFAULT_AVATAR}')">${icons.map(url=>`<img src="${url}" class="profile-icon" onclick="setAvatar('${url}')">`).join('')}</div><div class="file-upload"><label for="avatarUpload" style="background:var(--accent); color:white; padding:8px 16px; border-radius:8px; cursor:pointer;">📁 ${t('uploadAvatar')}</label><input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;"><span id="uploadStatus"></span></div><input id="customAvatar" placeholder="${t('customURL')}"><br><button id="setAvatarBtn">${t('save')}</button><hr><label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label><label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label><div style="margin-top:20px"><button id="saveSettingsBtn">${t('save')}</button><button onclick="showContent('status')">← Geri</button></div></div>`;
