@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Turbolu Tıkla! - Ekran Görüntüleri</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="bg-image"></div>
+
+    <div class="tikla-container">
+        <nav class="tikla-navbar">
+            <button class="back-btn" onclick="window.location.href='/'">
+                <i class="fa-solid fa-arrow-left"></i> Portal
+            </button>
+            <div class="tikla-logo">
+                <img src="logo.png" alt="Tıkla!" class="tikla-logo-img">
+                Turbolu Tıkla!
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Ana Sayfa</a>
+                <a href="ozellikler.html">Özellikler</a>
+                <a href="ekran-goruntuleri.html">Görüntüler</a>
+                <a href="sss.html">SSS</a>
+                <a href="virus-testi.html">Virüs Testi</a>
+            </div>
+        </nav>
+
+        <header class="tikla-hero">
+            <h1><i class="fa-solid fa-images"></i> Ekran Görüntüleri</h1>
+            <p>Oyundan kareler</p>
+        </header>
+
+        <section class="tikla-section">
+            <div class="gallery">
+                <button class="gallery-btn prev" onclick="prevImage()"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="gallery-container">
+                    <img id="galleryImage" src="sss/1.png" alt="Ekran Görüntüsü" loading="lazy">
+                </div>
+                <button class="gallery-btn next" onclick="nextImage()"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <p class="gallery-counter"><span id="currentImage">1</span> / <span id="totalImages">6</span></p>
+        </section>
+
+        <footer class="tikla-footer">
+            <p>&copy; 2026 Turbolu Studios. Tüm Hakları Saklıdır.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
