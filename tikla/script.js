@@ -9,7 +9,8 @@ function showImage(index) {
   setTimeout(() => {
     galleryImage.src = `sss/${index}.png`;
     galleryImage.style.opacity = 1;
-    document.getElementById('currentImage').textContent = index;
+    const currentEl = document.getElementById('currentImage');
+    if (currentEl) currentEl.textContent = index;
   }, 300);
 }
 
@@ -31,7 +32,7 @@ function prevImage() {
 document.addEventListener('DOMContentLoaded', () => {
   const totalEl = document.getElementById('totalImages');
   if (totalEl) totalEl.textContent = totalImages;
-  
+
   if (document.getElementById('galleryImage')) {
     showImage(1);
   }
