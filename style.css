@@ -46,6 +46,13 @@ body {
   cursor: pointer;
   margin-bottom: 0.5rem;
 }
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}
 .portal-header p {
   color: var(--text-secondary);
   font-size: 1.1rem;
@@ -100,10 +107,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
-  color: var(--accent);
   margin-bottom: 1rem;
   border: 2px solid rgba(34, 197, 94, 0.4);
+  overflow: hidden;
+}
+.project-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .project-info h2 {
