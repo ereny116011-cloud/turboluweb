@@ -1,9 +1,10 @@
-// Galeri
-const totalImages = 6; // Kaç ekran görüntünüz varsa bu sayıyı güncelleyin
+// Ekran görüntüsü galerisi (sadece ekran-goruntuleri.html'de kullanılacak)
+let totalImages = 6; // Yüklediğin ekran görüntüsü sayısı
 let currentImage = 1;
 
 function showImage(index) {
   const galleryImage = document.getElementById('galleryImage');
+  if (!galleryImage) return;
   galleryImage.style.opacity = 0;
   setTimeout(() => {
     galleryImage.src = `sss/${index}.png`;
@@ -28,8 +29,12 @@ function prevImage() {
 
 // SSS akordiyon
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('totalImages').textContent = totalImages;
-  showImage(1);
+  const totalEl = document.getElementById('totalImages');
+  if (totalEl) totalEl.textContent = totalImages;
+  
+  if (document.getElementById('galleryImage')) {
+    showImage(1);
+  }
 
   document.querySelectorAll('.faq-question').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -42,12 +47,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
-// Virüs modal
-function openVirusModal() {
-  document.getElementById('virusModal').classList.remove('hidden');
-}
-
-function closeVirusModal() {
-  document.getElementById('virusModal').classList.add('hidden');
-}
