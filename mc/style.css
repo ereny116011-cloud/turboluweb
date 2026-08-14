@@ -48,6 +48,13 @@ body {
   cursor: pointer;
   white-space: nowrap;
 }
+.logo-img {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}
 .user-area {
   display: flex; align-items: center; gap: 5px;
   flex-wrap: nowrap;
