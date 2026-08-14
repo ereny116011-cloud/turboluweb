@@ -1,32 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://turboluweb.netlify.app/</loc>
+    <loc>https://turboluweb.wasmer.app/</loc>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://turboluweb.netlify.app/mc/</loc>
+    <loc>https://turboluweb.wasmer.app/mc/</loc>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://turboluweb.netlify.app/tikla/</loc>
+    <loc>https://turboluweb.wasmer.app/tikla/</loc>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://turboluweb.netlify.app/tikla/ozellikler.html</loc>
+    <loc>https://turboluweb.wasmer.app/tikla/ozellikler.html</loc>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://turboluweb.netlify.app/tikla/sss.html</loc>
+    <loc>https://turboluweb.wasmer.app/tikla/ekran-goruntuleri.html</loc>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://turboluweb.netlify.app/tikla/virus-testi.html</loc>
+    <loc>https://turboluweb.wasmer.app/tikla/sss.html</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://turboluweb.wasmer.app/tikla/virus-testi.html</loc>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
