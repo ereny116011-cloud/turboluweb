@@ -35,11 +35,12 @@ body {
 }
 
 .tikla-container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   padding-bottom: 2rem;
 }
 
+/* Navbar */
 .tikla-navbar {
   display: flex;
   align-items: center;
@@ -50,6 +51,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  flex-wrap: wrap;
 }
 
 .back-btn {
@@ -64,6 +66,7 @@ body {
   align-items: center;
   gap: 5px;
   transition: all var(--transition);
+  flex-shrink: 0;
 }
 
 .back-btn:hover {
@@ -88,6 +91,32 @@ body {
   object-fit: cover;
 }
 
+.nav-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.nav-links a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.nav-links a:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Hero */
 .tikla-hero {
   text-align: center;
   padding: 2rem 1rem;
@@ -151,6 +180,7 @@ body {
   transform: translateY(-2px);
 }
 
+/* Bölümler */
 .tikla-section {
   background: var(--surface);
   backdrop-filter: blur(20px);
@@ -170,9 +200,49 @@ body {
   font-size: 1.3rem;
 }
 
+/* Hızlı linkler */
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+}
+
+.quick-card {
+  background: rgba(0,0,0,0.4);
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  color: var(--text);
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.quick-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.quick-card i {
+  font-size: 1.8rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.quick-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.quick-card p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Özellikler */
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.8rem;
 }
 
@@ -310,38 +380,7 @@ body {
   line-height: 1.5;
 }
 
-/* Modal */
-.modal {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal.hidden { display: none; }
-
-.modal-content {
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(30px);
-  padding: 1.5rem;
-  border-radius: var(--radius);
-  width: 90%;
-  max-width: 400px;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: var(--text);
-  text-align: center;
-}
-
-.modal-content h3 {
-  margin-bottom: 1rem;
-  color: var(--accent);
-}
-
+/* Footer */
 .tikla-footer {
   text-align: center;
   padding: 1rem;
@@ -349,9 +388,11 @@ body {
   font-size: 0.8rem;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
   .tikla-hero h1 { font-size: 1.6rem; }
   .features-grid { grid-template-columns: 1fr 1fr; }
   .download-buttons { flex-direction: column; align-items: center; }
   .gallery-container { min-height: 150px; }
+  .nav-links { margin-left: 0; width: 100%; justify-content: center; }
 }
