@@ -1,0 +1,357 @@
+:root {
+  --bg: #0f172a;
+  --surface: rgba(0, 0, 0, 0.55);
+  --text: #ffffff;
+  --text-secondary: rgba(255,255,255,0.8);
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --radius: 16px;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.bg-image {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url('../turbolu.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  filter: brightness(0.6) blur(3px);
+  z-index: -1;
+}
+
+.tikla-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+.tikla-navbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.8rem 1rem;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(25px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-btn {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all var(--transition);
+}
+
+.back-btn:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.tikla-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.tikla-logo-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.tikla-hero {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
+  border-radius: 0 0 var(--radius) var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+.tikla-hero h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.tikla-hero p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.download-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.download-btn, .virus-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  transition: all var(--transition);
+}
+
+.download-btn {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.download-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.virus-btn {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--accent);
+  color: var(--text);
+}
+
+.virus-btn:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.tikla-section {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1rem auto;
+  max-width: 100%;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  width: calc(100% - 2rem);
+}
+
+.tikla-section h2 {
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.8rem;
+}
+
+.feature-item {
+  background: rgba(0,0,0,0.4);
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.feature-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
+.feature-item i {
+  font-size: 1.8rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.feature-item h3 {
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.feature-item p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Galeri */
+.gallery {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 1rem 0;
+}
+
+.gallery-btn {
+  background: rgba(34, 197, 94, 0.3);
+  border: 1px solid var(--accent);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.gallery-btn:hover {
+  background: var(--accent);
+  transform: scale(1.1);
+}
+
+.gallery-container {
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  border-radius: 10px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+}
+
+.gallery-container img {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  transition: opacity 0.5s ease;
+}
+
+.gallery-counter {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* SSS */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.faq-item {
+  background: rgba(0,0,0,0.4);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  transition: all var(--transition);
+}
+
+.faq-question:hover {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding: 0 16px;
+}
+
+.faq-answer.open {
+  max-height: 300px;
+  padding-bottom: 12px;
+}
+
+.faq-answer p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden { display: none; }
+
+.modal-content {
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(30px);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 400px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text);
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+.tikla-footer {
+  text-align: center;
+  padding: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .tikla-hero h1 { font-size: 1.6rem; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .download-buttons { flex-direction: column; align-items: center; }
+  .gallery-container { min-height: 150px; }
+}
