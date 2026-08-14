@@ -152,7 +152,7 @@ function renderUI() {
       ${extraButtons}
       <button onclick="requestNotificationPermission()" title="${t('enableNotifications')}">🔔</button>
       <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')" title="${t('profile')}">
-      <span style="font-weight:bold">${currentUser.username}</span>
+      <span style="font-weight:bold; font-size:0.75rem;">${currentUser.username}</span>
       <button id="logoutBtn">${t('logout')}</button>
     `;
     document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -370,40 +370,4 @@ async function handleAuth(mode) {
 
 async function renderProfile() {
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
-  document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;"><h2>${t('profile')}</h2><h3>${t('passwordChange')}</h3><input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br><input id="newPass" type="password" placeholder="${t('newPassword')}"><br><button id="changePassBtn">${t('save')}</button><hr><h3>${t('selectAvatar')}</h3><div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px;"><img src="${DEFAULT_AVATAR}" class="profile-icon" onclick="setAvatar('${DEFAULT_AVATAR}')">${icons.map(url=>`<img src="${url}" class="profile-icon" onclick="setAvatar('${url}')">`).join('')}</div><div class="file-upload"><label for="avatarUpload" style="background:var(--accent); color:white; padding:8px 16px; border-radius:8px; cursor:pointer;">📁 ${t('uploadAvatar')}</label><input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;"><span id="uploadStatus"></span></div><input id="customAvatar" placeholder="${t('customURL')}"><br><button id="setAvatarBtn">${t('save')}</button><hr><label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label><label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label><div style="margin-top:20px"><button id="saveSettingsBtn">${t('save')}</button><button onclick="showContent('status')">← Geri</button></div></div>`;
-  document.getElementById('langSelect').value = currentUser.language || 'tr';
-  document.getElementById('statusSelect').value = currentUser.status || 'Online';
-  document.getElementById('changePassBtn').addEventListener('click', changePassword);
-  document.getElementById('setAvatarBtn').addEventListener('click', () => { const url = document.getElementById('customAvatar').value.trim(); if (url) setAvatar(url); });
-  document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
-}
-
-async function uploadAvatar(event) {
-  const file = event.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result; currentUser.icon = base64;
-    await fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ icon: base64 }) });
-    document.getElementById('uploadStatus').innerText = '✅ Yüklendi!';
-    const pool = document.getElementById('avatarPool'); const img = document.createElement('img'); img.src = base64; img.className = 'profile-icon'; img.onclick = () => setAvatar(base64); pool.appendChild(img);
-    setAvatar(base64);
-  };
-  reader.readAsDataURL(file);
-}
-function setAvatar(url) { currentUser.icon = url; fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ icon: url }) }).then(() => renderUI()); const profileIcon = document.querySelector('.profile-icon'); if (profileIcon) profileIcon.src = url; }
-async function changePassword() {
-  const oldPass = document.getElementById('oldPass').value; const newPass = document.getElementById('newPass').value;
-  const res = await fetch(`${API}/api/password`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }) });
-  const data = await res.json(); alert(data.success ? 'Şifre değiştirildi' : (data.error || 'Hata'));
-}
-async function saveProfileSettings() {
-  const language = document.getElementById('langSelect').value; const status = document.getElementById('statusSelect').value;
-  const res = await fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ language, status }) });
-  const data = await res.json();
-  if (data.success) { currentUser.language = language; currentUser.status = status; setLang(language); renderUI(); showContent('status'); }
-  else alert(data.error || 'Hata');
-}
-
-function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-function logout() { localStorage.clear(); token = null; currentUser = null; location.reload(); }
-function setLang(lang) { currentLang = lang; localStorage.setItem('lang', lang); renderUI(); }
+  document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;"><h2>${t('profile')}</h2><h3>${t('passwordChange')}</h3><input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br><input id="newPass" type="password" placeholder="${t('
