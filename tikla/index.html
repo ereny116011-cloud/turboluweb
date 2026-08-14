@@ -1,49 +1,76 @@
-// Ekran görüntüsü galerisi (sadece ekran-goruntuleri.html'de kullanılacak)
-let totalImages = 6; // Yüklediğin ekran görüntüsü sayısı
-let currentImage = 1;
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Turbolu Tıkla! - Ana Sayfa</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="bg-image"></div>
 
-function showImage(index) {
-  const galleryImage = document.getElementById('galleryImage');
-  if (!galleryImage) return;
-  galleryImage.style.opacity = 0;
-  setTimeout(() => {
-    galleryImage.src = `sss/${index}.png`;
-    galleryImage.style.opacity = 1;
-    document.getElementById('currentImage').textContent = index;
-  }, 300);
-}
+    <div class="tikla-container">
+        <nav class="tikla-navbar">
+            <button class="back-btn" onclick="window.location.href='/'">
+                <i class="fa-solid fa-arrow-left"></i> Portal
+            </button>
+            <div class="tikla-logo">
+                <img src="logo.png" alt="Tıkla!" class="tikla-logo-img">
+                Turbolu Tıkla!
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Ana Sayfa</a>
+                <a href="ozellikler.html">Özellikler</a>
+                <a href="ekran-goruntuleri.html">Görüntüler</a>
+                <a href="sss.html">SSS</a>
+                <a href="virus-testi.html">Virüs Testi</a>
+            </div>
+        </nav>
 
-function nextImage() {
-  if (currentImage < totalImages) {
-    currentImage++;
-    showImage(currentImage);
-  }
-}
+        <header class="tikla-hero">
+            <h1><i class="fa-solid fa-mobile-screen"></i> Turbolu Tıkla!</h1>
+            <p>Bağımlılık yapan mobil tıklama oyunu! Arkadaşlarınla yarış, puan topla, müzik çalar eşliğinde eğlen!</p>
+            <div class="download-buttons">
+                <a href="https://github.com/ereny116011-cloud/turbolutikla/releases/download/APK/turbolutikla.apk" class="download-btn">
+                    <i class="fa-solid fa-download"></i> Hemen İndir
+                </a>
+                <button class="virus-btn" onclick="window.location.href='virus-testi.html'">
+                    <i class="fa-solid fa-shield-virus"></i> Virüs Test Sonuçları
+                </button>
+            </div>
+        </header>
 
-function prevImage() {
-  if (currentImage > 1) {
-    currentImage--;
-    showImage(currentImage);
-  }
-}
+        <section class="tikla-section">
+            <h2>Hızlı Bakış</h2>
+            <div class="quick-links">
+                <a href="ozellikler.html" class="quick-card">
+                    <i class="fa-solid fa-star"></i>
+                    <h3>Özellikler</h3>
+                    <p>Oyunun sunduğu her şey</p>
+                </a>
+                <a href="ekran-goruntuleri.html" class="quick-card">
+                    <i class="fa-solid fa-images"></i>
+                    <h3>Ekran Görüntüleri</h3>
+                    <p>Oyundan kareler</p>
+                </a>
+                <a href="sss.html" class="quick-card">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <h3>SSS</h3>
+                    <p>Sık sorulan sorular</p>
+                </a>
+                <a href="virus-testi.html" class="quick-card">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h3>Virüs Testi</h3>
+                    <p>Güvenlik durumu</p>
+                </a>
+            </div>
+        </section>
 
-// SSS akordiyon
-document.addEventListener('DOMContentLoaded', () => {
-  const totalEl = document.getElementById('totalImages');
-  if (totalEl) totalEl.textContent = totalImages;
-  
-  if (document.getElementById('galleryImage')) {
-    showImage(1);
-  }
-
-  document.querySelectorAll('.faq-question').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const answer = btn.nextElementSibling;
-      const isOpen = answer.classList.contains('open');
-      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
-      if (!isOpen) {
-        answer.classList.add('open');
-      }
-    });
-  });
-});
+        <footer class="tikla-footer">
+            <p>&copy; 2026 Turbolu Studios. Tüm Hakları Saklıdır.</p>
+        </footer>
+    </div>
+</body>
+</html>
