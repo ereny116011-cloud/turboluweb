@@ -129,39 +129,32 @@ function renderUI() {
     let buttons = '';
     if (currentUser.isAdmin) {
       buttons = `
-        <button data-section="requests">📋 Talepler</button>
-        <button data-section="addAnnouncement">📢 Duyuru</button>
-        <button data-section="manageAnnouncements">📋 Duyuru Yönet</button>
-        <button data-section="addCampaign">🎯 Kampanya</button>
-        <button data-section="manageCampaigns">📊 Kampanya Yönet</button>
-        <button data-section="addNews">📰 Haber</button>
-        <button data-section="manageNews">📋 Haber Yönet</button>
-        <button data-section="addItem">🛒 Ürün Ekle</button>
+        <button onclick="showContent('requests')">📋 Talepler</button>
+        <button onclick="showContent('addAnnouncement')">📢 Duyuru</button>
+        <button onclick="showContent('manageAnnouncements')">📋 Duyuru Yönet</button>
+        <button onclick="showContent('addCampaign')">🎯 Kampanya</button>
+        <button onclick="showContent('manageCampaigns')">📊 Kampanya Yönet</button>
+        <button onclick="showContent('addNews')">📰 Haber</button>
+        <button onclick="showContent('manageNews')">📋 Haber Yönet</button>
+        <button onclick="showContent('addItem')">🛒 Ürün Ekle</button>
       `;
     } else {
       buttons = `
-        <button data-section="shop">🛒 Market</button>
-        <button data-section="inventory">📦 Taleplerim</button>
-        <button data-section="campaigns">📣 Kampanyalar</button>
-        <button data-section="announcements">📢 Duyurular</button>
-        <button data-section="news">📰 Haberler</button>
+        <button onclick="showContent('shop')">🛒 Market</button>
+        <button onclick="showContent('inventory')">📦 Taleplerim</button>
+        <button onclick="showContent('campaigns')">📣 Kampanyalar</button>
+        <button onclick="showContent('announcements')">📢 Duyurular</button>
+        <button onclick="showContent('news')">📰 Haberler</button>
       `;
     }
 
     userArea.innerHTML = `
       ${buttons}
-      <button id="notifyBtn" title="Bildirim">🔔</button>
-      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" id="profileIcon" title="Profil">
+      <button onclick="requestNotificationPermission()" title="${t('enableNotifications')}">🔔</button>
+      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')" title="${t('profile')}">
       <span class="username-label">${currentUser.username}</span>
-      <button id="logoutBtn">${t('logout')}</button>
+      <button onclick="logout()">${t('logout')}</button>
     `;
-
-    document.querySelectorAll('#userArea [data-section]').forEach(btn => {
-      btn.addEventListener('click', () => showContent(btn.dataset.section));
-    });
-    document.getElementById('profileIcon').addEventListener('click', () => showContent('profile'));
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('notifyBtn').addEventListener('click', requestNotificationPermission);
   } else {
     userArea.innerHTML = `
       <button id="registerBtn" class="btn-green">${t('register')}</button>
