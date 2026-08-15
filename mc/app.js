@@ -126,36 +126,42 @@ function renderUI() {
   const content = document.getElementById('content');
 
   if (currentUser) {
-    let extraButtons = '';
+    let buttons = '';
     if (currentUser.isAdmin) {
-      extraButtons = `
-        <button onclick="showContent('requests')">📋 ${t('requests')}</button>
-        <button onclick="showContent('addAnnouncement')">📢 ${t('addAnnouncement')}</button>
-        <button onclick="showContent('manageAnnouncements')">📋 ${t('manageAnnouncements')}</button>
-        <button onclick="showContent('addCampaign')">🎯 ${t('addCampaign')}</button>
-        <button onclick="showContent('manageCampaigns')">📊 ${t('manageCampaigns')}</button>
-        <button onclick="showContent('addNews')">📰 ${t('addNews')}</button>
-        <button onclick="showContent('manageNews')">📋 ${t('manageNews')}</button>
-        <button onclick="showContent('addItem')">🛒 ${t('addItem')}</button>
+      buttons = `
+        <button data-section="requests">📋 Talepler</button>
+        <button data-section="addAnnouncement">📢 Duyuru</button>
+        <button data-section="manageAnnouncements">📋 Duyuru Yönet</button>
+        <button data-section="addCampaign">🎯 Kampanya</button>
+        <button data-section="manageCampaigns">📊 Kampanya Yönet</button>
+        <button data-section="addNews">📰 Haber</button>
+        <button data-section="manageNews">📋 Haber Yönet</button>
+        <button data-section="addItem">🛒 Ürün Ekle</button>
       `;
     } else {
-      extraButtons = `
-        <button onclick="showContent('shop')">🛒 ${t('shop')}</button>
-        <button onclick="showContent('inventory')">📦 ${t('inventory')}</button>
-        <button onclick="showContent('campaigns')">📣 ${t('campaigns')}</button>
-        <button onclick="showContent('announcements')">📢 ${t('announcements')}</button>
-        <button onclick="showContent('news')">📰 ${t('news')}</button>
+      buttons = `
+        <button data-section="shop">🛒 Market</button>
+        <button data-section="inventory">📦 Taleplerim</button>
+        <button data-section="campaigns">📣 Kampanyalar</button>
+        <button data-section="announcements">📢 Duyurular</button>
+        <button data-section="news">📰 Haberler</button>
       `;
     }
 
     userArea.innerHTML = `
-      ${extraButtons}
-      <button onclick="requestNotificationPermission()" title="${t('enableNotifications')}">🔔</button>
-      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')" title="${t('profile')}">
-      <span style="font-weight:bold; font-size:0.75rem;">${currentUser.username}</span>
+      ${buttons}
+      <button id="notifyBtn" title="Bildirim">🔔</button>
+      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" id="profileIcon" title="Profil">
+      <span class="username-label">${currentUser.username}</span>
       <button id="logoutBtn">${t('logout')}</button>
     `;
+
+    document.querySelectorAll('#userArea [data-section]').forEach(btn => {
+      btn.addEventListener('click', () => showContent(btn.dataset.section));
+    });
+    document.getElementById('profileIcon').addEventListener('click', () => showContent('profile'));
     document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('notifyBtn').addEventListener('click', requestNotificationPermission);
   } else {
     userArea.innerHTML = `
       <button id="registerBtn" class="btn-green">${t('register')}</button>
@@ -191,7 +197,6 @@ function showContent(section) {
   }
 }
 
-// ANA SAYFA
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
@@ -242,7 +247,6 @@ async function renderStatus() {
   statusInterval = setInterval(updateStatus, 10000);
 }
 
-// MARKET
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
@@ -256,7 +260,6 @@ async function buy(itemId) {
   else { alert('✅ Talep alındı!'); currentUser.balance = data.new_balance; renderShop(); }
 }
 
-// TALEPLERİM
 async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
@@ -264,7 +267,6 @@ async function renderInventory() {
   content.innerHTML = `<div class="glass-card"><h2>📦 ${t('inventory')}</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between;"><div><b>${r.item}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}">${t(r.status)}</span></div>`).join('')}</div>`;
 }
 
-// BEKLEYEN TALEPLER (ADMIN)
 async function renderRequests() {
   if (!currentUser?.isAdmin) return;
   const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
@@ -281,21 +283,18 @@ async function rejectRequest(id) {
   renderRequests();
 }
 
-// DUYURULAR
 async function renderAnnouncements() {
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📢 ${t('announcements')}</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div class="announcement-item"><h3>${a.title}</h3><p>${a.content}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
-// HABERLER
 async function renderNews() {
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📰 ${t('news')}</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${n.title}</h3><p>${n.content}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
-// DUYURULARI YÖNET (ADMIN)
 async function renderManageAnnouncements() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
@@ -308,7 +307,6 @@ async function deleteAnnouncement(id) {
   renderManageAnnouncements();
 }
 
-// HABERLERİ YÖNET (ADMIN)
 async function renderManageNews() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
@@ -321,14 +319,12 @@ async function deleteNews(id) {
   renderManageNews();
 }
 
-// KAMPANYALAR
 async function renderCampaigns() {
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = new Date();
   document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 ${t('campaigns')}</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():t('noEndDate')} ${expired?'⚠️ '+t('expired'):''}</small></div>`}).join('')}</div>`;
 }
 
-// KAMPANYA YÖNET (ADMIN)
 async function renderManageCampaigns() {
   if (!currentUser?.isAdmin) return;
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
@@ -341,7 +337,6 @@ async function deleteCampaign(id) {
   renderManageCampaigns();
 }
 
-// ADMIN FORMLARI
 function renderAdminForm(type) {
   let html = '';
   if (type === 'announcement') html = `<h2>📢 ${t('addAnnouncement')}</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('announcement')">${t('save')}</button>`;
@@ -362,7 +357,6 @@ async function submitAdmin(type) {
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
 }
 
-// GİRİŞ / KAYIT
 function openAuthModal(mode) {
   const modal = document.getElementById('modal');
   const body = document.getElementById('modalBody');
@@ -424,41 +418,116 @@ async function handleAuth(mode) {
   showContent('status');
 }
 
-// PROFİL
 async function renderProfile() {
+  const content = document.getElementById('content');
   const icons = await fetch(`${API}/api/icons`).then(r => r.json()).catch(() => []);
-  document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;"><h2>${t('profile')}</h2><h3>${t('passwordChange')}</h3><input id="oldPass" type="password" placeholder="${t('oldPassword')}"><br><input id="newPass" type="password" placeholder="${t('newPassword')}"><br><button id="changePassBtn">${t('save')}</button><hr><h3>${t('selectAvatar')}</h3><div id="avatarPool" style="display:flex; flex-wrap:wrap; gap:10px;"><img src="${DEFAULT_AVATAR}" class="profile-icon" onclick="setAvatar('${DEFAULT_AVATAR}')">${icons.map(url=>`<img src="${url}" class="profile-icon" onclick="setAvatar('${url}')">`).join('')}</div><div class="file-upload"><label for="avatarUpload" style="background:var(--accent); color:white; padding:8px 16px; border-radius:8px; cursor:pointer;">📁 ${t('uploadAvatar')}</label><input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;"><span id="uploadStatus"></span></div><input id="customAvatar" placeholder="${t('customURL')}"><br><button id="setAvatarBtn">${t('save')}</button><hr><label>${t('language')}: <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select></label><label>${t('status')}: <select id="statusSelect"><option value="Online">${t('online')}</option><option value="Offline">${t('offline')}</option></select></label><div style="margin-top:20px"><button id="saveSettingsBtn">${t('save')}</button><button onclick="showContent('status')">← Geri</button></div></div>`;
+
+  content.innerHTML = `
+    <div class="glass-card profile-card">
+      <h2>👤 Profil</h2>
+
+      <div class="profile-avatar-section">
+        <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-avatar" id="profileAvatar">
+        <button id="changeAvatarBtn" class="small-btn">📁 Avatar Değiştir</button>
+        <input type="file" id="avatarUpload" accept="image/*" style="display:none">
+      </div>
+
+      <div class="profile-field">
+        <label>🌐 Dil</label>
+        <select id="langSelect">
+          <option value="tr">Türkçe</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <div class="profile-field">
+        <label>💬 Durum</label>
+        <select id="statusSelect">
+          <option value="Online">Çevrimiçi</option>
+          <option value="Offline">Çevrimdışı</option>
+        </select>
+      </div>
+
+      <hr style="margin: 1rem 0; border-color: rgba(255,255,255,0.1);">
+
+      <h3>🔒 Şifre Değiştir</h3>
+      <div class="profile-field">
+        <input id="oldPass" type="password" placeholder="Mevcut şifre">
+      </div>
+      <div class="profile-field">
+        <input id="newPass" type="password" placeholder="Yeni şifre">
+      </div>
+      <button id="changePassBtn" class="small-btn">Şifreyi Güncelle</button>
+
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <button id="saveSettingsBtn">Kaydet</button>
+        <button id="backBtn" onclick="showContent('status')">← Geri</button>
+      </div>
+    </div>
+  `;
+
   document.getElementById('langSelect').value = currentUser.language || 'tr';
   document.getElementById('statusSelect').value = currentUser.status || 'Online';
+
+  document.getElementById('changeAvatarBtn').addEventListener('click', () => {
+    document.getElementById('avatarUpload').click();
+  });
+
+  document.getElementById('avatarUpload').addEventListener('change', uploadAvatar);
+
   document.getElementById('changePassBtn').addEventListener('click', changePassword);
-  document.getElementById('setAvatarBtn').addEventListener('click', () => { const url = document.getElementById('customAvatar').value.trim(); if (url) setAvatar(url); });
   document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
 }
 
 async function uploadAvatar(event) {
-  const file = event.target.files[0]; if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
   const reader = new FileReader();
   reader.onload = async (e) => {
-    const base64 = e.target.result; currentUser.icon = base64;
-    await fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ icon: base64 }) });
-    document.getElementById('uploadStatus').innerText = '✅ Yüklendi!';
-    const pool = document.getElementById('avatarPool'); const img = document.createElement('img'); img.src = base64; img.className = 'profile-icon'; img.onclick = () => setAvatar(base64); pool.appendChild(img);
-    setAvatar(base64);
+    const base64 = e.target.result;
+    currentUser.icon = base64;
+    await fetch(`${API}/api/profile`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ icon: base64 })
+    });
+    const profileAvatar = document.getElementById('profileAvatar');
+    if (profileAvatar) profileAvatar.src = base64;
+    const topAvatar = document.querySelector('.user-area .profile-icon');
+    if (topAvatar) topAvatar.src = base64;
   };
   reader.readAsDataURL(file);
 }
-function setAvatar(url) { currentUser.icon = url; fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ icon: url }) }).then(() => renderUI()); const profileIcon = document.querySelector('.profile-icon'); if (profileIcon) profileIcon.src = url; }
+
 async function changePassword() {
-  const oldPass = document.getElementById('oldPass').value; const newPass = document.getElementById('newPass').value;
-  const res = await fetch(`${API}/api/password`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }) });
-  const data = await res.json(); alert(data.success ? 'Şifre değiştirildi' : (data.error || 'Hata'));
-}
-async function saveProfileSettings() {
-  const language = document.getElementById('langSelect').value; const status = document.getElementById('statusSelect').value;
-  const res = await fetch(`${API}/api/profile`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ language, status }) });
+  const oldPass = document.getElementById('oldPass').value;
+  const newPass = document.getElementById('newPass').value;
+  if (!oldPass || !newPass) return alert('Lütfen alanları doldurun');
+  const res = await fetch(`${API}/api/password`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass })
+  });
   const data = await res.json();
-  if (data.success) { currentUser.language = language; currentUser.status = status; setLang(language); renderUI(); showContent('status'); }
-  else alert(data.error || 'Hata');
+  alert(data.success ? 'Şifre değiştirildi' : (data.error || 'Hata'));
+}
+
+async function saveProfileSettings() {
+  const language = document.getElementById('langSelect').value;
+  const status = document.getElementById('statusSelect').value;
+  const res = await fetch(`${API}/api/profile`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ language, status })
+  });
+  const data = await res.json();
+  if (data.success) {
+    currentUser.language = language;
+    currentUser.status = status;
+    setLang(language);
+    renderUI();
+    showContent('status');
+  } else alert(data.error || 'Hata');
 }
 
 function closeModal() { document.getElementById('modal').classList.add('hidden'); }
