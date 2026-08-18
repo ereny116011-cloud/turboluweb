@@ -14,10 +14,11 @@ function kopyalaIP() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Kullanıcı bilgisi
   const token = localStorage.getItem('token');
   const userArea = document.getElementById('userArea');
+  const navLinks = document.querySelector('.nav-links');
 
+  // Admin linklerini ekle (eğer kullanıcı admin ise)
   if (token) {
     try {
       const res = await fetch(`${API}/api/profile`, {
@@ -25,6 +26,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
+
+      if (data.isAdmin) {
+        navLinks.innerHTML += `
+          <a href="admin/talepler">📋 Talepler</a>
+          <a href="admin/duyuru-ekle">📢 Duyuru Ekle</a>
+          <a href="admin/duyuru-yonet">📋 Duyuru Yönet</a>
+          <a href="admin/kampanya-ekle">🎯 Kampanya Ekle</a>
+          <a href="admin/kampanya-yonet">📊 Kampanya Yönet</a>
+          <a href="admin/haber-ekle">📰 Haber Ekle</a>
+          <a href="admin/haber-yonet">📋 Haber Yönet</a>
+          <a href="admin/urun-ekle">🛒 Ürün Ekle</a>
+        `;
+      }
+
       userArea.innerHTML = `
         <a href="profil" class="profile-link">
           <img src="${data.icon || 'crpr.png'}" class="profile-icon" alt="Profil">
@@ -37,12 +52,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } else {
     userArea.innerHTML = `
-      <a href="login.html" class="btn-green">Giriş Yap</a>
-      <a href="register.html" class="btn">Kaydol</a>
+      <a href="giris.html" class="btn-green">Giriş Yap</a>
+      <a href="kayit.html" class="btn">Kaydol</a>
     `;
   }
 
-  // Sunucu durumu (sadece ana sayfada varsa)
+  // Sunucu durumu sadece ana sayfada
   const onlineDurum = document.getElementById('online-durum');
   if (onlineDurum) {
     async function updateStatus() {
@@ -61,5 +76,5 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function logout() {
   localStorage.clear();
-  window.location.reload();
+  window.location.href = 'index.html';
 }
