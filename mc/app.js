@@ -3,13 +3,6 @@ const VAPID_PUBLIC_KEY = 'BD3kAyCW2OpZmM7SzNSEeANMtFNDXUiFP3ZDpgOfeRv78S3Igz4qOx
 
 const DEFAULT_AVATAR = 'crpr.png';
 
-let currentLang = localStorage.getItem('lang') || 'tr';
-let currentUser = null;
-let token = localStorage.getItem('token') || null;
-let statusInterval = null;
-
-function t(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
-
 const translations = {
   tr: {
     shop: 'Market', campaigns: 'Kampanyalar', announcements: 'Duyurular',
@@ -30,6 +23,14 @@ const translations = {
     manageNews: 'Manage News', addItem: 'Add Item',
   }
 };
+
+let currentLang = localStorage.getItem('lang') || 'tr';
+let currentUser = null;
+let token = localStorage.getItem('token') || null;
+let statusInterval = null;
+let notificationPreferences = JSON.parse(localStorage.getItem('notifyPrefs') || '{"announcements":true,"news":true,"campaigns":true,"items":true}');
+
+function t(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
 
 // Global fonksiyonlar
 window.showContent = showContent;
@@ -115,7 +116,6 @@ function renderUI() {
   const navLinks = document.getElementById('navLinks');
   const content = document.getElementById('content');
 
-  // Navbar butonları (tek sefer)
   let buttons = '';
   if (currentUser) {
     if (currentUser.isAdmin) {
