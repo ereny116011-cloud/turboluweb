@@ -12,7 +12,7 @@
     <div class="bg-image"></div>
     <div id="app">
         <nav class="navbar">
-            <div class="logo" onclick="window.location.href='/'">TurboluMC</div>
+            <div class="logo" onclick="window.location.href='/'"><img src="../crpr.png" class="logo-img"> TurboluMC</div>
             <div class="nav-links">
                 <a href="../market">🛒 Market</a>
                 <a href="../taleplerim">📦 Taleplerim</a>
@@ -22,12 +22,9 @@
             </div>
             <div class="user-area" id="userArea"></div>
         </nav>
-        <main id="content">
-            <div class="glass-card">
-                <h2>🛒 Market</h2>
-                <p id="loading">Yükleniyor...</p>
-                <div id="items"></div>
-            </div>
+        <main class="glass-card" style="max-width:700px; margin:2rem auto;">
+            <h2>🛒 Market</h2>
+            <div id="items">Yükleniyor...</div>
         </main>
     </div>
     <script src="../app.js"></script>
@@ -35,33 +32,24 @@
         async function loadItems() {
             const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/items');
             const items = await res.json();
-            const container = document.getElementById('items');
-            document.getElementById('loading').style.display = 'none';
-            if (items.length === 0) {
-                container.innerHTML = '<p>Henüz ürün eklenmemiş.</p>';
-                return;
-            }
-            container.innerHTML = items.map(i => `
+            document.getElementById('items').innerHTML = items.length === 0 ? '<p>Henüz ürün yok.</p>' : items.map(i => `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
-                    <div>
-                        <b>${i.name}</b>
-                        <p style="font-size:0.85rem; opacity:0.7;">${i.price} puan</p>
-                    </div>
+                    <div><b>${i.name}</b><br><small>${i.price} puan</small></div>
                     <button onclick="buy('${i.id}')">Satın Al</button>
                 </div>
             `).join('');
         }
         async function buy(itemId) {
             const token = localStorage.getItem('token');
-            if (!token) { alert('Lütfen önce giriş yapın.'); window.location.href='../login.html'; return; }
+            if (!token) { alert('Önce giriş yapın'); window.location.href='../giris.html'; return; }
             const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/buy', {
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ itemId })
             });
             const data = await res.json();
-            if (data.error) alert(data.error);
-            else { alert('✅ Talep alındı!'); loadItems(); }
+            alert(data.message || data.error || '✅ Talep alındı');
+            loadItems();
         }
         loadItems();
     </script>
