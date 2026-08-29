@@ -7,61 +7,24 @@
     <link rel="icon" href="crpr.png" type="image/png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="/mc/manifest.json">
+    <meta name="theme-color" content="#22c55e">
 </head>
 <body>
     <div class="bg-image"></div>
     <div id="app">
         <nav class="navbar">
-            <div class="logo" onclick="window.location.href='/'">
+            <div class="logo" onclick="showContent('status')">
                 <img src="crpr.png" alt="TurboluMC" class="logo-img">
                 TurboluMC
             </div>
-            <div class="nav-links">
-                <a href="market">🛒 Market</a>
-                <a href="taleplerim">📦 Taleplerim</a>
-                <a href="kampanyalar">📣 Kampanyalar</a>
-                <a href="duyurular">📢 Duyurular</a>
-                <a href="haberler">📰 Haberler</a>
-                <!-- Admin bağlantıları otomatik eklenecek -->
-            </div>
+            <div class="nav-links" id="navLinks"></div>
             <div class="user-area" id="userArea"></div>
         </nav>
-
-        <main id="content">
-            <div class="glass-card hero-card">
-                <h1><i class="fa-solid fa-gamepad"></i> TurboluMC Dünyasına Hoş Geldiniz! <i class="fa-solid fa-gamepad"></i></h1>
-                <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor.</p>
-                <div class="ip-box" onclick="kopyalaIP()">
-                    <span>turbolumc.aternos.me</span>
-                    <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
-                </div>
-                <p class="click-info">IP adresine tıklayarak kopyalayabilirsin!</p>
-                <div id="alt-ip-info"></div>
-            </div>
-
-            <div class="glass-card" id="features">
-                <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Neden Biz?</h2>
-                <div class="features-grid">
-                    <div class="feature-item"><i class="fa-solid fa-bolt"></i><h3>Yüksek Performans</h3><p>Donma ve lag olmadan akıcı oyun.</p></div>
-                    <div class="feature-item"><i class="fa-solid fa-shield-halved"></i><h3>Adil Oyun</h3><p>Hileye sıfır tolerans.</p></div>
-                    <div class="feature-item"><i class="fa-solid fa-users"></i><h3>Harika Topluluk</h3><p>Aktif yönetim ve dost oyuncular.</p></div>
-                </div>
-            </div>
-
-            <div class="glass-card" id="durum">
-                <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Anlık Sunucu Durumu</h2>
-                <div class="status-info" style="text-align:center;">
-                    <p><strong>Durum:</strong> <span id="online-durum"><i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...</span></p>
-                    <p><strong>Çevrimiçi Oyuncular:</strong> <span id="oyuncu-sayisi">- / -</span></p>
-                    <p><strong>Sürüm:</strong> <span id="sunucu-surum">-</span></p>
-                </div>
-            </div>
-
-            <div class="footer">
-                <p>&copy; 2026 Eren Yılmaz - TurboluMC. Tüm Hakları Saklıdır.</p>
-                <p class="license-text">Bu proje GNU General Public License v3.0 ile korunmaktadır.</p>
-            </div>
-        </main>
+        <main id="content"></main>
+        <div id="modal" class="modal hidden">
+            <div class="modal-content" id="modalBody"></div>
+        </div>
     </div>
     <script src="app.js"></script>
 </body>
