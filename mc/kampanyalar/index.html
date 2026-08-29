@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Kampanyalar - TurboluMC</title>
+    <link rel="icon" href="../crpr.png" type="image/png">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div id="app">
+        <nav class="navbar">
+            <div class="logo" onclick="window.location.href='/'"><img src="../crpr.png" class="logo-img"> TurboluMC</div>
+            <div class="nav-links">
+                <a href="../market">🛒 Market</a>
+                <a href="../taleplerim">📦 Taleplerim</a>
+                <a href="../kampanyalar">📣 Kampanyalar</a>
+                <a href="../duyurular">📢 Duyurular</a>
+                <a href="../haberler">📰 Haberler</a>
+            </div>
+            <div class="user-area" id="userArea"></div>
+        </nav>
+        <main class="glass-card" style="max-width:700px; margin:2rem auto;">
+            <h2>📣 Kampanyalar</h2>
+            <div id="campaigns">Yükleniyor...</div>
+        </main>
+    </div>
+    <script src="../app.js"></script>
+    <script>
+        async function loadCampaigns() {
+            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/campaigns');
+            const campaigns = await res.json();
+            const now = new Date();
+            document.getElementById('campaigns').innerHTML = campaigns.length === 0 ? '<p>Kampanya yok.</p>' : campaigns.map(c => {
+                const expired = c.endDate && new Date(c.endDate) < now;
+                return `<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0;">
+                    <b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p>
+                    <small>${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small>
+                </div>`;
+            }).join('');
+        }
+        loadCampaigns();
+    </script>
+</body>
+</html>s
