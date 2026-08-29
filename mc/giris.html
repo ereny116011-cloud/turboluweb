@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş - TurboluMC</title>
+    <link rel="icon" href="crpr.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="glass-card" style="max-width:400px; margin:100px auto; padding:2rem;">
+        <h2 style="text-align:center;">Giriş Yap</h2>
+        <input id="username" placeholder="Kullanıcı adı"><br>
+        <input id="password" type="password" placeholder="Parola"><br>
+        <button class="btn-green" style="width:100%;" onclick="login()">Giriş Yap</button>
+        <p style="text-align:center; margin-top:10px;"><a href="kayit.html">Kaydol</a> | <a href="sifremi-unuttum.html">Şifremi unuttum</a></p>
+    </div>
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (data.error) return alert(data.error);
+            localStorage.setItem('token', data.token);
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
