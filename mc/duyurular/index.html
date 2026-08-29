@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Duyurular - TurboluMC</title>
+    <link rel="icon" href="../crpr.png" type="image/png">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div id="app">
+        <nav class="navbar">
+            <div class="logo" onclick="window.location.href='/'"><img src="../crpr.png" class="logo-img"> TurboluMC</div>
+            <div class="nav-links">
+                <a href="../market">🛒 Market</a>
+                <a href="../taleplerim">📦 Taleplerim</a>
+                <a href="../kampanyalar">📣 Kampanyalar</a>
+                <a href="../duyurular">📢 Duyurular</a>
+                <a href="../haberler">📰 Haberler</a>
+            </div>
+            <div class="user-area" id="userArea"></div>
+        </nav>
+        <main class="glass-card" style="max-width:700px; margin:2rem auto;">
+            <h2>📢 Duyurular</h2>
+            <div id="announcements">Yükleniyor...</div>
+        </main>
+    </div>
+    <script src="../app.js"></script>
+    <script>
+        async function loadAnnouncements() {
+            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/announcements');
+            const announcements = await res.json();
+            document.getElementById('announcements').innerHTML = announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `
+                <div class="announcement-item"><h3>${a.title}</h3><p>${a.content}</p><small>${new Date(a.date).toLocaleString()}</small></div>
+            `).join('');
+        }
+        loadAnnouncements();
+    </script>
+</body>
+</html>
