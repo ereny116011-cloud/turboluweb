@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaydol - TurboluMC</title>
+    <link rel="icon" href="crpr.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="glass-card" style="max-width:400px; margin:100px auto; padding:2rem;">
+        <h2 style="text-align:center;">Kaydol</h2>
+        <input id="username" placeholder="Kullanıcı adı"><br>
+        <input id="email" type="email" placeholder="E-posta"><br>
+        <input id="password" type="password" placeholder="Parola"><br>
+        <button class="btn-green" style="width:100%;" onclick="register()">Kaydol</button>
+        <p style="text-align:center; margin-top:10px;"><a href="giris.html">Giriş Yap</a></p>
+    </div>
+    <script>
+        async function register() {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, email })
+            });
+            const data = await res.json();
+            if (data.error) return alert(data.error);
+            localStorage.setItem('token', data.token);
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
