@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Profil - TurboluMC</title>
+    <link rel="icon" href="../crpr.png" type="image/png">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div id="app">
+        <nav class="navbar">
+            <div class="logo" onclick="window.location.href='/'"><img src="../crpr.png" class="logo-img"> TurboluMC</div>
+            <div class="nav-links">
+                <a href="../market">🛒 Market</a>
+                <a href="../taleplerim">📦 Taleplerim</a>
+                <a href="../kampanyalar">📣 Kampanyalar</a>
+                <a href="../duyurular">📢 Duyurular</a>
+                <a href="../haberler">📰 Haberler</a>
+            </div>
+            <div class="user-area" id="userArea"></div>
+        </nav>
+        <main class="glass-card profile-card" style="max-width:500px; margin:2rem auto;">
+            <h2>👤 Profil</h2>
+            <div class="profile-avatar-section">
+                <img src="../crpr.png" class="profile-avatar" id="profileAvatar">
+                <button class="small-btn" onclick="document.getElementById('avatarUpload').click()">📁 Avatar Değiştir</button>
+                <input type="file" id="avatarUpload" accept="image/*" style="display:none">
+            </div>
+            <div class="profile-field">
+                <label>🌐 Dil</label>
+                <select id="langSelect">
+                    <option value="tr">Türkçe</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <div class="profile-field">
+                <label>💬 Durum</label>
+                <select id="statusSelect">
+                    <option value="Online">Çevrimiçi</option>
+                    <option value="Offline">Çevrimdışı</option>
+                </select>
+            </div>
+            <hr style="margin:1rem 0; border-color: rgba(255,255,255,0.1);">
+            <h3>🔒 Şifre Değiştir</h3>
+            <input id="oldPass" type="password" placeholder="Mevcut şifre">
+            <input id="newPass" type="password" placeholder="Yeni şifre">
+            <button class="small-btn" onclick="changePassword()">Şifreyi Güncelle</button>
+            <div style="margin-top:20px; display:flex; gap:10px;">
+                <button onclick="saveProfile()">Kaydet</button>
+                <button onclick="window.location.href='../index.html'">← Geri</button>
+            </div>
+        </main>
+    </div>
+    <script src="../app.js"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '../giris.html';
+
+        async function loadProfile() {
+            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/profile', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const profile = await res.json();
+            document.getElementById('profileAvatar').src = profile.icon || '../crpr.png';
+            document.getElementById('langSelect').value = profile.language || 'tr';
+            document.getElementById('statusSelect').value = profile.status || 'Online';
+        }
+        loadProfile();
+
+        async function saveProfile() {
+            const language = document.getElementById('langSelect').value;
+            const status = document.getElementById('statusSelect').value;
+            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/profile', {
+                method: 'PUT',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language, status })
+            });
+            const data = await res.json();
+            alert(data.success ? 'Kaydedildi' : data.error);
+        }
+
+        async function changePassword() {
+            const oldPass = document.getElementById('oldPass').value;
+            const newPass = document.getElementById('newPass').value;
+            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/password', {
+                method: 'PUT',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass })
+            });
+            const data = await res.json();
+            alert(data.success ? 'Şifre değiştirildi' : data.error);
+        }
+
+        async function uploadAvatar(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64 = e.target.result;
+                await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/profile', {
+                    method: 'PUT',
+                    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ icon: base64 })
+                });
+                document.getElementById('profileAvatar').src = base64;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
