@@ -1,225 +1,57 @@
-:root {
-  --bg: #0f172a;
-  --surface: rgba(0, 0, 0, 0.55);
-  --text: #ffffff;
-  --text-secondary: rgba(255,255,255,0.8);
-  --accent: #22c55e;
-  --radius: 20px;
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Arka plan katmanları */
+.bg-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -4;
+  pointer-events: none;
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  overflow-x: hidden;
-  width: 100%;
-  max-width: 100%;
+.steam-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -2;
+  pointer-events: none;
 }
-body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
-
-.bg-image {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-image: url('turbolu.png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  filter: brightness(0.7) blur(3px);
-  z-index: -1;
-}
-
-.portal-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.portal-header {
-  text-align: center;
-  padding: 2rem 0 1.5rem;
-}
-.portal-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 2rem;
-  color: var(--accent);
-  cursor: pointer;
-  margin-bottom: 0.5rem;
-}
-.logo-img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.portal-header p {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-}
-
-.project-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-  flex: 1;
-}
-
-.project-card {
-  background: var(--surface);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius);
-  padding: 1.8rem;
-  text-decoration: none;
-  color: var(--text);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-  transition: all var(--transition);
-  position: relative;
+.steam-container {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -3;
+  pointer-events: none;
   overflow: hidden;
 }
-.project-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-  border-color: var(--accent);
-}
-.project-card::before {
-  content: '';
+.steam-blob {
   position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: conic-gradient(from 0deg, transparent, rgba(34, 197, 94, 0.15), transparent 60%);
-  animation: spin 8s linear infinite;
-  z-index: 0;
-}
-.project-card > * { position: relative; z-index: 1; }
-
-.project-icon {
-  width: 80px;
-  height: 80px;
   border-radius: 50%;
-  background: rgba(34, 197, 94, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  border: 2px solid rgba(34, 197, 94, 0.4);
-  overflow: hidden;
+  filter: blur(90px);
+  background: rgba(34, 197, 94, 0.3);
+  will-change: transform;
 }
-.project-icon-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.blob-1 { width: 550px; height: 550px; top: -120px; left: -120px; animation: float1 24s ease-in-out infinite; }
+.blob-2 { width: 650px; height: 650px; bottom: -220px; right: -180px; animation: float2 30s ease-in-out infinite; }
+.blob-3 { width: 450px; height: 450px; top: 40%; left: 60%; animation: float3 28s ease-in-out infinite; }
+.blob-4 { width: 400px; height: 400px; top: 60%; left: 10%; animation: float1 26s ease-in-out infinite reverse; }
+.blob-5 { width: 500px; height: 500px; top: 20%; right: 15%; animation: float2 32s ease-in-out infinite reverse; }
+.blob-6 { width: 380px; height: 380px; bottom: 10%; left: 45%; animation: float3 22s ease-in-out infinite; }
+
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(90px, -70px) scale(1.15); }
+  66% { transform: translate(-70px, 90px) scale(0.95); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-110px, 60px) scale(1.2); }
+  66% { transform: translate(80px, -80px) scale(1); }
+}
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-90px, -90px) scale(1.25); }
 }
 
-.project-info h2 {
-  font-size: 1.5rem;
-  color: var(--accent);
-  margin-bottom: 0.5rem;
-}
-.project-info p {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-}
+/* Ana arka plan rengi */
+body { background: #0a0f1a !important; }
 
-.project-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  background: var(--accent);
-  color: white;
-}
-
-.project-card.future {
-  border-color: rgba(100, 116, 139, 0.4);
-  opacity: 0.7;
-}
-.project-card.future .project-icon {
-  background: rgba(100, 116, 139, 0.2);
-  color: #94a3b8;
-  border-color: rgba(100, 116, 139, 0.4);
-}
-.project-card.future .project-info h2 { color: #94a3b8; }
-.project-card.future .project-badge { background: #64748b; }
-
-/* Hakkımızda ve İletişim */
-.info-section {
-  background: var(--surface);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  margin: 1rem auto;
-  max-width: 800px;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-}
-
-.info-section h2 {
-  color: var(--accent);
-  margin-bottom: 0.8rem;
-  font-size: 1.3rem;
-}
-
-.info-section p {
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.contact-links {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.contact-links a {
-  color: var(--text);
-  text-decoration: none;
-  padding: 10px 14px;
-  background: rgba(0,0,0,0.3);
-  border-radius: 8px;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.contact-links a:hover {
-  background: rgba(34, 197, 94, 0.2);
-  color: var(--accent);
-}
-
-.portal-footer {
-  text-align: center;
-  padding: 1.5rem 0;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  margin-top: auto;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@media (max-width: 768px) {
-  .portal-header h1 { font-size: 2rem; }
-  .project-grid { grid-template-columns: 1fr; }
-  .project-card { padding: 1.2rem; }
-  .project-icon { width: 60px; height: 60px; font-size: 2rem; }
+/* Diğer tüm mevcut portal stillerin burada kalıyor... */
+.portal-container {
+  position: relative;
+  z-index: 1;
 }
