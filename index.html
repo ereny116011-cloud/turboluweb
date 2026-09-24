@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-        // Tema başlangıç (flash önlemek için HTML'de)
         (function() {
             const saved = localStorage.getItem('theme');
             const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
@@ -197,9 +196,7 @@
                 life: 0.6,
                 decay: 0.035 + Math.random() * 0.02
             });
-            if (steamParticles.length > 30) {
-                steamParticles.splice(0, steamParticles.length - 30);
-            }
+            if (steamParticles.length > 30) steamParticles.splice(0, steamParticles.length - 30);
         });
 
         function animateSteam() {
@@ -208,10 +205,7 @@
             const color = isLight ? '22, 163, 74' : '34, 197, 94';
             for (let i = steamParticles.length - 1; i >= 0; i--) {
                 const p = steamParticles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.size += 0.3;
-                p.life -= p.decay;
+                p.x += p.vx; p.y += p.vy; p.size += 0.3; p.life -= p.decay;
                 if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
                 const alpha = p.life * 0.1;
                 const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
