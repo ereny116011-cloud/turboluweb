@@ -9,7 +9,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="bg-image"></div>
+    <canvas id="dotGridCanvas" class="bg-canvas"></canvas>
+    <canvas id="steamCanvas" class="steam-canvas"></canvas>
+    <div class="steam-container">
+        <div class="steam-blob blob-1"></div>
+        <div class="steam-blob blob-2"></div>
+        <div class="steam-blob blob-3"></div>
+        <div class="steam-blob blob-4"></div>
+        <div class="steam-blob blob-5"></div>
+        <div class="steam-blob blob-6"></div>
+    </div>
 
     <div class="portal-container">
         <header class="portal-header">
@@ -70,5 +79,120 @@
             <p>&copy; 2026 Turbolu Studios. Tüm Hakları Saklıdır.</p>
         </footer>
     </div>
+
+    <script>
+        /* ==== NOKTA GRID ==== */
+        const canvas = document.getElementById('dotGridCanvas');
+        const ctx = canvas.getContext('2d');
+        let dots = [];
+        let mouse = { x: -1000, y: -1000 };
+        let lastFrame = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            generateDots();
+        }
+        function generateDots() {
+            dots = [];
+            const spacing = 42;
+            const cols = Math.ceil(canvas.width / spacing) + 1;
+            const rows = Math.ceil(canvas.height / spacing) + 1;
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    dots.push({
+                        baseX: i * spacing + spacing / 2,
+                        baseY: j * spacing + spacing / 2,
+                        phase: Math.random() * Math.PI * 2,
+                        size: 1.6
+                    });
+                }
+            }
+        }
+        function drawDots(t) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const colorBase = [34, 197, 94];
+            const baseAlpha = 0.55;
+            dots.forEach(dot => {
+                const dx = mouse.x - dot.baseX;
+                const dy = mouse.y - dot.baseY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const maxDist = 160;
+                let offsetX = 0, offsetY = 0, alpha = baseAlpha, size = dot.size;
+                if (dist < maxDist) {
+                    const force = (maxDist - dist) / maxDist;
+                    offsetX = -dx * force * 0.25;
+                    offsetY = -dy * force * 0.25;
+                    alpha = Math.min(1, baseAlpha + force * 0.5);
+                    size = dot.size + force * 1.2;
+                }
+                const floatX = Math.sin(t * 0.0008 + dot.phase) * 2.5;
+                const floatY = Math.cos(t * 0.001 + dot.phase) * 2.5;
+                const x = dot.baseX + floatX + offsetX;
+                const y = dot.baseY + floatY + offsetY;
+                ctx.fillStyle = `rgba(${colorBase[0]}, ${colorBase[1]}, ${colorBase[2]}, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        function animate(t) {
+            if (t - lastFrame > 32) { drawDots(t); lastFrame = t; }
+            requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('mouseleave', () => { mouse.x = -1000; mouse.y = -1000; });
+        resizeCanvas();
+        requestAnimationFrame(animate);
+
+        /* ==== HAFİF BUHAR İZİ ==== */
+        const steamCanvas = document.getElementById('steamCanvas');
+        const steamCtx = steamCanvas.getContext('2d');
+        let steamParticles = [];
+        function resizeSteam() {
+            steamCanvas.width = window.innerWidth;
+            steamCanvas.height = window.innerHeight;
+        }
+        resizeSteam();
+        window.addEventListener('resize', resizeSteam);
+
+        document.addEventListener('mousemove', (e) => {
+            steamParticles.push({
+                x: e.clientX + (Math.random() - 0.5) * 10,
+                y: e.clientY + (Math.random() - 0.5) * 10,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: -0.2 - Math.random() * 0.3,
+                size: 6 + Math.random() * 10,
+                life: 0.7,
+                decay: 0.03 + Math.random() * 0.02
+            });
+            if (steamParticles.length > 50) {
+                steamParticles.splice(0, steamParticles.length - 50);
+            }
+        });
+
+        function animateSteam() {
+            steamCtx.clearRect(0, 0, steamCanvas.width, steamCanvas.height);
+            for (let i = steamParticles.length - 1; i >= 0; i--) {
+                const p = steamParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.size += 0.5;
+                p.life -= p.decay;
+                if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
+                const alpha = p.life * 0.18;
+                const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                gradient.addColorStop(0, `rgba(34, 197, 94, ${alpha})`);
+                gradient.addColorStop(1, `rgba(34, 197, 94, 0)`);
+                steamCtx.fillStyle = gradient;
+                steamCtx.beginPath();
+                steamCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                steamCtx.fill();
+            }
+            requestAnimationFrame(animateSteam);
+        }
+        requestAnimationFrame(animateSteam);
+    </script>
 </body>
 </html>
