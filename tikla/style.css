@@ -1,5 +1,6 @@
+/* ========== DEĞİŞKENLER ========== */
 :root {
-  --bg-primary: #0a0f1a;
+  --bg-base: #0a0f1a;
   --surface: rgba(15, 23, 42, 0.65);
   --surface-soft: rgba(0, 0, 0, 0.35);
   --text: #ffffff;
@@ -14,29 +15,31 @@
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --steam-color: rgba(34, 197, 94, 0.35);
-  --bg-base: #0a0f1a;
+  --steam-color: rgba(34, 197, 94, 0.15);
 }
 
-body.light {
-  --bg-primary: #f0fdf4;
+html.light {
+  --bg-base: #f0fdf4;
   --surface: rgba(255, 255, 255, 0.75);
   --surface-soft: rgba(255, 255, 255, 0.5);
   --text: #0f172a;
   --text-secondary: rgba(15,23,42,0.7);
   --accent: #16a34a;
   --accent-hover: #15803d;
-  --accent-glow: rgba(22, 163, 74, 0.45);
-  --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-shine: rgba(255, 255, 255, 0.8);
+  --accent-glow: rgba(22, 163, 74, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shine: rgba(255, 255, 255, 0.9);
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --steam-color: rgba(34, 197, 94, 0.4);
-  --bg-base: #f0fdf4;
+  --steam-color: rgba(34, 197, 94, 0.2);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { overflow-x: hidden; width: 100%; max-width: 100%; }
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   color: var(--text);
@@ -45,69 +48,79 @@ body {
   transition: background 0.4s ease, color 0.4s ease;
 }
 
-/* ==== STEAM ==== */
+/* ========== STEAM ========== */
 .steam-canvas {
-  position: fixed; top: 0; left: 0;
+  position: fixed;
+  top: 0; left: 0;
   width: 100vw; height: 100vh;
   z-index: -2;
   pointer-events: none;
 }
-
 .steam-container {
-  position: fixed; top: 0; left: 0;
+  position: fixed;
+  top: 0; left: 0;
   width: 100vw; height: 100vh;
   z-index: -3;
   pointer-events: none;
   overflow: hidden;
 }
-
 .steam-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(70px);
   background: var(--steam-color);
   will-change: transform;
 }
-.blob-1 { width: 550px; height: 550px; top: -120px; left: -120px; animation: float1 24s ease-in-out infinite; }
-.blob-2 { width: 650px; height: 650px; bottom: -220px; right: -180px; animation: float2 30s ease-in-out infinite; }
-.blob-3 { width: 450px; height: 450px; top: 40%; left: 60%; animation: float3 28s ease-in-out infinite; }
-.blob-4 { width: 400px; height: 400px; top: 60%; left: 10%; animation: float1 26s ease-in-out infinite reverse; }
-.blob-5 { width: 500px; height: 500px; top: 20%; right: 15%; animation: float2 32s ease-in-out infinite reverse; }
-.blob-6 { width: 380px; height: 380px; bottom: 10%; left: 45%; animation: float3 22s ease-in-out infinite; }
+.blob-1 { width: 300px; height: 300px; top: -80px; left: -80px; animation: float1 26s ease-in-out infinite; }
+.blob-2 { width: 350px; height: 350px; bottom: -150px; right: -120px; animation: float2 32s ease-in-out infinite; }
+.blob-3 { width: 250px; height: 250px; top: 40%; left: 60%; animation: float3 30s ease-in-out infinite; }
+.blob-4 { width: 220px; height: 220px; top: 60%; left: 10%; animation: float1 28s ease-in-out infinite reverse; }
+.blob-5 { width: 280px; height: 280px; top: 20%; right: 15%; animation: float2 34s ease-in-out infinite reverse; }
+.blob-6 { width: 200px; height: 200px; bottom: 10%; left: 45%; animation: float3 24s ease-in-out infinite; }
 
 @keyframes float1 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(90px, -70px) scale(1.15); }
-  66% { transform: translate(-70px, 90px) scale(0.95); }
+  33% { transform: translate(50px, -40px) scale(1.08); }
+  66% { transform: translate(-40px, 50px) scale(0.96); }
 }
 @keyframes float2 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-110px, 60px) scale(1.2); }
-  66% { transform: translate(80px, -80px) scale(1); }
+  33% { transform: translate(-60px, 35px) scale(1.1); }
+  66% { transform: translate(45px, -45px) scale(1); }
 }
 @keyframes float3 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-90px, -90px) scale(1.25); }
+  50% { transform: translate(-50px, -50px) scale(1.12); }
 }
 
+/* ========== TAM GENİŞLİK KAPSAYICI ========== */
 .tikla-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding-bottom: 2rem;
   position: relative;
   z-index: 1;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0 1.5rem 2rem;
+  box-sizing: border-box;
 }
 
-/* Navbar */
+/* ========== NAVBAR ========== */
 .tikla-navbar {
-  display: flex; align-items: center; gap: 10px;
-  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.8rem 0;
   background: var(--surface);
   backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--glass-border);
   box-shadow: var(--shadow-soft);
-  position: sticky; top: 0; z-index: 100;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   flex-wrap: wrap;
+  margin: 0 -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .back-btn {
@@ -123,7 +136,9 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition);
-  display: inline-flex; align-items: center; gap: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   box-shadow: 0 4px 16px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
 }
 .back-btn:hover {
@@ -134,22 +149,30 @@ body {
 }
 
 .tikla-logo {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 1.2rem; font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
   color: var(--accent);
 }
 .tikla-logo-img {
-  width: 30px; height: 30px;
-  border-radius: 8px; object-fit: cover;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  object-fit: cover;
   box-shadow: 0 2px 10px var(--accent-glow);
 }
 
 .nav-links {
-  display: flex; gap: 6px; flex-wrap: wrap;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
   margin-left: auto;
 }
 .nav-links a {
-  color: var(--text); text-decoration: none;
+  color: var(--text);
+  text-decoration: none;
   padding: 6px 10px;
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
@@ -166,22 +189,22 @@ body {
   box-shadow: 0 6px 20px var(--accent-glow);
 }
 
-/* Hero */
+/* ========== HERO ========== */
 .tikla-hero {
   text-align: center;
   padding: 2rem 1rem;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(22, 163, 74, 0.12));
   border-radius: 0 0 var(--radius) var(--radius);
-  margin-bottom: 1.5rem;
+  margin: 0 -1.5rem 1.5rem;
   border-bottom: 1px solid var(--glass-border);
   backdrop-filter: blur(10px);
-  position: relative;
-  z-index: 1;
 }
 .tikla-hero h1 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
-  display: inline-flex; align-items: center; gap: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   color: var(--text);
 }
 .tikla-hero h1 i { color: var(--accent); }
@@ -191,11 +214,11 @@ body {
 }
 
 .download-buttons {
-  display: flex; gap: 1rem;
+  display: flex;
+  gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
 }
-
 .download-btn, .virus-btn {
   position: relative;
   overflow: hidden;
@@ -205,7 +228,9 @@ body {
   cursor: pointer;
   font-weight: bold;
   text-decoration: none;
-  display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.9rem;
   transition: all var(--transition);
   backdrop-filter: blur(14px) saturate(180%);
@@ -230,19 +255,18 @@ body {
   transform: translateY(-3px);
 }
 
-/* Bölümler */
+/* ========== BÖLÜMLER ========== */
 .tikla-section {
   background: var(--surface);
   backdrop-filter: blur(22px) saturate(180%);
   border-radius: var(--radius);
   padding: 1.5rem;
-  margin: 1rem auto;
+  margin: 1rem 0;
   max-width: 100%;
+  width: 100%;
   box-shadow: var(--shadow), inset 0 1px 0 var(--glass-shine);
   border: 1px solid var(--glass-border);
-  width: calc(100% - 2rem);
-  position: relative;
-  z-index: 1;
+  box-sizing: border-box;
 }
 .tikla-section h2 {
   color: var(--accent);
@@ -251,11 +275,11 @@ body {
   font-size: 1.3rem;
 }
 
-/* Hızlı linkler */
+/* ========== HIZLI LİNKLER ========== */
 .quick-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
 }
 .quick-card {
   background: var(--surface-soft);
@@ -283,7 +307,7 @@ body {
 .quick-card h3 { font-size: 1rem; margin-bottom: 0.3rem; }
 .quick-card p { font-size: 0.8rem; color: var(--text-secondary); }
 
-/* Özellikler */
+/* ========== ÖZELLİKLER ========== */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -308,9 +332,11 @@ body {
 .feature-item h3 { font-size: 0.9rem; margin-bottom: 0.3rem; }
 .feature-item p { font-size: 0.8rem; color: var(--text-secondary); }
 
-/* Galeri */
+/* ========== GALERİ ========== */
 .gallery {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 1rem 0;
 }
 .gallery-btn {
@@ -318,11 +344,14 @@ body {
   backdrop-filter: blur(14px);
   border: 1px solid var(--glass-border);
   color: white;
-  width: 42px; height: 42px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   cursor: pointer;
   font-size: 1.1rem;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all var(--transition);
   flex-shrink: 0;
   box-shadow: 0 4px 16px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
@@ -337,13 +366,16 @@ body {
   overflow: hidden;
   border-radius: var(--radius);
   min-height: 200px;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--surface-soft);
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-shine);
 }
 .gallery-container img {
-  max-width: 100%; max-height: 400px;
+  max-width: 100%;
+  max-height: 400px;
   object-fit: contain;
   transition: opacity 0.5s ease;
 }
@@ -353,7 +385,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* SSS */
+/* ========== SSS ========== */
 .faq-list { display: flex; flex-direction: column; gap: 8px; }
 .faq-item {
   background: var(--surface-soft);
@@ -371,7 +403,9 @@ body {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   text-align: left;
   transition: all var(--transition);
 }
@@ -389,47 +423,20 @@ body {
   line-height: 1.6;
 }
 
-/* Modal */
-.modal {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(10px);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000;
-}
-.modal.hidden { display: none; }
-.modal-content {
-  background: var(--surface);
-  backdrop-filter: blur(30px) saturate(180%);
-  padding: 1.6rem;
-  border-radius: var(--radius);
-  width: 90%; max-width: 400px;
-  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-shine);
-  border: 1px solid var(--glass-border);
-  color: var(--text);
-  text-align: center;
-}
-
-.tikla-footer {
-  text-align: center;
-  padding: 1rem;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  position: relative;
-  z-index: 1;
-}
-
-/* Tema butonu */
+/* ========== TEMA BUTONU ========== */
 .theme-toggle {
   position: fixed;
-  bottom: 24px; right: 24px;
-  width: 52px; height: 52px;
+  bottom: 24px;
+  right: 24px;
+  width: 52px;
+  height: 52px;
   padding: 0;
   border-radius: 50%;
   font-size: 1.1rem;
   z-index: 999;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.25));
   backdrop-filter: blur(14px) saturate(180%);
   border: 1px solid var(--glass-border);
@@ -444,6 +451,13 @@ body {
   color: white;
 }
 
+.tikla-footer {
+  text-align: center;
+  padding: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
 @media (max-width: 768px) {
   .tikla-hero h1 { font-size: 1.6rem; }
   .features-grid { grid-template-columns: 1fr 1fr; }
@@ -451,4 +465,7 @@ body {
   .gallery-container { min-height: 150px; }
   .nav-links { margin-left: 0; width: 100%; justify-content: center; }
   .theme-toggle { width: 46px; height: 46px; bottom: 16px; right: 16px; }
+  .tikla-container { padding: 0 1rem 1.5rem; }
+  .tikla-navbar { margin: 0 -1rem; padding-left: 1rem; padding-right: 1rem; }
+  .tikla-hero { margin: 0 -1rem 1.5rem; }
 }
