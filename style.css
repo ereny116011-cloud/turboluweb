@@ -1,23 +1,65 @@
-/* Arka plan katmanları */
+/* ========== DEĞİŞKENLER ========== */
+:root {
+  --bg: #0a0f1a;
+  --surface: rgba(15, 23, 42, 0.65);
+  --surface-soft: rgba(0, 0, 0, 0.35);
+  --text: #ffffff;
+  --text-secondary: rgba(255,255,255,0.8);
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --accent-glow: rgba(34, 197, 94, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shine: rgba(255, 255, 255, 0.35);
+  --radius: 20px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ========== ARKA PLAN KATMANLARI ========== */
 .bg-canvas {
-  position: fixed; top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: -4;
   pointer-events: none;
 }
-.steam-canvas {
-  position: fixed; top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  z-index: -2;
-  pointer-events: none;
-}
+
 .steam-container {
-  position: fixed; top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: -3;
   pointer-events: none;
   overflow: hidden;
 }
+
+.steam-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+}
+
 .steam-blob {
   position: absolute;
   border-radius: 50%;
@@ -25,6 +67,7 @@
   background: rgba(34, 197, 94, 0.3);
   will-change: transform;
 }
+
 .blob-1 { width: 550px; height: 550px; top: -120px; left: -120px; animation: float1 24s ease-in-out infinite; }
 .blob-2 { width: 650px; height: 650px; bottom: -220px; right: -180px; animation: float2 30s ease-in-out infinite; }
 .blob-3 { width: 450px; height: 450px; top: 40%; left: 60%; animation: float3 28s ease-in-out infinite; }
@@ -47,11 +90,242 @@
   50% { transform: translate(-90px, -90px) scale(1.25); }
 }
 
-/* Ana arka plan rengi */
-body { background: #0a0f1a !important; }
-
-/* Diğer tüm mevcut portal stillerin burada kalıyor... */
+/* ========== PORTAL KAPSAYICI ========== */
 .portal-container {
   position: relative;
   z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ========== BAŞLIK ========== */
+.portal-header {
+  text-align: center;
+  padding: 2rem 0 1.5rem;
+}
+
+.portal-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent);
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  transition: transform var(--transition);
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+.portal-logo:hover { transform: scale(1.04); }
+
+.logo-img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.portal-header p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* ========== PROJE KARTLARI ========== */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  flex: 1;
+}
+
+.project-card {
+  background: var(--surface);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border-radius: var(--radius);
+  padding: 1.8rem;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-shine);
+  border: 1px solid var(--glass-border);
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
+  border-color: var(--accent);
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent, var(--accent-glow), transparent 60%);
+  animation: spin 10s linear infinite;
+  z-index: 0;
+  opacity: 0.4;
+}
+.project-card > * { position: relative; z-index: 1; }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.project-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  border: 2px solid rgba(34, 197, 94, 0.5);
+  overflow: hidden;
+  box-shadow: 0 0 24px var(--accent-glow);
+  font-size: 2.5rem;
+  color: var(--accent);
+}
+
+.project-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-info h2 {
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 12px var(--accent-glow);
+}
+
+.project-info p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.project-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.project-card.future {
+  border-color: rgba(100, 116, 139, 0.4);
+  opacity: 0.65;
+}
+.project-card.future .project-icon {
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+  border-color: rgba(100, 116, 139, 0.4);
+  box-shadow: none;
+}
+.project-card.future .project-info h2 { color: #94a3b8; text-shadow: none; }
+.project-card.future .project-badge { background: #64748b; box-shadow: none; }
+.project-card.future:hover { transform: translateY(-4px); }
+
+/* ========== HAKKIMIZDA / İLETİŞİM ========== */
+.info-section {
+  background: var(--surface);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+  margin: 1.2rem 0 0;
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-shine);
+  border: 1px solid var(--glass-border);
+  transition: all var(--transition);
+}
+.info-section:hover {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 var(--glass-shine);
+}
+
+.info-section h2 {
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-section h2 i {
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+.info-section p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-links a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 12px 16px;
+  background: var(--surface-soft);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-shine);
+}
+.contact-links a:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
+  border-color: var(--accent);
+}
+.contact-links a i {
+  font-size: 1rem;
+}
+
+/* ========== FOOTER ========== */
+.portal-footer {
+  text-align: center;
+  padding: 1.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: auto;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .portal-header h1 { font-size: 2rem; }
+  .portal-logo { font-size: 1.6rem; }
+  .logo-img { width: 36px; height: 36px; }
+  .project-grid { grid-template-columns: 1fr; }
+  .project-card { padding: 1.4rem; }
+  .project-icon { width: 70px; height: 70px; font-size: 2rem; }
+  .info-section { padding: 1.2rem; }
+  .portal-container { padding: 1.5rem 0.8rem; }
 }
