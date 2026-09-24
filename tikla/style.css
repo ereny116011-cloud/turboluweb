@@ -1,198 +1,249 @@
 :root {
-  --bg: #0f172a;
-  --surface: rgba(0, 0, 0, 0.55);
+  --bg-primary: #0a0f1a;
+  --surface: rgba(15, 23, 42, 0.65);
+  --surface-soft: rgba(0, 0, 0, 0.35);
   --text: #ffffff;
-  --text-secondary: rgba(255,255,255,0.8);
+  --text-secondary: rgba(255,255,255,0.75);
   --accent: #22c55e;
   --accent-hover: #16a34a;
+  --accent-glow: rgba(34, 197, 94, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shine: rgba(255, 255, 255, 0.35);
   --radius: 16px;
+  --radius-sm: 10px;
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --steam-color: rgba(34, 197, 94, 0.35);
+  --bg-base: #0a0f1a;
+}
+
+body.light {
+  --bg-primary: #f0fdf4;
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-soft: rgba(255, 255, 255, 0.5);
+  --text: #0f172a;
+  --text-secondary: rgba(15,23,42,0.7);
+  --accent: #16a34a;
+  --accent-hover: #15803d;
+  --accent-glow: rgba(22, 163, 74, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-shine: rgba(255, 255, 255, 0.8);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --steam-color: rgba(34, 197, 94, 0.4);
+  --bg-base: #f0fdf4;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  overflow-x: hidden;
-  width: 100%;
-  max-width: 100%;
-}
-
+html, body { overflow-x: hidden; width: 100%; max-width: 100%; }
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   color: var(--text);
   min-height: 100vh;
-  background: var(--bg);
+  background: var(--bg-base);
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
-.bg-image {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-image: url('../turbolu.png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  filter: brightness(0.6) blur(3px);
-  z-index: -1;
+/* ==== STEAM ==== */
+.steam-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.steam-container {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.steam-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  background: var(--steam-color);
+  will-change: transform;
+}
+.blob-1 { width: 550px; height: 550px; top: -120px; left: -120px; animation: float1 24s ease-in-out infinite; }
+.blob-2 { width: 650px; height: 650px; bottom: -220px; right: -180px; animation: float2 30s ease-in-out infinite; }
+.blob-3 { width: 450px; height: 450px; top: 40%; left: 60%; animation: float3 28s ease-in-out infinite; }
+.blob-4 { width: 400px; height: 400px; top: 60%; left: 10%; animation: float1 26s ease-in-out infinite reverse; }
+.blob-5 { width: 500px; height: 500px; top: 20%; right: 15%; animation: float2 32s ease-in-out infinite reverse; }
+.blob-6 { width: 380px; height: 380px; bottom: 10%; left: 45%; animation: float3 22s ease-in-out infinite; }
+
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(90px, -70px) scale(1.15); }
+  66% { transform: translate(-70px, 90px) scale(0.95); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-110px, 60px) scale(1.2); }
+  66% { transform: translate(80px, -80px) scale(1); }
+}
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-90px, -90px) scale(1.25); }
 }
 
 .tikla-container {
   max-width: 900px;
   margin: 0 auto;
   padding-bottom: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 /* Navbar */
 .tikla-navbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; align-items: center; gap: 10px;
   padding: 0.8rem 1rem;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(25px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  background: var(--surface);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
+  position: sticky; top: 0; z-index: 100;
   flex-wrap: wrap;
 }
 
 .back-btn {
-  background: rgba(34, 197, 94, 0.2);
-  border: 1px solid var(--accent);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.25));
+  backdrop-filter: blur(14px) saturate(180%);
   color: var(--text);
-  padding: 6px 12px;
-  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 0.8rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
   transition: all var(--transition);
-  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  box-shadow: 0 4px 16px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
 }
-
 .back-btn:hover {
-  background: var(--accent);
-  color: white;
   transform: translateY(-2px);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  box-shadow: 0 8px 28px var(--accent-glow);
 }
 
 .tikla-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1.2rem;
-  font-weight: bold;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1.2rem; font-weight: bold;
   color: var(--accent);
 }
-
 .tikla-logo-img {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  object-fit: cover;
+  width: 30px; height: 30px;
+  border-radius: 8px; object-fit: cover;
+  box-shadow: 0 2px 10px var(--accent-glow);
 }
 
 .nav-links {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: flex; gap: 6px; flex-wrap: wrap;
   margin-left: auto;
 }
-
 .nav-links a {
-  color: var(--text);
-  text-decoration: none;
+  color: var(--text); text-decoration: none;
   padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(22, 163, 74, 0.15));
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
   transition: all var(--transition);
-  white-space: nowrap;
+  box-shadow: inset 0 1px 0 var(--glass-shine);
 }
-
 .nav-links a:hover {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: white;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-glow);
 }
 
 /* Hero */
 .tikla-hero {
   text-align: center;
   padding: 2rem 1rem;
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(22, 163, 74, 0.12));
   border-radius: 0 0 var(--radius) var(--radius);
   margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
 }
-
 .tikla-hero h1 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
-  color: white;
+  display: inline-flex; align-items: center; gap: 12px;
+  color: var(--text);
 }
-
+.tikla-hero h1 i { color: var(--accent); }
 .tikla-hero p {
   color: var(--text-secondary);
   margin-bottom: 1.5rem;
 }
 
 .download-buttons {
-  display: flex;
-  gap: 1rem;
+  display: flex; gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .download-btn, .virus-btn {
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: none;
+  position: relative;
+  overflow: hidden;
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
   cursor: pointer;
   font-weight: bold;
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: inline-flex; align-items: center; gap: 8px;
   font-size: 0.9rem;
   transition: all var(--transition);
+  backdrop-filter: blur(14px) saturate(180%);
 }
-
 .download-btn {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: white;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 6px 20px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
 }
-
 .download-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px var(--accent-glow);
 }
-
 .virus-btn {
-  background: rgba(0,0,0,0.5);
-  border: 1px solid var(--accent);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(22, 163, 74, 0.15));
   color: var(--text);
+  box-shadow: 0 4px 16px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
 }
-
 .virus-btn:hover {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: white;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 /* Bölümler */
 .tikla-section {
   background: var(--surface);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(22px) saturate(180%);
   border-radius: var(--radius);
   padding: 1.5rem;
   margin: 1rem auto;
   max-width: 100%;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(34, 197, 94, 0.25);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-shine);
+  border: 1px solid var(--glass-border);
   width: calc(100% - 2rem);
+  position: relative;
+  z-index: 1;
 }
-
 .tikla-section h2 {
   color: var(--accent);
   text-align: center;
@@ -204,125 +255,98 @@ body {
 .quick-links {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.8rem;
+  gap: 0.9rem;
 }
-
 .quick-card {
-  background: rgba(0,0,0,0.4);
-  padding: 1rem;
-  border-radius: 10px;
+  background: var(--surface-soft);
+  backdrop-filter: blur(12px);
+  padding: 1.2rem;
+  border-radius: var(--radius);
   text-align: center;
   color: var(--text);
   text-decoration: none;
   transition: all var(--transition);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-shine);
 }
-
 .quick-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-  background: rgba(34, 197, 94, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
+  border-color: var(--accent);
 }
-
 .quick-card i {
   font-size: 1.8rem;
   color: var(--accent);
   margin-bottom: 0.5rem;
+  display: block;
 }
-
-.quick-card h3 {
-  font-size: 1rem;
-  margin-bottom: 0.3rem;
-}
-
-.quick-card p {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
+.quick-card h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+.quick-card p { font-size: 0.8rem; color: var(--text-secondary); }
 
 /* Özellikler */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.8rem;
+  gap: 0.9rem;
 }
-
 .feature-item {
-  background: rgba(0,0,0,0.4);
+  background: var(--surface-soft);
+  backdrop-filter: blur(12px);
   padding: 1rem;
-  border-radius: 10px;
+  border-radius: var(--radius);
   text-align: center;
   transition: all var(--transition);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-shine);
 }
-
 .feature-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 28px var(--accent-glow);
+  border-color: var(--accent);
 }
-
-.feature-item i {
-  font-size: 1.8rem;
-  color: var(--accent);
-  margin-bottom: 0.5rem;
-}
-
-.feature-item h3 {
-  font-size: 0.9rem;
-  margin-bottom: 0.3rem;
-}
-
-.feature-item p {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
+.feature-item i { font-size: 1.8rem; color: var(--accent); margin-bottom: 0.5rem; }
+.feature-item h3 { font-size: 0.9rem; margin-bottom: 0.3rem; }
+.feature-item p { font-size: 0.8rem; color: var(--text-secondary); }
 
 /* Galeri */
 .gallery {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; align-items: center; gap: 10px;
   margin: 1rem 0;
 }
-
 .gallery-btn {
-  background: rgba(34, 197, 94, 0.3);
-  border: 1px solid var(--accent);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.25));
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
   color: white;
-  width: 40px;
-  height: 40px;
+  width: 42px; height: 42px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
   transition: all var(--transition);
   flex-shrink: 0;
+  box-shadow: 0 4px 16px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
 }
-
 .gallery-btn:hover {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   transform: scale(1.1);
 }
-
 .gallery-container {
   flex: 1;
   text-align: center;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: var(--radius);
   min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-soft);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-shine);
 }
-
 .gallery-container img {
-  max-width: 100%;
-  max-height: 400px;
+  max-width: 100%; max-height: 400px;
   object-fit: contain;
   transition: opacity 0.5s ease;
 }
-
 .gallery-counter {
   text-align: center;
   color: var(--text-secondary);
@@ -330,69 +354,101 @@ body {
 }
 
 /* SSS */
-.faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+.faq-list { display: flex; flex-direction: column; gap: 8px; }
 .faq-item {
-  background: rgba(0,0,0,0.4);
-  border-radius: 10px;
+  background: var(--surface-soft);
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius-sm);
   overflow: hidden;
+  border: 1px solid var(--glass-border);
 }
-
 .faq-question {
   width: 100%;
   background: none;
   border: none;
   color: var(--text);
-  padding: 12px 16px;
+  padding: 14px 18px;
   font-size: 0.95rem;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex; justify-content: space-between; align-items: center;
   text-align: left;
   transition: all var(--transition);
 }
-
-.faq-question:hover {
-  background: rgba(34, 197, 94, 0.1);
-}
-
+.faq-question:hover { background: rgba(34, 197, 94, 0.1); }
 .faq-answer {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease;
-  padding: 0 16px;
+  padding: 0 18px;
 }
-
-.faq-answer.open {
-  max-height: 300px;
-  padding-bottom: 12px;
-}
-
+.faq-answer.open { max-height: 400px; padding-bottom: 14px; }
 .faq-answer p {
   color: var(--text-secondary);
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-/* Footer */
+/* Modal */
+.modal {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  background: var(--surface);
+  backdrop-filter: blur(30px) saturate(180%);
+  padding: 1.6rem;
+  border-radius: var(--radius);
+  width: 90%; max-width: 400px;
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-shine);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  text-align: center;
+}
+
 .tikla-footer {
   text-align: center;
   padding: 1rem;
   color: var(--text-secondary);
   font-size: 0.8rem;
+  position: relative;
+  z-index: 1;
 }
 
-/* Responsive */
+/* Tema butonu */
+.theme-toggle {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  width: 52px; height: 52px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.25));
+  backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 10px 30px var(--accent-glow), inset 0 1px 0 var(--glass-shine);
+}
+.theme-toggle:hover {
+  transform: translateY(-3px) rotate(15deg);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+}
+
 @media (max-width: 768px) {
   .tikla-hero h1 { font-size: 1.6rem; }
   .features-grid { grid-template-columns: 1fr 1fr; }
   .download-buttons { flex-direction: column; align-items: center; }
   .gallery-container { min-height: 150px; }
   .nav-links { margin-left: 0; width: 100%; justify-content: center; }
+  .theme-toggle { width: 46px; height: 46px; bottom: 16px; right: 16px; }
 }
