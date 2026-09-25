@@ -1,325 +1,58 @@
-// ========== TEMA ==========
-function updateThemeIcon() {
-  const btn = document.getElementById('themeToggle');
-  if (!btn) return;
-  btn.innerHTML = document.documentElement.classList.contains('light')
-    ? '<i class="fa-solid fa-sun"></i>'
-    : '<i class="fa-solid fa-moon"></i>';
-}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Turbolu Tıkla! - Ekran Görüntüleri</title>
+    <link rel="icon" href="tikla.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme');
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            const isLight = saved ? saved === 'light' : prefersLight;
+            if (isLight) document.documentElement.classList.add('light');
+        })();
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <img src="tikla.png" alt="Turbolu Tıkla" width="36" height="36">
+            Turbolu Tıkla
+        </a>
+        <div class="nav-links">
+            <a href="/tikla/">Ana Sayfa</a>
+            <a href="ozellikler.html">Özellikler</a>
+            <a href="ekran-goruntuleri.html">Ekran Görüntüleri</a>
+            <a href="sss.html">SSS</a>
+            <a href="virus-testi.html">Virüs Testi</a>
+        </div>
+    </nav>
 
-// ========== BUHAR ==========
-const MAX_PARTICLES = 60;
-const MAX_PARTICLES_POOL = 80;
-let steamParticles = [];
-let steamCanvas, steamCtx;
-let steamRAF = null;
-let steamLastTime = 0;
-let steamLastMouseTime = 0;
+    <div class="container">
+        <section class="tikla-hero">
+            <h1><span class="emoji">📸</span> Ekran Görüntüleri</h1>
+            <p>Oyun içi görüntülere göz atın</p>
+        </section>
 
-function initSteam() {
-  steamCanvas = document.getElementById('steamCanvas');
-  if (!steamCanvas) return;
-  steamCtx = steamCanvas.getContext('2d', { alpha: true, desynchronized: true });
-  if (!steamCtx) return;
+        <section class="tikla-section">
+            <div class="gallery-container" id="gallery">
+                <img id="galleryImage" src="ss1.png" alt="Ekran görüntüsü">
+                <div id="galleryFallback" class="gallery-fallback" style="display:none;"></div>
+                <div class="gallery-thumbs" id="galleryThumbs"></div>
+            </div>
+        </section>
+    </div>
 
-  resizeSteamCanvas();
-
-  document.addEventListener('mousemove', (e) => {
-    const now = performance.now();
-    if (now - steamLastMouseTime < 16) return;
-    steamLastMouseTime = now;
-
-    if (steamParticles.length >= MAX_PARTICLES_POOL) steamParticles.shift();
-    steamParticles.push({
-      x: e.clientX + (Math.random() - 0.5) * 10,
-      y: e.clientY + (Math.random() - 0.5) * 10,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: -0.4 - Math.random() * 0.5,
-      size: 5 + Math.random() * 9,
-      life: 0.9,
-      decay: 0.024 + Math.random() * 0.014
-    });
-    if (steamParticles.length > MAX_PARTICLES) {
-      steamParticles.splice(0, steamParticles.length - MAX_PARTICLES);
-    }
-    startSteamLoop();
-  }, { passive: true });
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      if (steamRAF) { cancelAnimationFrame(steamRAF); steamRAF = null; }
-    } else if (steamParticles.length > 0) {
-      startSteamLoop();
-    }
-  });
-
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resizeSteamCanvas, 150);
-  }, { passive: true });
-}
-
-function startSteamLoop() {
-  if (steamRAF || document.hidden) return;
-  steamLastTime = performance.now();
-  steamRAF = requestAnimationFrame(animateSteam);
-}
-
-function resizeSteamCanvas() {
-  if (!steamCanvas) return;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  steamCanvas.width = window.innerWidth * dpr;
-  steamCanvas.height = window.innerHeight * dpr;
-  steamCanvas.style.width = window.innerWidth + 'px';
-  steamCanvas.style.height = window.innerHeight + 'px';
-  steamCtx.setTransform(1, 0, 0, 1, 0, 0);
-  steamCtx.scale(dpr, dpr);
-}
-
-function animateSteam(now) {
-  if (!steamCtx) { steamRAF = null; return; }
-  const dt = Math.min((now - steamLastTime) / 16.67, 3);
-  steamLastTime = now;
-
-  steamCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  const isLight = document.documentElement.classList.contains('light');
-  const color = isLight ? '22, 163, 74' : '34, 197, 94';
-
-  for (let i = steamParticles.length - 1; i >= 0; i--) {
-    const p = steamParticles[i];
-    p.x += p.vx * dt;
-    p.y += p.vy * dt;
-    p.size += 0.5 * dt;
-    p.life -= p.decay * dt;
-    if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
-    const alpha = p.life * 0.28;
-    const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-    gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
-    gradient.addColorStop(0.5, `rgba(${color}, ${alpha * 0.4})`);
-    gradient.addColorStop(1, `rgba(${color}, 0)`);
-    steamCtx.fillStyle = gradient;
-    steamCtx.beginPath();
-    steamCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    steamCtx.fill();
-  }
-
-  if (steamParticles.length === 0) { steamRAF = null; return; }
-  steamRAF = requestAnimationFrame(animateSteam);
-}
-
-// ========== GALERİ (GÜVENLİ SÜRÜM) ==========
-let galleryImages = [];
-let currentImageIndex = 0;
-let galleryLoaded = false;
-let loadedImages = {}; // başarılı yüklenenler
-
-// Placeholder SVG — resim yüklenemezse bunu göster
-const PLACEHOLDER_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1a2e22"/>
-      <stop offset="100%" stop-color="#0a1f12"/>
-    </linearGradient>
-  </defs>
-  <rect width="800" height="450" fill="url(#g)"/>
-  <text x="400" y="200" text-anchor="middle" fill="#22c55e" font-size="60" font-family="sans-serif">📷</text>
-  <text x="400" y="260" text-anchor="middle" fill="#8f9b95" font-size="20" font-family="sans-serif">Görsel yüklenemedi</text>
-  <text x="400" y="290" text-anchor="middle" fill="#5a6760" font-size="14" font-family="sans-serif">ss${'{N}'}.png dosyasını tikla/ klasörüne koy</text>
-</svg>`);
-
-// Muhtemel dosya uzantıları — sırayla dene
-const EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp'];
-
-function loadGallery() {
-  if (galleryLoaded) return;
-  const galleryEl = document.getElementById('gallery');
-  if (!galleryEl) return;
-
-  // ss1'den ss8'e kadar tanımla
-  galleryImages = [
-    'ss1', 'ss2', 'ss3', 'ss4',
-    'ss5', 'ss6', 'ss7', 'ss8'
-  ].map(name => ({
-    name,
-    src: null // yüklenince dolacak
-  }));
-
-  // Her görseli farklı uzantılarla dene
-  probeImages().then(() => {
-    renderGalleryThumbs();
-    updateGalleryImage();
-    galleryLoaded = true;
-  });
-}
-
-// Her görsel için uygun uzantıyı bul
-function probeImages() {
-  const promises = galleryImages.map((img, i) => {
-    return new Promise((resolve) => {
-      let extIndex = 0;
-      function tryNext() {
-        if (extIndex >= EXTENSIONS.length) {
-          // Hiçbiri yoksa placeholder
-          img.src = null;
-          resolve();
-          return;
-        }
-        const ext = EXTENSIONS[extIndex];
-        const testSrc = `${img.name}.${ext}`;
-        const probe = new Image();
-        probe.onload = () => {
-          img.src = testSrc;
-          loadedImages[i] = true;
-          resolve();
-        };
-        probe.onerror = () => {
-          extIndex++;
-          tryNext();
-        };
-        probe.src = testSrc;
-      }
-      tryNext();
-    });
-  });
-  return Promise.all(promises);
-}
-
-function renderGalleryThumbs() {
-  const thumbsEl = document.getElementById('galleryThumbs');
-  if (!thumbsEl) return;
-  thumbsEl.innerHTML = '';
-  const frag = document.createDocumentFragment();
-
-  const availableImages = galleryImages.filter(img => img.src);
-
-  if (availableImages.length === 0) {
-    // Hiç görsel yoksa bilgi göster
-    const info = document.createElement('div');
-    info.style.cssText = 'text-align:center; color: var(--text-muted); font-size: 0.9rem; padding: 20px; line-height: 1.6;';
-    info.innerHTML = `
-      <div style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.6;">📷</div>
-      <strong style="color: var(--accent-hi);">Henüz ekran görüntüsü yok</strong><br>
-      <span style="font-size: 0.82rem; opacity: 0.7;">
-        <code style="background: var(--surface-hi); padding: 2px 6px; border-radius: 4px;">tikla/ss1.png</code>
-        ...
-        <code style="background: var(--surface-hi); padding: 2px 6px; border-radius: 4px;">ss8.png</code>
-        olarak ekleyin
-      </span>
-    `;
-    thumbsEl.appendChild(info);
-    return;
-  }
-
-  galleryImages.forEach((img, i) => {
-    if (!img.src) return; // boş olanları atla
-    const thumb = document.createElement('img');
-    thumb.src = img.src;
-    thumb.alt = `Ekran ${i + 1}`;
-    thumb.loading = 'lazy';
-    thumb.decoding = 'async';
-    thumb.className = 'thumb';
-    if (i === currentImageIndex) thumb.classList.add('active');
-    thumb.addEventListener('click', () => {
-      currentImageIndex = i;
-      updateGalleryImage();
-    });
-    frag.appendChild(thumb);
-  });
-  thumbsEl.appendChild(frag);
-}
-
-function updateGalleryImage() {
-  const mainImg = document.getElementById('galleryImage');
-  if (!mainImg) return;
-
-  // Mevcut index boş olabilir, ilk doluya geç
-  let found = null;
-  if (galleryImages[currentImageIndex] && galleryImages[currentImageIndex].src) {
-    found = galleryImages[currentImageIndex];
-  } else {
-    for (let i = 0; i < galleryImages.length; i++) {
-      if (galleryImages[i].src) {
-        currentImageIndex = i;
-        found = galleryImages[i];
-        break;
-      }
-    }
-  }
-
-  if (!found) {
-    // Hiç görsel yok — placeholder göster
-    mainImg.onload = null;
-    mainImg.onerror = null;
-    mainImg.style.opacity = '1';
-    mainImg.src = PLACEHOLDER_SVG;
-    mainImg.alt = 'Henüz görsel yok';
-    return;
-  }
-
-  // Başarılı: yumuşak geçiş
-  mainImg.style.opacity = '0';
-  setTimeout(() => {
-    mainImg.onload = () => {
-      mainImg.style.opacity = '1';
-    };
-    mainImg.onerror = () => {
-      mainImg.style.opacity = '1';
-      mainImg.src = PLACEHOLDER_SVG;
-    };
-    mainImg.src = found.src;
-    mainImg.alt = `Ekran ${currentImageIndex + 1}`;
-  }, 150);
-
-  document.querySelectorAll('.thumb').forEach((t) => {
-    t.classList.toggle('active', parseInt(t.dataset.index) === currentImageIndex);
-  });
-}
-
-// Klavye ile gezinme
-document.addEventListener('keydown', (e) => {
-  if (galleryImages.length === 0) return;
-  const galleryImage = document.getElementById('galleryImage');
-  if (!galleryImage || !galleryImage.offsetParent) return;
-
-  if (e.key === 'ArrowRight') {
-    for (let i = currentImageIndex + 1; i < galleryImages.length; i++) {
-      if (galleryImages[i].src) { currentImageIndex = i; break; }
-    }
-    updateGalleryImage();
-  } else if (e.key === 'ArrowLeft') {
-    for (let i = currentImageIndex - 1; i >= 0; i--) {
-      if (galleryImages[i].src) { currentImageIndex = i; break; }
-    }
-    updateGalleryImage();
-  }
-});
-
-// ========== SSS ==========
-function toggleFaq(el) {
-  const item = el.closest('.faq-item');
-  const allFaqs = document.querySelectorAll('.faq-item');
-  allFaqs.forEach(f => { if (f !== item) f.classList.remove('open'); });
-  item.classList.toggle('open');
-}
-
-// ========== BAŞLAT ==========
-document.addEventListener('DOMContentLoaded', () => {
-  const themeBtn = document.getElementById('themeToggle');
-  if (themeBtn) {
-    updateThemeIcon();
-    themeBtn.addEventListener('click', () => {
-      const isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
-      updateThemeIcon();
-    });
-  }
-
-  initSteam();
-  loadGallery();
-
-  document.querySelectorAll('.faq-question').forEach(q => {
-    q.addEventListener('click', () => toggleFaq(q));
-  });
-});
+    <canvas id="steamCanvas"></canvas>
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+    <script src="script.js"></script>
+</body>
+</html>
