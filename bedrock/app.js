@@ -4,7 +4,7 @@
 
 const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
 const VAPID_PUBLIC_KEY = 'BD3kAyCW2OpZmM7SzNSEeANMtFNDXUiFP3ZDpgOfeRv78S3Igz4qOxZZubXBo1kXaj_9Q53lwKghx0PIIsRsaXk';
-const DEFAULT_AVATAR = 'crpr.png';
+const DEFAULT_AVATAR = '../mc/crpr.png';
 const PLATFORM = 'bedrock';
 
 // ============================================
@@ -331,7 +331,7 @@ async function subscribeToPush() {
   }
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') { alert('Bildirim izni verilmedi.'); return null; }
-  const registration = await navigator.serviceWorker.register('/bedrock/sw.js');
+  const registration = await navigator.serviceWorker.register('../mc/sw.js');
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey: await urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initBgSteam();
 
   if ('serviceWorker' in navigator) {
-    try { await navigator.serviceWorker.register('/bedrock/sw.js'); } catch (e) {}
+    try { await navigator.serviceWorker.register('../mc/sw.js'); } catch (e) {}
   }
 
   try {
