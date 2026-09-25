@@ -175,7 +175,7 @@
         resizeCanvas();
         requestAnimationFrame(animate);
 
-        // ==== HAFİF BUHAR İZİ ====
+        // ==== BUHAR İZİ (PORTAL - BELİRGİN) ====
         const steamCanvas = document.getElementById('steamCanvas');
         const steamCtx = steamCanvas.getContext('2d');
         let steamParticles = [];
@@ -188,15 +188,15 @@
 
         document.addEventListener('mousemove', (e) => {
             steamParticles.push({
-                x: e.clientX + (Math.random() - 0.5) * 6,
-                y: e.clientY + (Math.random() - 0.5) * 6,
-                vx: (Math.random() - 0.5) * 0.2,
-                vy: -0.15 - Math.random() * 0.2,
-                size: 4 + Math.random() * 6,
-                life: 0.6,
-                decay: 0.035 + Math.random() * 0.02
+                x: e.clientX + (Math.random() - 0.5) * 12,
+                y: e.clientY + (Math.random() - 0.5) * 12,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: -0.3 - Math.random() * 0.4,
+                size: 8 + Math.random() * 12,
+                life: 0.8,
+                decay: 0.025 + Math.random() * 0.015
             });
-            if (steamParticles.length > 30) steamParticles.splice(0, steamParticles.length - 30);
+            if (steamParticles.length > 45) steamParticles.splice(0, steamParticles.length - 45);
         });
 
         function animateSteam() {
@@ -205,9 +205,9 @@
             const color = isLight ? '22, 163, 74' : '34, 197, 94';
             for (let i = steamParticles.length - 1; i >= 0; i--) {
                 const p = steamParticles[i];
-                p.x += p.vx; p.y += p.vy; p.size += 0.3; p.life -= p.decay;
+                p.x += p.vx; p.y += p.vy; p.size += 0.5; p.life -= p.decay;
                 if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
-                const alpha = p.life * 0.1;
+                const alpha = p.life * 0.18;
                 const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
                 gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
                 gradient.addColorStop(1, `rgba(${color}, 0)`);
