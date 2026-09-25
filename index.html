@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TurboluMC - Resmi Web Sitesi</title>
-    <link rel="icon" href="crpr.png" type="image/png">
+    <title>Turbolu Studios - Projelerimiz</title>
+    <link rel="icon" href="mc/crpr.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="manifest" href="/mc/manifest.json">
-    <meta name="theme-color" content="#22c55e">
     <script>
         (function() {
             const saved = localStorage.getItem('theme');
@@ -22,9 +21,8 @@
     </script>
 </head>
 <body>
-    <!-- Arka plan serbest buhar partikülleri (canvas) -->
-    <canvas id="bgSteamCanvas" class="bg-steam-canvas"></canvas>
-    <!-- Arka plan yumuşak bloblar (çok hafif) -->
+    <canvas id="dotGridCanvas" class="bg-canvas"></canvas>
+    <canvas id="steamCanvas" class="steam-canvas"></canvas>
     <div class="steam-container">
         <div class="steam-blob blob-1"></div>
         <div class="steam-blob blob-2"></div>
@@ -32,32 +30,267 @@
         <div class="steam-blob blob-4"></div>
     </div>
 
-    <div id="app">
-        <nav class="navbar">
-            <div class="nav-left">
-                <button class="back-btn" onclick="window.location.href='/'">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-                <div class="logo" onclick="showContent('status')">
-                    <img src="crpr.png" alt="TurboluMC" class="logo-img">
-                    TurboluMC
-                </div>
+    <div class="portal-container">
+        <header class="portal-header">
+            <div class="portal-logo" onclick="window.location.href='/'">
+                <img src="mc/crpr.png" alt="Turbolu Studios" class="logo-img" width="44" height="44" fetchpriority="high" decoding="async">
+                Turbolu Studios
             </div>
-            <div class="nav-links" id="navLinks"></div>
-            <div class="user-area" id="userArea"></div>
-        </nav>
-        <main id="content"></main>
-        <div id="modal" class="modal hidden">
-            <div class="modal-content" id="modalBody"></div>
+            <p>Projelerimize göz atın!</p>
+        </header>
+
+        <div class="project-grid">
+            <a href="/mc/" class="project-card">
+                <div class="project-icon">
+                    <img src="mc/crpr.png" alt="TurboluMC" class="project-icon-img" width="90" height="90" loading="eager" decoding="async">
+                </div>
+                <div class="project-info">
+                    <h2>TurboluMC</h2>
+                    <p>Minecraft Sunucumuz</p>
+                    <span class="project-badge">Aktif</span>
+                </div>
+            </a>
+
+            <a href="/tikla/" class="project-card">
+                <div class="project-icon">
+                    <img src="tikla/tikla.png" alt="Tıkla!" class="project-icon-img" width="90" height="90" loading="eager" decoding="async">
+                </div>
+                <div class="project-info">
+                    <h2>Turbolu Tıkla!</h2>
+                    <p>Mobil Tıklama Oyunu</p>
+                    <span class="project-badge">Aktif</span>
+                </div>
+            </a>
+
+            <a href="#" class="project-card future" onclick="alert('Yakında!'); return false;">
+                <div class="project-icon">❓</div>
+                <div class="project-info">
+                    <h2>Yeni Proje</h2>
+                    <p>Çok yakında...</p>
+                    <span class="project-badge">Yakında</span>
+                </div>
+            </a>
         </div>
+
+        <section class="info-section">
+            <h2><i class="fa-solid fa-circle-info"></i> Hakkımızda</h2>
+            <p>Turbolu Studios, yenilikçi ve eğlenceli dijital projeler geliştiren bağımsız bir stüdyodur. Minecraft sunucularından mobil oyunlara kadar geniş bir yelpazede çalışıyoruz. Amacımız, kullanıcılarımıza kaliteli, güvenli ve eğlenceli deneyimler sunmaktır.</p>
+        </section>
+
+        <section class="info-section">
+            <h2><i class="fa-solid fa-envelope"></i> İletişim</h2>
+            <div class="contact-links">
+                <a href="mailto:ereny116011@gmail.com"><i class="fa-solid fa-envelope"></i> ereny116011@gmail.com</a>
+                <a href="mailto:yilmaz6011@hotmail.com"><i class="fa-solid fa-envelope"></i> yilmaz6011@hotmail.com</a>
+            </div>
+        </section>
+
+        <footer class="portal-footer">
+            <p>&copy; 2026 Turbolu Studios. Tüm Hakları Saklıdır.</p>
+        </footer>
     </div>
 
-    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" onclick="toggleTheme()">
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir">
         <i class="fa-solid fa-moon"></i>
     </button>
 
-    <canvas id="steamCanvas" class="steam-canvas"></canvas>
+    <script>
+        // ==== TEMA ====
+        const themeBtn = document.getElementById('themeToggle');
+        function updateThemeIcon() {
+            const isLight = document.documentElement.classList.contains('light');
+            themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        }
+        themeBtn.addEventListener('click', () => {
+            const isLight = document.documentElement.classList.toggle('light');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            updateThemeIcon();
+        });
+        updateThemeIcon();
 
-    <script src="app.js"></script>
+        // ==== NOKTA GRID (OPTİMİZE) ====
+        const canvas = document.getElementById('dotGridCanvas');
+        const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+        let dots = [];
+        let mouse = { x: -1000, y: -1000 };
+        let lastFrame = 0;
+        let dotRAF = null;
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+        function resizeCanvas() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+            generateDots();
+        }
+        function generateDots() {
+            dots = [];
+            const spacing = isMobile ? 60 : 42;
+            const cols = Math.ceil(window.innerWidth / spacing) + 1;
+            const rows = Math.ceil(window.innerHeight / spacing) + 1;
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    dots.push({
+                        baseX: i * spacing + spacing / 2,
+                        baseY: j * spacing + spacing / 2,
+                        phase: Math.random() * Math.PI * 2,
+                        size: 1.6
+                    });
+                }
+            }
+        }
+        function drawDots(t) {
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            const isLight = document.documentElement.classList.contains('light');
+            const colorBase = isLight ? [22, 163, 74] : [34, 197, 94];
+            const baseAlpha = isLight ? 0.35 : 0.55;
+            const maxDist = 160;
+            const maxDistSq = maxDist * maxDist;
+            for (let k = 0; k < dots.length; k++) {
+                const dot = dots[k];
+                const dx = mouse.x - dot.baseX;
+                const dy = mouse.y - dot.baseY;
+                const distSq = dx * dx + dy * dy;
+                let offsetX = 0, offsetY = 0, alpha = baseAlpha, size = dot.size;
+                if (distSq < maxDistSq) {
+                    const dist = Math.sqrt(distSq);
+                    const force = (maxDist - dist) / maxDist;
+                    offsetX = -dx * force * 0.25;
+                    offsetY = -dy * force * 0.25;
+                    alpha = Math.min(1, baseAlpha + force * 0.5);
+                    size = dot.size + force * 1.2;
+                }
+                const floatX = Math.sin(t * 0.0008 + dot.phase) * 2.5;
+                const floatY = Math.cos(t * 0.001 + dot.phase) * 2.5;
+                ctx.fillStyle = `rgba(${colorBase[0]}, ${colorBase[1]}, ${colorBase[2]}, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(dot.baseX + floatX + offsetX, dot.baseY + floatY + offsetY, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        function animateDots(t) {
+            if (t - lastFrame > 33) {
+                drawDots(t);
+                lastFrame = t;
+            }
+            dotRAF = requestAnimationFrame(animateDots);
+        }
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(resizeCanvas, 150);
+        }, { passive: true });
+
+        let mouseMoveTime = 0;
+        window.addEventListener('mousemove', (e) => {
+            const now = performance.now();
+            if (now - mouseMoveTime < 16) return;
+            mouseMoveTime = now;
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        }, { passive: true });
+
+        window.addEventListener('mouseleave', () => { mouse.x = -1000; mouse.y = -1000; });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (dotRAF) { cancelAnimationFrame(dotRAF); dotRAF = null; }
+            } else if (!dotRAF) {
+                dotRAF = requestAnimationFrame(animateDots);
+            }
+        });
+
+        resizeCanvas();
+        dotRAF = requestAnimationFrame(animateDots);
+
+        // ==== BUHAR İZİ (KÜÇÜK, OPTİMİZE) ====
+        const steamCanvas = document.getElementById('steamCanvas');
+        const steamCtx = steamCanvas.getContext('2d', { alpha: true, desynchronized: true });
+        let steamParticles = [];
+        let steamRAF = null;
+        let steamLastTime = 0;
+        let steamLastMouseTime = 0;
+        const MAX_STEAM = 50;
+        const MAX_STEAM_POOL = 65;
+
+        function resizeSteam() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            steamCanvas.width = window.innerWidth * dpr;
+            steamCanvas.height = window.innerHeight * dpr;
+            steamCanvas.style.width = window.innerWidth + 'px';
+            steamCanvas.style.height = window.innerHeight + 'px';
+            steamCtx.setTransform(1, 0, 0, 1, 0, 0);
+            steamCtx.scale(dpr, dpr);
+        }
+        resizeSteam();
+
+        let steamResizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(steamResizeTimer);
+            steamResizeTimer = setTimeout(resizeSteam, 150);
+        }, { passive: true });
+
+        document.addEventListener('mousemove', (e) => {
+            const now = performance.now();
+            if (now - steamLastMouseTime < 16) return;
+            steamLastMouseTime = now;
+
+            if (steamParticles.length >= MAX_STEAM_POOL) steamParticles.shift();
+            steamParticles.push({
+                x: e.clientX + (Math.random() - 0.5) * 10,
+                y: e.clientY + (Math.random() - 0.5) * 10,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: -0.5 - Math.random() * 0.5,
+                size: 5 + Math.random() * 9,
+                life: 0.9,
+                decay: 0.024 + Math.random() * 0.014
+            });
+            if (steamParticles.length > MAX_STEAM) steamParticles.splice(0, steamParticles.length - MAX_STEAM);
+            startSteamLoop();
+        }, { passive: true });
+
+        function startSteamLoop() {
+            if (steamRAF || document.hidden) return;
+            steamLastTime = performance.now();
+            steamRAF = requestAnimationFrame(animateSteam);
+        }
+
+        function animateSteam(now) {
+            const dt = Math.min((now - steamLastTime) / 16.67, 3);
+            steamLastTime = now;
+            steamCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            const isLight = document.documentElement.classList.contains('light');
+            const color = isLight ? '22, 163, 74' : '34, 197, 94';
+
+            for (let i = steamParticles.length - 1; i >= 0; i--) {
+                const p = steamParticles[i];
+                p.x += p.vx * dt; p.y += p.vy * dt; p.size += 0.55 * dt; p.life -= p.decay * dt;
+                if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
+                const alpha = p.life * 0.28;
+                const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
+                gradient.addColorStop(0.5, `rgba(${color}, ${alpha * 0.4})`);
+                gradient.addColorStop(1, `rgba(${color}, 0)`);
+                steamCtx.fillStyle = gradient;
+                steamCtx.beginPath();
+                steamCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                steamCtx.fill();
+            }
+            if (steamParticles.length === 0) { steamRAF = null; return; }
+            steamRAF = requestAnimationFrame(animateSteam);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && steamRAF) {
+                cancelAnimationFrame(steamRAF);
+                steamRAF = null;
+            }
+        });
+    </script>
 </body>
 </html>
