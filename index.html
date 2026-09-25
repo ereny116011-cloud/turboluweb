@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <!-- Pixelify Sans sadece marka yazısı için -->
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -41,7 +40,7 @@
                 </div>
                 <div class="project-info">
                     <h2>TurboluMC</h2>
-                    <p>Minecraft Sunucumuz</p>
+                    <p>Java Edition Sunucumuz</p>
                     <span class="project-badge">Aktif</span>
                 </div>
             </a>
@@ -53,6 +52,17 @@
                 <div class="project-info">
                     <h2>Turbolu Tıkla!</h2>
                     <p>Mobil Tıklama Oyunu</p>
+                    <span class="project-badge">Aktif</span>
+                </div>
+            </a>
+
+            <a href="/bedrock/" class="project-card">
+                <div class="project-icon">
+                    <img src="mc/crpr.png" alt="Turbolu Bedrock" class="project-icon-img" width="90" height="90" loading="eager" decoding="async">
+                </div>
+                <div class="project-info">
+                    <h2>Turbolu Bedrock</h2>
+                    <p>Bedrock Edition Sunucumuz</p>
                     <span class="project-badge">Aktif</span>
                 </div>
             </a>
@@ -118,7 +128,7 @@
             canvas.height = window.innerHeight * dpr;
             canvas.style.width = window.innerWidth + 'px';
             canvas.style.height = window.innerHeight + 'px';
-            ctx.setTransform(1, 0, 0, 0, 0, 0);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.scale(dpr, dpr);
             generateDots();
         }
