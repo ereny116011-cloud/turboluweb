@@ -33,6 +33,11 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   font-family: 'Pixelify Sans', 'Courier New', Consolas, monospace;
   font-size: 15px;
@@ -40,13 +45,20 @@ body {
   color: var(--text);
   min-height: 100vh;
   background: var(--bg-base);
-  transition: background 0.4s ease, color 0.4s ease;
+  transition: background 0.3s ease, color 0.3s ease;
   letter-spacing: 0.3px;
   line-height: 1.5;
   overflow-x: hidden;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ========== ARKA PLAN BUHAR BLOBS ========== */
+img { max-width: 100%; height: auto; display: block; }
+
+/* Performans: içerik görünene kadar render'ı geciktir */
+.glass-card { content-visibility: auto; contain-intrinsic-size: 0 300px; }
+
+/* ========== ARKA PLAN BUHAR BLOBS (daha hafif blur) ========== */
 .steam-container {
   position: fixed;
   top: 0; left: 0;
@@ -55,31 +67,36 @@ body {
   z-index: -3;
   pointer-events: none;
   overflow: hidden;
+  /* GPU katmanı oluştur */
+  will-change: transform;
 }
 
 .steam-blob {
   position: absolute;
   border-radius: 50%;
   background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-  filter: blur(60px);
-  opacity: 0.35;
-  animation: floatBlob 18s ease-in-out infinite;
+  /* 60px → 40px (GPU dostu) */
+  filter: blur(40px);
+  opacity: 0.3;
+  animation: floatBlob 22s ease-in-out infinite;
+  /* GPU'ya taşı, layout hesaplama yok */
+  transform: translateZ(0);
 }
 
-.blob-1 { width: 400px; height: 400px; top: 10%; left: 5%; animation-delay: 0s; }
-.blob-2 { width: 300px; height: 300px; top: 50%; left: 70%; animation-delay: -3s; }
-.blob-3 { width: 350px; height: 350px; top: 70%; left: 20%; animation-delay: -6s; }
-.blob-4 { width: 250px; height: 250px; top: 20%; left: 80%; animation-delay: -9s; }
-.blob-5 { width: 320px; height: 320px; top: 85%; left: 55%; animation-delay: -12s; }
-.blob-6 { width: 280px; height: 280px; top: 35%; left: 35%; animation-delay: -15s; }
+.blob-1 { width: 320px; height: 320px; top: 10%; left: 5%; animation-delay: 0s; }
+.blob-2 { width: 260px; height: 260px; top: 50%; left: 70%; animation-delay: -4s; }
+.blob-3 { width: 280px; height: 280px; top: 70%; left: 20%; animation-delay: -8s; }
+.blob-4 { width: 220px; height: 220px; top: 20%; left: 80%; animation-delay: -12s; }
+.blob-5 { width: 260px; height: 260px; top: 85%; left: 55%; animation-delay: -16s; }
+.blob-6 { width: 240px; height: 240px; top: 35%; left: 35%; animation-delay: -20s; }
 
 @keyframes floatBlob {
-  0%, 100% { transform: translate(0,0) scale(1); }
-  33% { transform: translate(30px,-40px) scale(1.1); }
-  66% { transform: translate(-30px,30px) scale(0.95); }
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  33% { transform: translate3d(20px,-25px,0) scale(1.08); }
+  66% { transform: translate3d(-20px,20px,0) scale(0.96); }
 }
 
-/* ========== BUHAR CANVAS — EN ÜST KATMAN ========== */
+/* ========== BUHAR CANVAS ========== */
 .steam-canvas {
   position: fixed;
   top: 0; left: 0;
@@ -87,17 +104,20 @@ body {
   height: 100vh;
   z-index: 9999;
   pointer-events: none;
+  /* GPU hızlandırma */
+  transform: translateZ(0);
 }
 
-/* ========== NAVBAR ========== */
+/* ========== NAVBAR (tek satır, hafif) ========== */
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 14px;
   background: var(--surface);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  /* Blur 20px → 12px (daha hafif) */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--glass-border);
   position: sticky;
   top: 0;
@@ -110,9 +130,7 @@ body {
   -ms-overflow-style: none;
 }
 
-.navbar::-webkit-scrollbar {
-  display: none;
-}
+.navbar::-webkit-scrollbar { display: none; }
 
 .nav-left {
   display: flex;
@@ -128,7 +146,7 @@ body {
   padding: 5px 8px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s;
   font-family: inherit;
   font-size: 0.75rem;
   flex-shrink: 0;
@@ -165,9 +183,7 @@ body {
   padding: 2px 0;
 }
 
-.nav-links::-webkit-scrollbar {
-  display: none;
-}
+.nav-links::-webkit-scrollbar { display: none; }
 
 .nav-links button {
   background: var(--surface-soft);
@@ -178,7 +194,7 @@ body {
   cursor: pointer;
   font-family: inherit;
   font-size: 0.7rem;
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -187,7 +203,6 @@ body {
   background: var(--accent);
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 .user-area {
@@ -207,7 +222,7 @@ body {
   cursor: pointer;
   font-family: inherit;
   font-size: 0.7rem;
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -223,10 +238,7 @@ body {
   border: none !important;
 }
 
-.btn-green:hover {
-  background: var(--accent-hover) !important;
-  box-shadow: 0 4px 12px var(--accent-glow);
-}
+.btn-green:hover { background: var(--accent-hover) !important; }
 
 .profile-icon {
   width: 28px;
@@ -234,11 +246,12 @@ body {
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid var(--accent);
-  transition: transform 0.2s;
+  transition: transform 0.15s;
   flex-shrink: 0;
+  object-fit: cover;
 }
 
-.profile-icon:hover { transform: scale(1.1); }
+.profile-icon:hover { transform: scale(1.08); }
 
 .username-label {
   font-size: 0.72rem;
@@ -261,24 +274,29 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px 20px 60px;
+  min-height: 60vh;
 }
 
-/* ========== GLASS CARD ========== */
+/* Sayfa geçişi (JS class ekler/çıkarır) */
+#content.page-enter {
+  animation: fadeInUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ========== GLASS CARD (hafif blur) ========== */
 .glass-card {
   background: var(--surface);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .glass-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.2);
 }
 
 .glass-card h1,
@@ -302,17 +320,17 @@ body {
   border-radius: 12px;
   padding: 14px 24px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: background 0.2s, transform 0.2s;
   font-size: 1rem;
   font-weight: bold;
   margin: 1rem 0;
+  user-select: none;
 }
 
 .ip-box:hover {
   background: var(--accent);
   color: white;
-  transform: scale(1.03);
-  box-shadow: 0 8px 24px var(--accent-glow);
+  transform: scale(1.02);
 }
 
 .copy-btn {
@@ -349,13 +367,13 @@ body {
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  transition: all 0.3s;
+  transition: transform 0.2s, border-color 0.2s;
+  will-change: transform;
 }
 
 .feature-item:hover {
   transform: translateY(-4px);
   border-color: var(--accent);
-  box-shadow: 0 8px 24px var(--accent-glow);
 }
 
 .feature-item i {
@@ -407,6 +425,7 @@ body {
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  animation: fadeIn 0.15s ease;
 }
 
 .modal.hidden { display: none; }
@@ -418,8 +437,13 @@ body {
   padding: 28px;
   max-width: 400px;
   width: 100%;
-  animation: fadeIn 0.25s ease;
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: modalIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .modal-content h3 { font-size: 1.1rem; }
@@ -436,6 +460,14 @@ body {
   color: var(--text);
   font-family: inherit;
   font-size: 0.95rem;
+  transition: border-color 0.15s;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .modal-content button {
@@ -445,7 +477,7 @@ body {
   border: 1px solid var(--glass-border);
   background: var(--surface-soft);
   color: var(--text);
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s;
   font-size: 0.95rem;
 }
 
@@ -468,13 +500,12 @@ body {
   font-size: 1.2rem;
   box-shadow: 0 6px 20px var(--accent-glow);
   z-index: 9998;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.2s;
   font-family: inherit;
 }
 
 .theme-toggle:hover {
-  transform: scale(1.12) rotate(15deg);
-  box-shadow: 0 10px 30px var(--accent-glow);
+  transform: scale(1.08) rotate(12deg);
 }
 
 /* ========== PROFİL ========== */
@@ -519,7 +550,7 @@ body {
   cursor: pointer;
   font-family: inherit;
   font-size: 0.9rem;
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s;
 }
 .small-btn:hover { background: var(--accent); color: white; }
 
@@ -541,9 +572,7 @@ body {
 }
 
 .announcement-item p,
-.news-item p {
-  font-size: 0.95rem;
-}
+.news-item p { font-size: 0.95rem; }
 
 .announcement-item small,
 .news-item small {
@@ -579,6 +608,7 @@ body {
   .ip-box { font-size: 0.85rem; padding: 12px 18px; }
   .theme-toggle { width: 46px; height: 46px; font-size: 1rem; }
   body { font-size: 14px; }
+  .glass-card { padding: 18px; }
 }
 
 @media (max-width: 480px) {
@@ -591,34 +621,35 @@ body {
 }
 
 /* ========== SAYFA GEÇİŞ ANİMASYONU ========== */
-#content,
 .glass-card,
-.info-section,
-.project-card,
-.feature-item,
-.quick-card {
-  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+.feature-item {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.project-card:nth-child(1) { animation-delay: 0.05s; }
-.project-card:nth-child(2) { animation-delay: 0.1s; }
-.project-card:nth-child(3) { animation-delay: 0.15s; }
-
-.feature-item:nth-child(1) { animation-delay: 0.05s; }
-.feature-item:nth-child(2) { animation-delay: 0.1s; }
-.feature-item:nth-child(3) { animation-delay: 0.15s; }
-
-.quick-card:nth-child(1) { animation-delay: 0.05s; }
-.quick-card:nth-child(2) { animation-delay: 0.1s; }
-.quick-card:nth-child(3) { animation-delay: 0.15s; }
-.quick-card:nth-child(4) { animation-delay: 0.2s; }
+.feature-item:nth-child(1) { animation-delay: 0.04s; }
+.feature-item:nth-child(2) { animation-delay: 0.08s; }
+.feature-item:nth-child(3) { animation-delay: 0.12s; }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* ========== ERİŞİLEBİLİRLİK: Hareket azaltma ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .steam-blob { animation: none; }
+  .steam-canvas { display: none; }
 }
