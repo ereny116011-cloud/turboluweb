@@ -34,13 +34,16 @@
 }
 
 body {
-  /* Mojangles benzeri font + fallback zinciri */
-  font-family: 'Minecraft', 'Courier New', Consolas, 'Lucida Console', monospace;
+  /* Pixelify Sans — pixel-art görünüm, tam Türkçe destekli */
+  font-family: 'Pixelify Sans', 'Courier New', Consolas, monospace;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--text);
   min-height: 100vh;
   background: var(--bg-base);
   transition: background 0.4s ease, color 0.4s ease;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  line-height: 1.5;
   overflow-x: hidden;
 }
 
@@ -83,8 +86,8 @@ body {
   top: 0; left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 9999;      /* En üst katman */
-  pointer-events: none; /* Tıklamayı engellemez */
+  z-index: 9999;
+  pointer-events: none;
 }
 
 /* ========== NAVBAR ========== */
@@ -114,6 +117,7 @@ body {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
+  font-family: inherit;
 }
 
 .back-btn:hover { background: var(--accent); color: white; }
@@ -122,7 +126,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: var(--accent);
   cursor: pointer;
@@ -130,7 +134,7 @@ body {
 }
 
 .logo:hover { transform: scale(1.03); }
-.logo-img { width: 36px; height: 36px; border-radius: 8px; }
+.logo-img { width: 38px; height: 38px; border-radius: 8px; }
 
 .nav-links {
   display: flex;
@@ -147,7 +151,7 @@ body {
   border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   transition: all 0.25s;
 }
 
@@ -173,6 +177,7 @@ body {
   border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
+  font-size: 0.9rem;
   transition: all 0.25s;
 }
 
@@ -193,7 +198,8 @@ body {
 }
 
 .profile-icon {
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid var(--accent);
@@ -203,7 +209,7 @@ body {
 .profile-icon:hover { transform: scale(1.1); }
 
 .username-label {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: var(--accent);
   font-weight: bold;
 }
@@ -239,14 +245,16 @@ body {
   box-shadow: 0 12px 40px rgba(0,0,0,0.25);
 }
 
-.glass-card h1, .glass-card h2, .glass-card h3 {
+.glass-card h1,
+.glass-card h2,
+.glass-card h3 {
   color: var(--accent);
   margin-bottom: 1rem;
 }
 
 .hero-card { text-align: center; }
-.hero-card h1 { font-size: 1.6rem; margin-bottom: 1rem; }
-.hero-card p { color: var(--text-muted); margin-bottom: 1.5rem; }
+.hero-card h1 { font-size: 1.8rem; margin-bottom: 1rem; }
+.hero-card p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1rem; }
 
 /* ========== IP BOX ========== */
 .ip-box {
@@ -259,7 +267,7 @@ body {
   padding: 14px 24px;
   cursor: pointer;
   transition: all 0.3s;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
   margin: 1rem 0;
 }
@@ -321,13 +329,13 @@ body {
 }
 
 .feature-item h3 {
-  font-size: 1rem;
+  font-size: 1.05rem;
   margin-bottom: 8px;
   color: var(--text);
 }
 
 .feature-item p {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
 }
 
@@ -342,12 +350,12 @@ body {
   text-align: center;
   padding: 30px 20px;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .license-text {
   margin-top: 6px;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   opacity: 0.7;
 }
 
@@ -378,6 +386,8 @@ body {
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
 
+.modal-content h3 { font-size: 1.1rem; }
+
 .modal-content input,
 .modal-content textarea,
 .modal-content select {
@@ -389,7 +399,7 @@ body {
   background: var(--surface-soft);
   color: var(--text);
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .modal-content button {
@@ -400,6 +410,7 @@ body {
   background: var(--surface-soft);
   color: var(--text);
   transition: all 0.2s;
+  font-size: 0.95rem;
 }
 
 .modal-content button:hover {
@@ -448,7 +459,7 @@ body {
 .profile-field { margin: 12px 0; }
 .profile-field label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
   margin-bottom: 4px;
 }
@@ -461,6 +472,7 @@ body {
   background: var(--surface-soft);
   color: var(--text);
   font-family: inherit;
+  font-size: 0.95rem;
 }
 .small-btn {
   padding: 8px 16px;
@@ -470,6 +482,7 @@ body {
   color: var(--text);
   cursor: pointer;
   font-family: inherit;
+  font-size: 0.9rem;
   transition: all 0.2s;
 }
 .small-btn:hover { background: var(--accent); color: white; }
@@ -488,13 +501,18 @@ body {
 .news-item h3 {
   color: var(--accent);
   margin-bottom: 6px;
-  font-size: 1rem;
+  font-size: 1.05rem;
+}
+
+.announcement-item p,
+.news-item p {
+  font-size: 0.95rem;
 }
 
 .announcement-item small,
 .news-item small {
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
 }
 
 .campaign-active { border-left: 3px solid #22c55e; }
@@ -503,20 +521,21 @@ body {
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
   .navbar { padding: 10px 14px; }
-  .logo { font-size: 0.95rem; }
-  .logo-img { width: 30px; height: 30px; }
-  .nav-links button { padding: 6px 10px; font-size: 0.75rem; }
-  .hero-card h1 { font-size: 1.2rem; }
-  .ip-box { font-size: 0.9rem; padding: 12px 16px; }
+  .logo { font-size: 1rem; }
+  .logo-img { width: 32px; height: 32px; }
+  .nav-links button { padding: 6px 10px; font-size: 0.8rem; }
+  .user-area button { padding: 6px 10px; font-size: 0.8rem; }
+  .hero-card h1 { font-size: 1.3rem; }
+  .ip-box { font-size: 0.85rem; padding: 12px 18px; }
   .username-label { display: none; }
+  .theme-toggle { width: 46px; height: 46px; font-size: 1rem; }
+  body { font-size: 14px; }
 }
 
 /* ========== SAYFA GEÇİŞ ANİMASYONU ========== */
 #content,
 .glass-card,
 .info-section,
-.tikla-section,
-.tikla-hero,
 .project-card,
 .feature-item,
 .quick-card {
