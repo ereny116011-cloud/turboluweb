@@ -25,6 +25,8 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+
 body {
   font-family: 'Pixelify Sans', 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
@@ -32,11 +34,14 @@ body {
   color: var(--text);
   background: var(--bg-base);
   min-height: 100vh;
-  transition: background 0.4s, color 0.4s;
+  transition: background 0.3s, color 0.3s;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ========== BUHAR CANVAS — EN ÜST KATMAN ========== */
+img { max-width: 100%; height: auto; display: block; }
+
+/* ========== BUHAR CANVAS ========== */
 #steamCanvas {
   position: fixed;
   top: 0; left: 0;
@@ -44,6 +49,7 @@ body {
   height: 100vh;
   z-index: 9999;
   pointer-events: none;
+  transform: translateZ(0);
 }
 
 /* ========== NAVBAR ========== */
@@ -53,8 +59,8 @@ body {
   justify-content: space-between;
   padding: 12px 24px;
   background: var(--surface);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--glass-border);
   position: sticky;
   top: 0;
@@ -75,7 +81,7 @@ body {
 
 .nav-links {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
@@ -87,29 +93,13 @@ body {
   border: 1px solid var(--glass-border);
   background: var(--surface-soft);
   font-size: 0.85rem;
-  transition: all 0.25s;
-  position: relative;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
 }
 
 .nav-links a:hover {
   background: var(--accent);
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px var(--accent-glow);
-}
-
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 50%;
-  width: 0; height: 2px;
-  background: white;
-  transition: width 0.3s, left 0.3s;
-}
-
-.nav-links a:hover::after {
-  width: 80%;
-  left: 10%;
 }
 
 /* ========== CONTAINER ========== */
@@ -158,7 +148,7 @@ body {
   text-decoration: none;
   font-weight: bold;
   font-size: 1rem;
-  transition: all 0.3s;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
   position: relative;
   overflow: hidden;
   border: none;
@@ -175,7 +165,6 @@ body {
 .download-btn:hover {
   background: var(--accent-hover);
   transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 12px 32px var(--accent-glow);
 }
 
 .download-btn::after {
@@ -186,13 +175,10 @@ body {
   background: rgba(255,255,255,0.35);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  transition: width 0.5s, height 0.5s;
 }
 
-.download-btn:hover::after {
-  width: 300px;
-  height: 300px;
-}
+.download-btn:hover::after { width: 300px; height: 300px; }
 
 .virus-btn {
   background: var(--surface-soft);
@@ -200,23 +186,7 @@ body {
   border: 1px solid var(--glass-border);
 }
 
-.virus-btn:hover {
-  background: var(--accent);
-  color: white;
-}
-
-.virus-btn::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 100%; height: 100%;
-  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
-  transition: left 0.6s;
-}
-
-.virus-btn:hover::before {
-  left: 100%;
-}
+.virus-btn:hover { background: var(--accent); color: white; }
 
 /* ========== QUICK CARDS ========== */
 .quick-grid {
@@ -233,24 +203,10 @@ body {
   padding: 24px;
   text-decoration: none;
   color: var(--text);
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
   display: block;
+  will-change: transform;
 }
-
-.quick-card::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.4s;
-  pointer-events: none;
-}
-
-.quick-card:hover::before { opacity: 1; }
 
 .quick-card:hover {
   transform: translateY(-5px);
@@ -263,12 +219,10 @@ body {
   color: var(--accent);
   margin-bottom: 12px;
   display: block;
-  transition: transform 0.3s;
+  transition: transform 0.25s;
 }
 
-.quick-card:hover i {
-  transform: scale(1.2) rotate(-8deg);
-}
+.quick-card:hover i { transform: scale(1.15) rotate(-6deg); }
 
 .quick-card h3 {
   margin-bottom: 8px;
@@ -276,10 +230,7 @@ body {
   font-size: 1.05rem;
 }
 
-.quick-card p {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
+.quick-card p { font-size: 0.9rem; color: var(--text-muted); }
 
 /* ========== FEATURE ITEM ========== */
 .feature-item {
@@ -288,23 +239,8 @@ body {
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 12px;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
 }
-
-.feature-item::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.4s;
-  pointer-events: none;
-}
-
-.feature-item:hover::before { opacity: 1; }
 
 .feature-item:hover {
   transform: translateY(-3px);
@@ -315,12 +251,10 @@ body {
   color: var(--accent);
   font-size: 1.5rem;
   margin-right: 12px;
-  transition: transform 0.3s;
+  transition: transform 0.25s;
 }
 
-.feature-item:hover i {
-  transform: scale(1.15) translateY(-3px);
-}
+.feature-item:hover i { transform: scale(1.15) translateY(-3px); }
 
 .feature-item strong {
   font-size: 1.05rem;
@@ -343,14 +277,10 @@ body {
   max-width: 100%;
   border-radius: 12px;
   border: 2px solid var(--glass-border);
-  transition: opacity 0.5s ease, filter 0.3s, transform 0.3s;
-  filter: drop-shadow(0 0 20px var(--accent-glow));
+  transition: opacity 0.4s ease, transform 0.25s;
 }
 
-.gallery-container:hover img {
-  filter: drop-shadow(0 0 30px var(--accent-glow));
-  transform: scale(1.02);
-}
+.gallery-container:hover img { transform: scale(1.01); }
 
 .gallery-thumbs {
   display: flex;
@@ -367,15 +297,11 @@ body {
   cursor: pointer;
   opacity: 0.6;
   border: 2px solid transparent;
-  transition: all 0.2s;
+  transition: opacity 0.15s, transform 0.15s, border-color 0.15s;
 }
 
 .thumb:hover { opacity: 1; transform: scale(1.05); }
-.thumb.active {
-  opacity: 1;
-  border-color: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow);
-}
+.thumb.active { opacity: 1; border-color: var(--accent); }
 
 /* ========== SSS ========== */
 .faq-item {
@@ -384,7 +310,7 @@ body {
   border-radius: 12px;
   margin-bottom: 12px;
   overflow: hidden;
-  transition: all 0.3s;
+  transition: border-color 0.2s;
 }
 
 .faq-question {
@@ -394,7 +320,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.2s;
+  transition: background 0.15s;
 }
 
 .faq-question:hover { background: var(--surface); }
@@ -403,7 +329,7 @@ body {
   max-height: 0;
   overflow: hidden;
   padding: 0 20px;
-  transition: max-height 0.4s ease, padding 0.4s ease;
+  transition: max-height 0.35s ease, padding 0.35s ease;
   color: var(--text-muted);
   font-size: 0.95rem;
 }
@@ -411,36 +337,29 @@ body {
 .faq-item.open .faq-answer {
   max-height: 500px;
   padding: 0 20px 16px;
-  animation: fadeIn 0.3s ease;
 }
 
-.faq-item.open {
-  border-color: var(--accent);
-  box-shadow: 0 6px 20px var(--accent-glow);
-}
+.faq-item.open { border-color: var(--accent); }
 
 /* ========== TEMA BUTONU ========== */
 .theme-toggle {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 52px; height: 52px;
+  width: 54px; height: 54px;
   border-radius: 50%;
   background: var(--accent);
   color: white;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
-  box-shadow: 0 6px 20px var(--accent-glow);
+  font-size: 1.25rem;
+  box-shadow: 0 6px 24px var(--accent-glow);
   z-index: 9998;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.2s;
   font-family: inherit;
 }
 
-.theme-toggle:hover {
-  transform: scale(1.12) rotate(15deg);
-  box-shadow: 0 10px 30px var(--accent-glow);
-}
+.theme-toggle:hover { transform: scale(1.08) rotate(12deg); }
 
 /* ========== SAYFA GEÇİŞ ANİMASYONU ========== */
 .tikla-section,
@@ -449,26 +368,36 @@ body {
 .feature-item,
 .gallery-container,
 .faq-item {
-  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.quick-card:nth-child(1) { animation-delay: 0.05s; }
-.quick-card:nth-child(2) { animation-delay: 0.1s; }
-.quick-card:nth-child(3) { animation-delay: 0.15s; }
-.quick-card:nth-child(4) { animation-delay: 0.2s; }
+.quick-card:nth-child(1) { animation-delay: 0.04s; }
+.quick-card:nth-child(2) { animation-delay: 0.08s; }
+.quick-card:nth-child(3) { animation-delay: 0.12s; }
+.quick-card:nth-child(4) { animation-delay: 0.16s; }
 
-.feature-item:nth-child(1) { animation-delay: 0.05s; }
-.feature-item:nth-child(2) { animation-delay: 0.08s; }
-.feature-item:nth-child(3) { animation-delay: 0.11s; }
-.feature-item:nth-child(4) { animation-delay: 0.14s; }
-.feature-item:nth-child(5) { animation-delay: 0.17s; }
+.feature-item:nth-child(1) { animation-delay: 0.04s; }
+.feature-item:nth-child(2) { animation-delay: 0.07s; }
+.feature-item:nth-child(3) { animation-delay: 0.1s; }
+.feature-item:nth-child(4) { animation-delay: 0.13s; }
+.feature-item:nth-child(5) { animation-delay: 0.16s; }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* ========== ERİŞİLEBİLİRLİK ========== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  #steamCanvas { display: none; }
 }
