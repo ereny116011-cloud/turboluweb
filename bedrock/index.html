@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Turbolu Bedrock - Resmi Web Sitesi</title>
+    <link rel="icon" href="crpr.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="/bedrock/manifest.json">
+    <meta name="theme-color" content="#22c55e">
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme');
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            const isLight = saved ? saved === 'light' : prefersLight;
+            if (isLight) document.documentElement.classList.add('light');
+        })();
+    </script>
+</head>
+<body>
+    <canvas id="bgSteamCanvas" class="bg-steam-canvas"></canvas>
+    <div class="steam-container">
+        <div class="steam-blob blob-1"></div>
+        <div class="steam-blob blob-2"></div>
+        <div class="steam-blob blob-3"></div>
+        <div class="steam-blob blob-4"></div>
+    </div>
+
+    <div id="app">
+        <nav class="navbar">
+            <div class="nav-left">
+                <button class="back-btn" onclick="window.location.href='/'">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div class="logo" onclick="showContent('status')">
+                    <img src="crpr.png" alt="Turbolu Bedrock" class="logo-img">
+                    Turbolu Bedrock
+                </div>
+            </div>
+            <div class="nav-links" id="navLinks"></div>
+            <div class="user-area" id="userArea"></div>
+        </nav>
+        <main id="content"></main>
+        <div id="modal" class="modal hidden">
+            <div class="modal-content" id="modalBody"></div>
+        </div>
+    </div>
+
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" onclick="toggleTheme()">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <canvas id="steamCanvas" class="steam-canvas"></canvas>
+
+    <script src="app.js"></script>
+</body>
+</html>
