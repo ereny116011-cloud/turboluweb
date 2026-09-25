@@ -75,7 +75,6 @@ function initSteam() {
   window.addEventListener('resize', resizeSteamCanvas);
 
   document.addEventListener('mousemove', (e) => {
-    // Her harekette 2 particle → daha yoğun buhar
     for (let k = 0; k < 2; k++) {
       steamParticles.push({
         x: e.clientX + (Math.random() - 0.5) * 22,
@@ -114,7 +113,7 @@ function animateSteam() {
     p.life -= p.decay;
     if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
 
-    const alpha = p.life * 0.38; // Çok belirgin
+    const alpha = p.life * 0.38;
     const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
     gradient.addColorStop(0.45, `rgba(${color}, ${alpha * 0.5})`);
@@ -244,10 +243,9 @@ function renderUI() {
 }
 
 function showContent(section) {
-  // Sayfa geçiş animasyonu
   const content = document.getElementById('content');
   content.style.animation = 'none';
-  content.offsetHeight; // reflow zorla
+  content.offsetHeight;
   content.style.animation = 'fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both';
 
   if (section !== 'status' && statusInterval) { clearInterval(statusInterval); statusInterval = null; }
