@@ -7,64 +7,11 @@ function updateThemeIcon() {
     : '<i class="fa-solid fa-moon"></i>';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Tema
-  const themeBtn = document.getElementById('themeToggle');
-  if (themeBtn) {
-    updateThemeIcon();
-    themeBtn.addEventListener('click', () => {
-      document.documentElement.classList.toggle('light');
-      const isLight = document.documentElement.classList.contains('light');
-      localStorage.setItem('tikla-theme', isLight ? 'light' : 'dark');
-      updateThemeIcon();
-    });
-  }
-
-  // Galeri
-  const totalEl = document.getElementById('totalImages');
-  if (totalEl) totalEl.textContent = totalImages;
-  if (document.getElementById('galleryImage')) showImage(1);
-
-  // SSS
-  document.querySelectorAll('.faq-question').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const answer = btn.nextElementSibling;
-      const isOpen = answer.classList.contains('open');
-      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
-      if (!isOpen) answer.classList.add('open');
-    });
-  });
-});
-
-// ========== GALERİ ==========
-let totalImages = 9;
-let currentImage = 1;
-
-function showImage(index) {
-  const galleryImage = document.getElementById('galleryImage');
-  if (!galleryImage) return;
-  galleryImage.style.opacity = 0;
-  setTimeout(() => {
-    galleryImage.src = `sss/${index}.png`;
-    galleryImage.style.opacity = 1;
-    const cur = document.getElementById('currentImage');
-    if (cur) cur.textContent = index;
-  }, 250);
-}
-function nextImage() {
-  if (currentImage < totalImages) { currentImage++; showImage(currentImage); }
-}
-function prevImage() {
-  if (currentImage > 1) { currentImage--; showImage(currentImage); }
-}
-window.nextImage = nextImage;
-window.prevImage = prevImage;
-
-// ========== STEAM TRAIL ==========
+// ========== BUHAR ==========
 let steamParticles = [];
 let steamCanvas, steamCtx;
 
-document.addEventListener('DOMContentLoaded', () => {
+function initSteam() {
   steamCanvas = document.getElementById('steamCanvas');
   if (!steamCanvas) return;
   steamCtx = steamCanvas.getContext('2d');
@@ -73,20 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('mousemove', (e) => {
     steamParticles.push({
-      x: e.clientX + (Math.random() - 0.5) * 6,
-      y: e.clientY + (Math.random() - 0.5) * 6,
-      vx: (Math.random() - 0.5) * 0.2,
-      vy: -0.15 - Math.random() * 0.2,
-      size: 4 + Math.random() * 6,
-      life: 0.6,
-      decay: 0.035 + Math.random() * 0.02
+      x: e.clientX + (Math.random() - 0.5) * 15,
+      y: e.clientY + (Math.random() - 0.5) * 15,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: -0.4 - Math.random() * 0.5,
+      size: 10 + Math.random() * 15,
+      life: 0.9,
+      decay: 0.02 + Math.random() * 0.015
     });
-    if (steamParticles.length > 30) {
-      steamParticles.splice(0, steamParticles.length - 30);
-    }
+    if (steamParticles.length > 60) steamParticles.splice(0, steamParticles.length - 60);
   });
   requestAnimationFrame(animateSteam);
-});
+}
 
 function resizeSteamCanvas() {
   if (!steamCanvas) return;
@@ -102,12 +47,9 @@ function animateSteam() {
 
   for (let i = steamParticles.length - 1; i >= 0; i--) {
     const p = steamParticles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.size += 0.3;
-    p.life -= p.decay;
+    p.x += p.vx; p.y += p.vy; p.size += 0.6; p.life -= p.decay;
     if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
-    const alpha = p.life * 0.1;
+    const alpha = p.life * 0.28;
     const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
     gradient.addColorStop(1, `rgba(${color}, 0)`);
@@ -118,3 +60,90 @@ function animateSteam() {
   }
   requestAnimationFrame(animateSteam);
 }
+
+// ========== GALERİ ==========
+let galleryImages = [];
+let currentImageIndex = 0;
+let galleryLoaded = false;
+
+function loadGallery() {
+  if (galleryLoaded) return;
+  const galleryEl = document.getElementById('gallery');
+  if (!galleryEl) return;
+  galleryImages = [
+    'ss1.png', 'ss2.png', 'ss3.png', 'ss4.png',
+    'ss5.png', 'ss6.png', 'ss7.png', 'ss8.png'
+  ];
+  renderGalleryThumbs();
+  updateGalleryImage();
+  galleryLoaded = true;
+}
+
+function renderGalleryThumbs() {
+  const thumbsEl = document.getElementById('galleryThumbs');
+  if (!thumbsEl) return;
+  thumbsEl.innerHTML = '';
+  galleryImages.forEach((src, i) => {
+    const thumb = document.createElement('img');
+    thumb.src = src;
+    thumb.alt = `Ekran ${i + 1}`;
+    thumb.loading = 'lazy';
+    thumb.className = 'thumb';
+    if (i === currentImageIndex) thumb.classList.add('active');
+    thumb.addEventListener('click', () => {
+      currentImageIndex = i;
+      updateGalleryImage();
+    });
+    thumbsEl.appendChild(thumb);
+  });
+}
+
+function updateGalleryImage() {
+  const mainImg = document.getElementById('galleryImage');
+  if (!mainImg) return;
+  mainImg.style.opacity = '0';
+  setTimeout(() => {
+    mainImg.src = galleryImages[currentImageIndex];
+    mainImg.onload = () => { mainImg.style.opacity = '1'; };
+  }, 150);
+  document.querySelectorAll('.thumb').forEach((t, i) => {
+    t.classList.toggle('active', i === currentImageIndex);
+  });
+}
+
+// ========== SSS ==========
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  const answer = item.querySelector('.faq-answer');
+  const allFaqs = document.querySelectorAll('.faq-item');
+  allFaqs.forEach(f => {
+    if (f !== item) f.classList.remove('open');
+  });
+  item.classList.toggle('open');
+}
+
+// ========== BAŞLAT ==========
+document.addEventListener('DOMContentLoaded', () => {
+  // Tema butonu
+  const themeBtn = document.getElementById('themeToggle');
+  if (themeBtn) {
+    updateThemeIcon();
+    themeBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
+      const isLight = document.documentElement.classList.contains('light');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      updateThemeIcon();
+    });
+  }
+
+  // Buhar
+  initSteam();
+
+  // Galeri (varsa)
+  loadGallery();
+
+  // SSS (varsa)
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => toggleFaq(q));
+  });
+});
