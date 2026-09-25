@@ -63,9 +63,9 @@ function updateThemeIcon() {
     : '<i class="fa-solid fa-moon"></i>';
 }
 
-// ========== BUHAR İZİ (OPTİMİZE) ==========
-const MAX_PARTICLES = 90;
-const MAX_PARTICLES_POOL = 120;
+// ========== MOUSE BUHAR İZİ (KÜÇÜK) ==========
+const MAX_PARTICLES = 70;
+const MAX_PARTICLES_POOL = 90;
 let steamParticles = [];
 let steamCanvas, steamCtx;
 let steamRAF = null;
@@ -77,27 +77,22 @@ function initSteam() {
   if (!steamCanvas) return;
   steamCtx = steamCanvas.getContext('2d', { alpha: true, desynchronized: true });
   if (!steamCtx) return;
-
   resizeSteamCanvas();
 
-  // Passive + throttle'lı mousemove
   document.addEventListener('mousemove', (e) => {
     const now = performance.now();
-    if (now - steamLastMouseTime < 16) return; // max ~60/sec
+    if (now - steamLastMouseTime < 16) return;
     steamLastMouseTime = now;
 
-    // Ring buffer mantığı: MAX_PARTICLES_POOL dolduysa eskiyi at
-    if (steamParticles.length >= MAX_PARTICLES_POOL) {
-      steamParticles.shift();
-    }
+    if (steamParticles.length >= MAX_PARTICLES_POOL) steamParticles.shift();
     steamParticles.push({
-      x: e.clientX + (Math.random() - 0.5) * 22,
-      y: e.clientY + (Math.random() - 0.5) * 22,
-      vx: (Math.random() - 0.5) * 0.8,
-      vy: -0.6 - Math.random() * 0.7,
-      size: 14 + Math.random() * 20,
-      life: 1.1,
-      decay: 0.016 + Math.random() * 0.012
+      x: e.clientX + (Math.random() - 0.5) * 10,
+      y: e.clientY + (Math.random() - 0.5) * 10,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: -0.5 - Math.random() * 0.5,
+      size: 6 + Math.random() * 10,
+      life: 1.0,
+      decay: 0.022 + Math.random() * 0.014
     });
     if (steamParticles.length > MAX_PARTICLES) {
       steamParticles.splice(0, steamParticles.length - MAX_PARTICLES);
@@ -105,7 +100,6 @@ function initSteam() {
     startSteamLoop();
   }, { passive: true });
 
-  // Sekme gizlenince dur
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       if (steamRAF) { cancelAnimationFrame(steamRAF); steamRAF = null; }
@@ -114,7 +108,6 @@ function initSteam() {
     }
   });
 
-  // Resize debounce
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
@@ -130,18 +123,17 @@ function startSteamLoop() {
 
 function resizeSteamCanvas() {
   if (!steamCanvas) return;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2); // max 2x DPR (performans)
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
   steamCanvas.width = window.innerWidth * dpr;
   steamCanvas.height = window.innerHeight * dpr;
   steamCanvas.style.width = window.innerWidth + 'px';
   steamCanvas.style.height = window.innerHeight + 'px';
+  steamCtx.setTransform(1, 0, 0, 1, 0, 0);
   steamCtx.scale(dpr, dpr);
 }
 
 function animateSteam(now) {
   if (!steamCtx) { steamRAF = null; return; }
-
-  // Delta time (60fps referans)
   const dt = Math.min((now - steamLastTime) / 16.67, 3);
   steamLastTime = now;
 
@@ -156,14 +148,14 @@ function animateSteam(now) {
     const p = steamParticles[i];
     p.x += p.vx * dt;
     p.y += p.vy * dt;
-    p.size += 0.9 * dt;
+    p.size += 0.7 * dt;
     p.life -= p.decay * dt;
     if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
 
-    const alpha = p.life * 0.38;
+    const alpha = p.life * 0.32;
     const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
-    gradient.addColorStop(0.45, `rgba(${color}, ${alpha * 0.5})`);
+    gradient.addColorStop(0.5, `rgba(${color}, ${alpha * 0.4})`);
     gradient.addColorStop(1, `rgba(${color}, 0)`);
     steamCtx.fillStyle = gradient;
     steamCtx.beginPath();
@@ -171,12 +163,123 @@ function animateSteam(now) {
     steamCtx.fill();
   }
 
-  // Idle'da döngüyü durdur (CPU tasarrufu)
-  if (steamParticles.length === 0) {
-    steamRAF = null;
+  if (steamParticles.length === 0) { steamRAF = null; return; }
+  steamRAF = requestAnimationFrame(animateSteam);
+}
+
+// ========== ARKA PLAN SERBEST BUHAR ==========
+let bgSteamCanvas, bgSteamCtx;
+let bgParticles = [];
+let bgRAF = null;
+let bgLastTime = 0;
+let bgEmitAccumulator = 0;
+const BG_MAX = 26;
+const BG_EMIT_INTERVAL = 350;
+const BG_TARGET_FPS = 30;
+
+function initBgSteam() {
+  bgSteamCanvas = document.getElementById('bgSteamCanvas');
+  if (!bgSteamCanvas) return;
+  bgSteamCtx = bgSteamCanvas.getContext('2d', { alpha: true, desynchronized: true });
+  if (!bgSteamCtx) return;
+  resizeBgSteamCanvas();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeBgSteamCanvas, 200);
+  }, { passive: true });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (bgRAF) { cancelAnimationFrame(bgRAF); bgRAF = null; }
+    } else if (!bgRAF) {
+      startBgLoop();
+    }
+  });
+
+  startBgLoop();
+}
+
+function startBgLoop() {
+  if (bgRAF || document.hidden) return;
+  bgLastTime = performance.now();
+  bgRAF = requestAnimationFrame(animateBgSteam);
+}
+
+function resizeBgSteamCanvas() {
+  if (!bgSteamCanvas) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  bgSteamCanvas.width = window.innerWidth * dpr;
+  bgSteamCanvas.height = window.innerHeight * dpr;
+  bgSteamCanvas.style.width = window.innerWidth + 'px';
+  bgSteamCanvas.style.height = window.innerHeight + 'px';
+  bgSteamCtx.setTransform(1, 0, 0, 1, 0, 0);
+  bgSteamCtx.scale(dpr, dpr);
+}
+
+function emitBgParticle() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const x = Math.random() * w;
+  const y = h + 40;
+  bgParticles.push({
+    x, y,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: -0.4 - Math.random() * 0.5,
+    size: 30 + Math.random() * 50,
+    life: 1.0,
+    decay: 0.004 + Math.random() * 0.004,
+    wobble: Math.random() * Math.PI * 2,
+    wobbleSpeed: 0.005 + Math.random() * 0.01
+  });
+}
+
+function animateBgSteam(now) {
+  if (!bgSteamCtx) { bgRAF = null; return; }
+  const elapsed = now - bgLastTime;
+  if (elapsed < 1000 / BG_TARGET_FPS) {
+    bgRAF = requestAnimationFrame(animateBgSteam);
     return;
   }
-  steamRAF = requestAnimationFrame(animateSteam);
+  const dt = Math.min(elapsed / 16.67, 4);
+  bgLastTime = now;
+
+  bgEmitAccumulator += elapsed;
+  while (bgEmitAccumulator > BG_EMIT_INTERVAL) {
+    bgEmitAccumulator -= BG_EMIT_INTERVAL;
+    if (bgParticles.length < BG_MAX) emitBgParticle();
+  }
+
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  bgSteamCtx.clearRect(0, 0, w, h);
+
+  const isLight = document.documentElement.classList.contains('light');
+  const color = isLight ? '22, 163, 74' : '34, 197, 94';
+
+  for (let i = bgParticles.length - 1; i >= 0; i--) {
+    const p = bgParticles[i];
+    p.wobble += p.wobbleSpeed * dt;
+    p.x += (p.vx + Math.sin(p.wobble) * 0.3) * dt;
+    p.y += p.vy * dt;
+    p.size += 0.35 * dt;
+    p.life -= p.decay * dt;
+    if (p.life <= 0 || p.y + p.size < -50) { bgParticles.splice(i, 1); continue; }
+
+    const alpha = p.life * 0.22;
+    const gradient = bgSteamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+    gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
+    gradient.addColorStop(0.4, `rgba(${color}, ${alpha * 0.55})`);
+    gradient.addColorStop(0.75, `rgba(${color}, ${alpha * 0.18})`);
+    gradient.addColorStop(1, `rgba(${color}, 0)`);
+    bgSteamCtx.fillStyle = gradient;
+    bgSteamCtx.beginPath();
+    bgSteamCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    bgSteamCtx.fill();
+  }
+
+  bgRAF = requestAnimationFrame(animateBgSteam);
 }
 
 // ========== IP ==========
@@ -184,7 +287,6 @@ async function kopyalaIP() {
   try {
     await navigator.clipboard.writeText('turbolumc.aternos.me');
   } catch (e) {
-    // Fallback
     const ta = document.createElement('textarea');
     ta.value = 'turbolumc.aternos.me';
     document.body.appendChild(ta);
@@ -241,6 +343,7 @@ async function requestNotificationPermission() {
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initSteam();
+  initBgSteam();
 
   if ('serviceWorker' in navigator) {
     try { await navigator.serviceWorker.register('/mc/sw.js'); } catch (e) {}
@@ -310,7 +413,6 @@ function renderUI() {
 
 function showContent(section) {
   const content = document.getElementById('content');
-  // Sadece animasyonu resetle, class ekle/çıkar ile CSS'e bırak
   content.classList.remove('page-enter');
   void content.offsetWidth;
   content.classList.add('page-enter');
@@ -372,7 +474,6 @@ async function renderStatus() {
       <p class="license-text">Bu proje GNU General Public License v3.0 ile korunmaktadır.</p>
     </div>
   `;
-
   async function updateStatus() {
     try {
       const controller = new AbortController();
@@ -389,7 +490,7 @@ async function renderStatus() {
   }
   updateStatus();
   if (statusInterval) clearInterval(statusInterval);
-  statusInterval = setInterval(updateStatus, 15000); // 10sn → 15sn (API tasarrufu)
+  statusInterval = setInterval(updateStatus, 15000);
 }
 
 async function renderShop() {
@@ -484,11 +585,11 @@ async function deleteCampaign(id) {
 
 function renderAdminForm(type) {
   let html = '';
-  if (type === 'announcement') html = `<h2>📢 Duyuru Ekle</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('announcement')">Ekle</button>`;
-  else if (type === 'campaign') html = `<h2>🎯 Kampanya Ekle</h2><input id="title" placeholder="Başlık"><br><input id="description" placeholder="Açıklama"><br><input id="reward" placeholder="Ödül"><br><label>📅 Bitiş Tarihi:</label><input id="endDate" type="datetime-local"><br><button onclick="submitAdmin('campaign')">Ekle</button>`;
-  else if (type === 'news') html = `<h2>📰 Haber Ekle</h2><input id="title" placeholder="Başlık"><br><textarea id="content" placeholder="İçerik"></textarea><br><button onclick="submitAdmin('news')">Ekle</button>`;
-  else if (type === 'item') html = `<h2>🛒 Ürün Ekle</h2><input id="itemName" placeholder="Ürün adı"><br><input id="itemPrice" type="number" placeholder="Fiyat"><br><input id="itemCommand" placeholder="Komut"><br><button onclick="submitAdmin('item')">Ekle</button>`;
-  document.getElementById('content').innerHTML = `<div class="glass-card" style="max-width:600px; margin:2rem auto;">${html}</div>`;
+  if (type === 'announcement') html = `<h2>📢 Duyuru Ekle</h2><input id="title" placeholder="Başlık"><textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('announcement')">Ekle</button>`;
+  else if (type === 'campaign') html = `<h2>🎯 Kampanya Ekle</h2><input id="title" placeholder="Başlık"><input id="description" placeholder="Açıklama"><input id="reward" placeholder="Ödül"><label>📅 Bitiş Tarihi:</label><input id="endDate" type="datetime-local"><button onclick="submitAdmin('campaign')">Ekle</button>`;
+  else if (type === 'news') html = `<h2>📰 Haber Ekle</h2><input id="title" placeholder="Başlık"><textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('news')">Ekle</button>`;
+  else if (type === 'item') html = `<h2>🛒 Ürün Ekle</h2><input id="itemName" placeholder="Ürün adı"><input id="itemPrice" type="number" placeholder="Fiyat"><input id="itemCommand" placeholder="Komut"><button onclick="submitAdmin('item')">Ekle</button>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card admin-form" style="max-width:600px; margin:2rem auto;">${html}</div>`;
 }
 
 async function submitAdmin(type) {
@@ -518,7 +619,6 @@ function openAuthModal(mode) {
   document.getElementById('authSubmit').addEventListener('click', () => handleAuth(mode));
   document.getElementById('cancelModal').addEventListener('click', closeModal);
   modal.classList.remove('hidden');
-  // Enter ile submit
   body.querySelectorAll('input').forEach(inp => {
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuth(mode); });
   });
@@ -657,8 +757,6 @@ async function saveProfileSettings() {
 }
 
 function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-
-// DİKKAT: localStorage.clear() yerine sadece auth verilerini sil (tema ve dil korunur)
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('notificationsEnabled');
@@ -666,5 +764,4 @@ function logout() {
   currentUser = null;
   location.reload();
 }
-
 function setLang(lang) { currentLang = lang; localStorage.setItem('lang', lang); renderUI(); }
