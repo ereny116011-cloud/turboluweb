@@ -1,13 +1,19 @@
+// ============================================
+// TURBOLU BEDROCK - app.js
+// ============================================
+
 const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
 const VAPID_PUBLIC_KEY = 'BD3kAyCW2OpZmM7SzNSEeANMtFNDXUiFP3ZDpgOfeRv78S3Igz4qOxZZubXBo1kXaj_9Q53lwKghx0PIIsRsaXk';
 const DEFAULT_AVATAR = 'crpr.png';
+const PLATFORM = 'bedrock';
 
 // ============================================
-// BEDROCK SUNUCU AYARLARI — BURAYI DEĞİŞTİR
+// BEDROCK SUNUCU IP AYARLARI
 // ============================================
-const SERVER_HOST = 'turbolubedrock.aternos.me'; // <-- BEDROCK IP BURAYA
-const SERVER_PORT = '19132';                     // <-- BEDROCK PORT (varsayılan 19132)
-const SERVER_IP_DISPLAY = SERVER_HOST + ':' + SERVER_PORT;
+const SERVER_HOST = 'turbolubedrock.mcsh.io';
+const SERVER_ALT = '163.5.201.11:13317';
+const SERVER_STATUS_QUERY = '163.5.201.11:13317';
+const SERVER_IP_DISPLAY = SERVER_HOST;
 
 const translations = {
   tr: { shop: 'Market', campaigns: 'Kampanyalar', announcements: 'Duyurular',
@@ -32,6 +38,7 @@ let notificationPreferences = JSON.parse(localStorage.getItem('notifyPrefs') || 
 
 function t(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
 
+// Global fonksiyonlar
 window.showContent = showContent;
 window.kopyalaIP = kopyalaIP;
 window.buy = buy;
@@ -89,7 +96,6 @@ function initSteam() {
     const now = performance.now();
     if (now - steamLastMouseTime < 16) return;
     steamLastMouseTime = now;
-
     if (steamParticles.length >= MAX_PARTICLES_POOL) steamParticles.shift();
     steamParticles.push({
       x: e.clientX + (Math.random() - 0.5) * 10,
@@ -157,7 +163,6 @@ function animateSteam(now) {
     p.size += 0.7 * dt;
     p.life -= p.decay * dt;
     if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
-
     const alpha = p.life * 0.32;
     const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
@@ -303,9 +308,9 @@ async function kopyalaIP() {
   const altInfo = document.getElementById('alt-ip-info');
   if (altInfo) {
     altInfo.innerHTML = `
-      <p style="margin-top: 12px; font-size: 0.9rem; opacity: 0.9;">
-        ✅ Bedrock IP Kopyalandı!<br>
-        📱 <strong>Mobil/Masaüstü Bedrock</strong> uygulamasında <em>Sunucu Ekle</em> ile yapıştır.<br>
+      <p style="margin-top: 12px; font-size: 0.9rem; opacity: 0.9; line-height: 1.6;">
+        ✅ Adres kopyalandı!<br>
+        ⚠️ Giremediyseniz alternatif IP: <strong style="color: var(--accent);">${SERVER_ALT}</strong><br>
         ❓ Bağlantı sorunu yaşarsanız admin ile iletişime geçiniz.
       </p>`;
   }
@@ -456,7 +461,7 @@ async function renderStatus() {
         <span>${SERVER_IP_DISPLAY}</span>
         <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
       </div>
-      <p class="click-info">IP'ye tıklayarak kopyalayabilirsin!</p>
+      <p class="click-info">Adrese tıklayarak kopyalayabilirsin!</p>
       <div id="alt-ip-info"></div>
     </div>
     <div class="glass-card" id="features">
@@ -484,9 +489,8 @@ async function renderStatus() {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-      // BEDROCK API — java değil bedrock/2 endpoint kullanıyoruz
       const res = await fetch(
-        `https://api.mcsrvstat.us/bedrock/2/${SERVER_HOST}:${SERVER_PORT}`,
+        `https://api.mcsrvstat.us/bedrock/2/${SERVER_STATUS_QUERY}`,
         { signal: controller.signal }
       );
       clearTimeout(timeoutId);
@@ -507,7 +511,7 @@ async function renderStatus() {
 
 async function renderShop() {
   const content = document.getElementById('content');
-  const items = await fetch(`${API}/api/items`).then(r => r.json());
+  const items = await fetch(`${API}/api/items?platform=${PLATFORM}`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>🛒 Market</h2>${currentUser ? `<p>Bakiye: <strong>${currentUser.balance}</strong> puan</p>` : ''}${items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-soft); border-radius:10px; margin:8px 0; border:1px solid var(--glass-border);"><div><b>${i.name}</b><p style="font-size:0.85rem; opacity:0.7;">${i.price} puan</p></div><button onclick="buy('${i.id}')">Satın Al</button></div>`).join('')}</div>`;
 }
 async function buy(itemId) {
@@ -522,14 +526,14 @@ async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
   const requests = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📦 Taleplerim</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; border:1px solid var(--glass-border);"><div><b>${r.item}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}; color:white;">${r.status}</span></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2>📦 Taleplerim</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; border:1px solid var(--glass-border);"><div><b>${r.item_name}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}; color:white;">${r.status}</span></div>`).join('')}</div>`;
 }
 
 async function renderRequests() {
   if (!currentUser?.isAdmin) return;
   const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
   const content = document.getElementById('content');
-  content.innerHTML = `<div class="glass-card"><h2>📋 Talepler</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;"><div><b>${r.user}</b> → ${r.item} (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><div style="display:flex; gap:6px;">${r.status==='pending'?`<button onclick="completeRequest('${r.id}')">✅</button><button class="logout-btn" onclick="rejectRequest('${r.id}')">❌</button>`:`<span>${r.status}</span>`}</div></div></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2>📋 Talepler</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;"><div><b>${r.user_name}</b> → ${r.item_name} (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()} • ${r.platform || 'all'}</small></div><div style="display:flex; gap:6px;">${r.status==='pending'?`<button onclick="completeRequest('${r.id}')">✅</button><button class="logout-btn" onclick="rejectRequest('${r.id}')">❌</button>`:`<span>${r.status}</span>`}</div></div></div>`).join('')}</div>`;
 }
 async function completeRequest(id) {
   await fetch(`${API}/api/admin/complete-request`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: id }) });
@@ -543,13 +547,13 @@ async function rejectRequest(id) {
 
 async function renderAnnouncements() {
   const content = document.getElementById('content');
-  const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
+  const announcements = await fetch(`${API}/api/announcements?platform=${PLATFORM}`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📢 Duyurular</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div class="announcement-item"><h3>${a.title}</h3><p>${a.content}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
 async function renderNews() {
   const content = document.getElementById('content');
-  const news = await fetch(`${API}/api/news`).then(r => r.json());
+  const news = await fetch(`${API}/api/news?platform=${PLATFORM}`).then(r => r.json());
   content.innerHTML = `<div class="glass-card"><h2>📰 Haberler</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${n.title}</h3><p>${n.content}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
@@ -557,7 +561,7 @@ async function renderManageAnnouncements() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📋 Duyuru Yönet</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${a.title}</b><br><small>${new Date(a.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteAnnouncement('${a.id}')">🗑️ Sil</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2>📋 Duyuru Yönet</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${a.title}</b> <small style="opacity:0.6;">[${a.platform||'all'}]</small><br><small>${new Date(a.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteAnnouncement('${a.id}')">🗑️ Sil</button></div>`).join('')}</div>`;
 }
 async function deleteAnnouncement(id) {
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
@@ -569,7 +573,7 @@ async function renderManageNews() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📋 Haber Yönet</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${n.title}</b><br><small>${new Date(n.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteNews('${n.id}')">🗑️ Sil</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2>📋 Haber Yönet</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${n.title}</b> <small style="opacity:0.6;">[${n.platform||'all'}]</small><br><small>${new Date(n.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteNews('${n.id}')">🗑️ Sil</button></div>`).join('')}</div>`;
 }
 async function deleteNews(id) {
   if (!confirm('Bu haberi silmek istediğinize emin misiniz?')) return;
@@ -578,16 +582,16 @@ async function deleteNews(id) {
 }
 
 async function renderCampaigns() {
-  const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
+  const campaigns = await fetch(`${API}/api/campaigns?platform=${PLATFORM}`).then(r => r.json());
   const now = Date.now();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 Kampanyalar</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div>`}).join('')}</div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 Kampanyalar</h2>${campaigns.map(c=>{const expired=c.end_date&&new Date(c.end_date).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.end_date?new Date(c.end_date).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div>`}).join('')}</div>`;
 }
 
 async function renderManageCampaigns() {
   if (!currentUser?.isAdmin) return;
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = Date.now();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📊 Kampanya Yönet</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border:1px solid var(--glass-border);"><div><b>${c.title}</b><br><small>${c.description} | 🎁 ${c.reward}</small><br><small>📅 ${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div><button class="logout-btn" onclick="deleteCampaign('${c.id}')">🗑️ Sil</button></div>`}).join('')}</div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📊 Kampanya Yönet</h2>${campaigns.map(c=>{const expired=c.end_date&&new Date(c.end_date).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border:1px solid var(--glass-border);"><div><b>${c.title}</b> <small style="opacity:0.6;">[${c.platform||'all'}]</small><br><small>${c.description} | 🎁 ${c.reward}</small><br><small>📅 ${c.end_date?new Date(c.end_date).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div><button class="logout-btn" onclick="deleteCampaign('${c.id}')">🗑️ Sil</button></div>`}).join('')}</div>`;
 }
 async function deleteCampaign(id) {
   if (!confirm('Emin misiniz?')) return;
@@ -597,19 +601,30 @@ async function deleteCampaign(id) {
 
 function renderAdminForm(type) {
   let html = '';
-  if (type === 'announcement') html = `<h2>📢 Duyuru Ekle</h2><input id="title" placeholder="Başlık"><textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('announcement')">Ekle</button>`;
-  else if (type === 'campaign') html = `<h2>🎯 Kampanya Ekle</h2><input id="title" placeholder="Başlık"><input id="description" placeholder="Açıklama"><input id="reward" placeholder="Ödül"><label>📅 Bitiş Tarihi:</label><input id="endDate" type="datetime-local"><button onclick="submitAdmin('campaign')">Ekle</button>`;
-  else if (type === 'news') html = `<h2>📰 Haber Ekle</h2><input id="title" placeholder="Başlık"><textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('news')">Ekle</button>`;
-  else if (type === 'item') html = `<h2>🛒 Ürün Ekle</h2><input id="itemName" placeholder="Ürün adı"><input id="itemPrice" type="number" placeholder="Fiyat"><input id="itemCommand" placeholder="Komut"><button onclick="submitAdmin('item')">Ekle</button>`;
+  const platformOptions = `
+    <label>🎯 Platform:</label>
+    <select id="platform">
+      <option value="all">Her İkisi (MC + Bedrock)</option>
+      <option value="bedrock" selected>Sadece Bedrock</option>
+      <option value="mc">Sadece MC (Java)</option>
+    </select>`;
+
+  if (type === 'announcement') html = `<h2>📢 Duyuru Ekle</h2><input id="title" placeholder="Başlık">${platformOptions}<textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('announcement')">Ekle</button>`;
+  else if (type === 'campaign') html = `<h2>🎯 Kampanya Ekle</h2><input id="title" placeholder="Başlık"><input id="description" placeholder="Açıklama"><input id="reward" placeholder="Ödül"><label>📅 Bitiş Tarihi:</label><input id="endDate" type="datetime-local">${platformOptions}<button onclick="submitAdmin('campaign')">Ekle</button>`;
+  else if (type === 'news') html = `<h2>📰 Haber Ekle</h2><input id="title" placeholder="Başlık">${platformOptions}<textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('news')">Ekle</button>`;
+  else if (type === 'item') html = `<h2>🛒 Ürün Ekle</h2><input id="itemName" placeholder="Ürün adı"><input id="itemPrice" type="number" placeholder="Fiyat"><input id="itemCommand" placeholder="Komut">${platformOptions}<button onclick="submitAdmin('item')">Ekle</button>`;
   document.getElementById('content').innerHTML = `<div class="glass-card admin-form" style="max-width:600px; margin:2rem auto;">${html}</div>`;
 }
 
 async function submitAdmin(type) {
+  const platformEl = document.getElementById('platform');
+  const platform = platformEl ? platformEl.value : PLATFORM;
+
   let endpoint, body;
-  if (type === 'announcement') { endpoint = 'announcement'; body = { title: document.getElementById('title').value, content: document.getElementById('content').value }; }
-  else if (type === 'news') { endpoint = 'news'; body = { title: document.getElementById('title').value, content: document.getElementById('content').value }; }
-  else if (type === 'campaign') { endpoint = 'campaign'; body = { title: document.getElementById('title').value, description: document.getElementById('description').value, reward: document.getElementById('reward').value, endDate: document.getElementById('endDate')?.value || null }; }
-  else if (type === 'item') { endpoint = 'item'; body = { name: document.getElementById('itemName').value, price: Number(document.getElementById('itemPrice').value), command: document.getElementById('itemCommand').value }; }
+  if (type === 'announcement') { endpoint = 'announcement'; body = { title: document.getElementById('title').value, content: document.getElementById('content').value, platform }; }
+  else if (type === 'news') { endpoint = 'news'; body = { title: document.getElementById('title').value, content: document.getElementById('content').value, platform }; }
+  else if (type === 'campaign') { endpoint = 'campaign'; body = { title: document.getElementById('title').value, description: document.getElementById('description').value, reward: document.getElementById('reward').value, endDate: document.getElementById('endDate')?.value || null, platform }; }
+  else if (type === 'item') { endpoint = 'item'; body = { name: document.getElementById('itemName').value, price: Number(document.getElementById('itemPrice').value), command: document.getElementById('itemCommand').value, platform }; }
   const res = await fetch(`${API}/api/admin/${endpoint}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const data = await res.json();
   alert(data.success ? 'Başarıyla eklendi' : (data.error || 'Hata'));
@@ -667,7 +682,7 @@ async function handleAuth(mode) {
   const res = await fetch(`${API}/api/${mode}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, email })
+    body: JSON.stringify({ username, password, email, platform: PLATFORM })
   });
   const data = await res.json();
   if (data.error) return alert(data.error);
