@@ -114,7 +114,6 @@ function updateGalleryImage() {
 // ========== SSS ==========
 function toggleFaq(el) {
   const item = el.closest('.faq-item');
-  const answer = item.querySelector('.faq-answer');
   const allFaqs = document.querySelectorAll('.faq-item');
   allFaqs.forEach(f => {
     if (f !== item) f.classList.remove('open');
@@ -124,7 +123,6 @@ function toggleFaq(el) {
 
 // ========== BAŞLAT ==========
 document.addEventListener('DOMContentLoaded', () => {
-  // Tema butonu
   const themeBtn = document.getElementById('themeToggle');
   if (themeBtn) {
     updateThemeIcon();
@@ -136,13 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Buhar
   initSteam();
-
-  // Galeri (varsa)
   loadGallery();
 
-  // SSS (varsa)
   document.querySelectorAll('.faq-question').forEach(q => {
     q.addEventListener('click', () => toggleFaq(q));
   });
