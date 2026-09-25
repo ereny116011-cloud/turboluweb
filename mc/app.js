@@ -63,7 +63,7 @@ function updateThemeIcon() {
     : '<i class="fa-solid fa-moon"></i>';
 }
 
-// ========== BUHAR İZİ (MC - HAFİF) ==========
+// ========== BUHAR İZİ (PORTAL İLE AYNI) ==========
 let steamParticles = [];
 let steamCanvas, steamCtx;
 
@@ -76,17 +76,15 @@ function initSteam() {
 
   document.addEventListener('mousemove', (e) => {
     steamParticles.push({
-      x: e.clientX + (Math.random() - 0.5) * 5,
-      y: e.clientY + (Math.random() - 0.5) * 5,
-      vx: (Math.random() - 0.5) * 0.15,
-      vy: -0.1 - Math.random() * 0.15,
-      size: 3 + Math.random() * 5,
-      life: 0.5,
-      decay: 0.045 + Math.random() * 0.02
+      x: e.clientX + (Math.random() - 0.5) * 12,
+      y: e.clientY + (Math.random() - 0.5) * 12,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -0.3 - Math.random() * 0.4,
+      size: 8 + Math.random() * 12,
+      life: 0.8,
+      decay: 0.025 + Math.random() * 0.015
     });
-    if (steamParticles.length > 18) {
-      steamParticles.splice(0, steamParticles.length - 18);
-    }
+    if (steamParticles.length > 45) steamParticles.splice(0, steamParticles.length - 45);
   });
   requestAnimationFrame(animateSteam);
 }
@@ -100,18 +98,14 @@ function resizeSteamCanvas() {
 function animateSteam() {
   if (!steamCtx) return;
   steamCtx.clearRect(0, 0, steamCanvas.width, steamCanvas.height);
-
   const isLight = document.documentElement.classList.contains('light');
   const color = isLight ? '22, 163, 74' : '34, 197, 94';
 
   for (let i = steamParticles.length - 1; i >= 0; i--) {
     const p = steamParticles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.size += 0.2;
-    p.life -= p.decay;
+    p.x += p.vx; p.y += p.vy; p.size += 0.5; p.life -= p.decay;
     if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
-    const alpha = p.life * 0.06;
+    const alpha = p.life * 0.18;
     const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
     gradient.addColorStop(1, `rgba(${color}, 0)`);
@@ -240,6 +234,12 @@ function renderUI() {
 }
 
 function showContent(section) {
+  // Sayfa geçiş animasyonu
+  const content = document.getElementById('content');
+  content.style.animation = 'none';
+  content.offsetHeight;
+  content.style.animation = 'fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both';
+
   if (section !== 'status' && statusInterval) { clearInterval(statusInterval); statusInterval = null; }
 
   switch (section) {
