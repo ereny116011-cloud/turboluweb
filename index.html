@@ -8,7 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Pixelify Sans sadece marka yazısı için -->
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -23,18 +24,12 @@
 <body>
     <canvas id="dotGridCanvas" class="bg-canvas"></canvas>
     <canvas id="steamCanvas" class="steam-canvas"></canvas>
-    <div class="steam-container">
-        <div class="steam-blob blob-1"></div>
-        <div class="steam-blob blob-2"></div>
-        <div class="steam-blob blob-3"></div>
-        <div class="steam-blob blob-4"></div>
-    </div>
 
     <div class="portal-container">
         <header class="portal-header">
             <div class="portal-logo" onclick="window.location.href='/'">
-                <img src="mc/crpr.png" alt="Turbolu Studios" class="logo-img" width="44" height="44" fetchpriority="high" decoding="async">
-                Turbolu Studios
+                <img src="mc/crpr.png" alt="Turbolu Studios" class="logo-img" width="52" height="52" fetchpriority="high" decoding="async">
+                <span class="brand-text">Turbolu Studios</span>
             </div>
             <p>Projelerimize göz atın!</p>
         </header>
@@ -63,7 +58,7 @@
             </a>
 
             <a href="#" class="project-card future" onclick="alert('Yakında!'); return false;">
-                <div class="project-icon">❓</div>
+                <div class="project-icon"><i class="fa-solid fa-question"></i></div>
                 <div class="project-info">
                     <h2>Yeni Proje</h2>
                     <p>Çok yakında...</p>
@@ -108,7 +103,7 @@
         });
         updateThemeIcon();
 
-        // ==== NOKTA GRID (OPTİMİZE) ====
+        // ==== NOKTA GRID ====
         const canvas = document.getElementById('dotGridCanvas');
         const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
         let dots = [];
@@ -123,7 +118,7 @@
             canvas.height = window.innerHeight * dpr;
             canvas.style.width = window.innerWidth + 'px';
             canvas.style.height = window.innerHeight + 'px';
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.setTransform(1, 0, 0, 0, 0, 0);
             ctx.scale(dpr, dpr);
             generateDots();
         }
@@ -147,7 +142,7 @@
             ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
             const isLight = document.documentElement.classList.contains('light');
             const colorBase = isLight ? [22, 163, 74] : [34, 197, 94];
-            const baseAlpha = isLight ? 0.35 : 0.55;
+            const baseAlpha = isLight ? 0.35 : 0.5;
             const maxDist = 160;
             const maxDistSq = maxDist * maxDist;
             for (let k = 0; k < dots.length; k++) {
@@ -173,10 +168,7 @@
             }
         }
         function animateDots(t) {
-            if (t - lastFrame > 33) {
-                drawDots(t);
-                lastFrame = t;
-            }
+            if (t - lastFrame > 33) { drawDots(t); lastFrame = t; }
             dotRAF = requestAnimationFrame(animateDots);
         }
 
@@ -198,17 +190,14 @@
         window.addEventListener('mouseleave', () => { mouse.x = -1000; mouse.y = -1000; });
 
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                if (dotRAF) { cancelAnimationFrame(dotRAF); dotRAF = null; }
-            } else if (!dotRAF) {
-                dotRAF = requestAnimationFrame(animateDots);
-            }
+            if (document.hidden) { if (dotRAF) { cancelAnimationFrame(dotRAF); dotRAF = null; } }
+            else if (!dotRAF) { dotRAF = requestAnimationFrame(animateDots); }
         });
 
         resizeCanvas();
         dotRAF = requestAnimationFrame(animateDots);
 
-        // ==== BUHAR İZİ (KÜÇÜK, OPTİMİZE) ====
+        // ==== BUHAR İZİ ====
         const steamCanvas = document.getElementById('steamCanvas');
         const steamCtx = steamCanvas.getContext('2d', { alpha: true, desynchronized: true });
         let steamParticles = [];
@@ -239,7 +228,6 @@
             const now = performance.now();
             if (now - steamLastMouseTime < 16) return;
             steamLastMouseTime = now;
-
             if (steamParticles.length >= MAX_STEAM_POOL) steamParticles.shift();
             steamParticles.push({
                 x: e.clientX + (Math.random() - 0.5) * 10,
@@ -266,7 +254,6 @@
             steamCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
             const isLight = document.documentElement.classList.contains('light');
             const color = isLight ? '22, 163, 74' : '34, 197, 94';
-
             for (let i = steamParticles.length - 1; i >= 0; i--) {
                 const p = steamParticles[i];
                 p.x += p.vx * dt; p.y += p.vy * dt; p.size += 0.55 * dt; p.life -= p.decay * dt;
@@ -286,10 +273,7 @@
         }
 
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden && steamRAF) {
-                cancelAnimationFrame(steamRAF);
-                steamRAF = null;
-            }
+            if (document.hidden && steamRAF) { cancelAnimationFrame(steamRAF); steamRAF = null; }
         });
     </script>
 </body>
