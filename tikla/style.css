@@ -109,7 +109,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0.8rem 0;
+  padding: 0.8rem 1.5rem;
   background: var(--surface);
   backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--glass-border);
@@ -119,8 +119,6 @@ body {
   z-index: 100;
   flex-wrap: wrap;
   margin: 0 -1.5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
 }
 
 .back-btn {
@@ -451,6 +449,32 @@ body {
   color: white;
 }
 
+/* ========== MODAL ========== */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  background: var(--surface);
+  backdrop-filter: blur(30px) saturate(180%);
+  padding: 1.6rem;
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 400px;
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-shine);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  text-align: center;
+}
+
 .tikla-footer {
   text-align: center;
   padding: 1rem;
@@ -458,6 +482,7 @@ body {
   font-size: 0.8rem;
 }
 
+/* ========== MOBİL ========== */
 @media (max-width: 768px) {
   .tikla-hero h1 { font-size: 1.6rem; }
   .features-grid { grid-template-columns: 1fr 1fr; }
