@@ -5,14 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>TurboluMC - Resmi Web Sitesi</title>
     <link rel="icon" href="crpr.png" type="image/png">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/index.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="/mc/manifest.json">
     <meta name="theme-color" content="#22c55e">
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme');
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            const isLight = saved ? saved === 'light' : prefersLight;
+            if (isLight) document.documentElement.classList.add('light');
+        })();
+    </script>
 </head>
 <body>
-    <!-- Buhar efekti -->
-    <canvas id="steamCanvas" class="steam-canvas"></canvas>
+    <!-- Buhar arka plan katmanı (blobs) -->
     <div class="steam-container">
         <div class="steam-blob blob-1"></div>
         <div class="steam-blob blob-2"></div>
@@ -45,6 +54,9 @@
     <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" onclick="toggleTheme()">
         <i class="fa-solid fa-moon"></i>
     </button>
+
+    <!-- Buhar canvas EN ÜST KATMANDA (tıklamayı engellemez) -->
+    <canvas id="steamCanvas" class="steam-canvas"></canvas>
 
     <script src="app.js"></script>
 </body>
