@@ -7,7 +7,6 @@
     <link rel="icon" href="crpr.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Pixelify Sans (pixel-art font, tam Türkçe destekli) -->
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -23,14 +22,14 @@
     </script>
 </head>
 <body>
-    <!-- Arka plan buhar blobs -->
+    <!-- Arka plan serbest buhar partikülleri (canvas) -->
+    <canvas id="bgSteamCanvas" class="bg-steam-canvas"></canvas>
+    <!-- Arka plan yumuşak bloblar (çok hafif) -->
     <div class="steam-container">
         <div class="steam-blob blob-1"></div>
         <div class="steam-blob blob-2"></div>
         <div class="steam-blob blob-3"></div>
         <div class="steam-blob blob-4"></div>
-        <div class="steam-blob blob-5"></div>
-        <div class="steam-blob blob-6"></div>
     </div>
 
     <div id="app">
