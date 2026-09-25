@@ -1,0 +1,12 @@
+{
+  "name": "Turbolu Bedrock",
+  "short_name": "TurboluBD",
+  "start_url": "/bedrock/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#22c55e",
+  "icons": [
+    { "src": "crpr.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "crpr.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
