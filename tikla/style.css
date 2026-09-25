@@ -1,26 +1,38 @@
 /* ========== DEĞİŞKENLER ========== */
 :root {
   --bg-base: #0a0a0a;
-  --surface: rgba(255,255,255,0.04);
-  --surface-soft: rgba(255,255,255,0.06);
-  --glass-border: rgba(255,255,255,0.08);
-  --text: #e5e7eb;
-  --text-muted: #9ca3af;
+  --surface: rgba(255,255,255,0.05);
+  --surface-hi: rgba(255,255,255,0.08);
+  --surface-soft: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.1);
+  --glass-border-hi: rgba(255,255,255,0.18);
+  --text: #f0f4f2;
+  --text-muted: #8f9b95;
   --accent: #22c55e;
+  --accent-hi: #4ade80;
   --accent-hover: #16a34a;
-  --accent-glow: rgba(34,197,94,0.4);
+  --accent-glow: rgba(34,197,94,0.45);
+  --accent-soft: rgba(34,197,94,0.12);
+  --inset-top: rgba(255,255,255,0.14);
+  --inset-bottom: rgba(0,0,0,0.25);
 }
 
 .light {
-  --bg-base: #f8fafc;
-  --surface: rgba(0,0,0,0.03);
-  --surface-soft: rgba(0,0,0,0.05);
-  --glass-border: rgba(0,0,0,0.08);
-  --text: #1f2937;
-  --text-muted: #6b7280;
+  --bg-base: #eef2f0;
+  --surface: rgba(255,255,255,0.55);
+  --surface-hi: rgba(255,255,255,0.75);
+  --surface-soft: rgba(255,255,255,0.45);
+  --glass-border: rgba(255,255,255,0.7);
+  --glass-border-hi: rgba(255,255,255,0.9);
+  --text: #0f172a;
+  --text-muted: #64748b;
   --accent: #16a34a;
+  --accent-hi: #22c55e;
   --accent-hover: #15803d;
   --accent-glow: rgba(22,163,74,0.3);
+  --accent-soft: rgba(22,163,74,0.1);
+  --inset-top: rgba(255,255,255,0.9);
+  --inset-bottom: rgba(0,0,0,0.05);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,56 +40,77 @@
 html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
 
 body {
-  font-family: 'Pixelify Sans', 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--text);
-  background: var(--bg-base);
   min-height: 100vh;
-  transition: background 0.3s, color 0.3s;
+  background:
+    radial-gradient(ellipse 800px 600px at 10% 0%, var(--accent-soft) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 500px at 90% 100%, var(--accent-soft) 0%, transparent 60%),
+    var(--bg-base);
+  background-attachment: fixed;
+  transition: background 0.4s, color 0.4s;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
 img { max-width: 100%; height: auto; display: block; }
+
+/* Emoji renk düzeltmesi — gradient-clip olan başlıklarda */
+.emoji {
+  -webkit-text-fill-color: initial;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  background: none;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  display: inline-block;
+}
 
 /* ========== BUHAR CANVAS ========== */
 #steamCanvas {
   position: fixed;
   top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100vw; height: 100vh;
   z-index: 9999;
   pointer-events: none;
   transform: translateZ(0);
 }
 
-/* ========== NAVBAR ========== */
+/* ========== NAVBAR — Liquid ========== */
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  background: var(--surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--glass-border);
   position: sticky;
   top: 0;
   z-index: 100;
   flex-wrap: wrap;
   gap: 10px;
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.15),
+    inset 0 1px 0 var(--inset-top);
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: var(--accent);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
   text-decoration: none;
+  letter-spacing: -0.01em;
 }
+
+.logo img { border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
 .nav-links {
   display: flex;
@@ -88,18 +121,22 @@ img { max-width: 100%; height: auto; display: block; }
 .nav-links a {
   text-decoration: none;
   color: var(--text);
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 9px 16px;
+  border-radius: 10px;
   border: 1px solid var(--glass-border);
-  background: var(--surface-soft);
-  font-size: 0.85rem;
-  transition: background 0.15s, color 0.15s, transform 0.15s;
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface-soft) 100%);
+  font-size: 0.87rem;
+  font-weight: 500;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .nav-links a:hover {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%);
   color: white;
+  border-color: transparent;
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--accent-glow);
 }
 
 /* ========== CONTAINER ========== */
@@ -112,159 +149,243 @@ img { max-width: 100%; height: auto; display: block; }
 /* ========== HERO ========== */
 .tikla-hero {
   text-align: center;
-  padding: 40px 20px;
+  padding: 50px 20px;
   margin-bottom: 40px;
 }
 
 .tikla-hero h1 {
-  font-size: 2.2rem;
+  font-size: 2.4rem;
+  font-weight: 700;
   margin-bottom: 16px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-hover), var(--accent));
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 3s linear infinite;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  /* Emoji'nin gradient ile yeşil olmaması için emoji span kullanılır */
 }
 
-@keyframes shimmer {
-  from { background-position: 0% 0%; }
-  to { background-position: 200% 0%; }
+.tikla-hero h1 .emoji {
+  display: inline-block;
+  font-size: 2.2rem;
+  vertical-align: middle;
+  margin: 0 4px;
+  /* Yeşile boyanmasını engelle */
+  background: none !important;
+  -webkit-text-fill-color: initial !important;
+  color: initial;
+  filter: none;
 }
 
 .tikla-hero p {
   color: var(--text-muted);
   max-width: 600px;
-  margin: 0 auto 24px;
+  margin: 0 auto 28px;
   font-size: 1rem;
+  line-height: 1.6;
 }
 
-/* ========== BUTONLAR ========== */
+/* ========== BUTONLAR — Liquid ========== */
 .download-btn,
 .virus-btn {
-  display: inline-block;
-  padding: 14px 32px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 34px;
+  border-radius: 14px;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1rem;
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s, background 0.3s;
   position: relative;
   overflow: hidden;
   border: none;
   cursor: pointer;
   font-family: inherit;
+  letter-spacing: -0.01em;
 }
 
 .download-btn {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%);
   color: white;
-  box-shadow: 0 6px 20px var(--accent-glow);
+  box-shadow:
+    0 15px 35px var(--accent-glow),
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    inset 0 -2px 4px rgba(0,0,0,0.15);
+}
+
+.download-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .download-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-3px) scale(1.03);
+  transform: translateY(-4px) scale(1.03);
+  box-shadow:
+    0 25px 50px var(--accent-glow),
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    inset 0 -2px 4px rgba(0,0,0,0.15);
 }
-
-.download-btn::after {
-  content: '';
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 0; height: 0;
-  background: rgba(255,255,255,0.35);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.5s, height 0.5s;
-}
-
-.download-btn:hover::after { width: 300px; height: 300px; }
 
 .virus-btn {
-  background: var(--surface-soft);
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface-soft) 100%);
   color: var(--text);
   border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
-.virus-btn:hover { background: var(--accent); color: white; }
+.virus-btn:hover {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px var(--accent-glow);
+}
 
-/* ========== QUICK CARDS ========== */
+/* ========== QUICK CARDS — Liquid ========== */
 .quick-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  gap: 18px;
   margin-bottom: 40px;
 }
 
 .quick-card {
-  background: var(--surface);
+  position: relative;
+  padding: 26px;
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 60%, var(--surface-soft) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--glass-border);
-  border-radius: 14px;
-  padding: 24px;
+  border-radius: 18px;
   text-decoration: none;
   color: var(--text);
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), border-color 0.3s, box-shadow 0.3s;
   display: block;
-  will-change: transform;
+  box-shadow:
+    0 15px 35px rgba(0,0,0,0.2),
+    inset 0 1px 0 var(--inset-top),
+    inset 0 -1px 0 var(--inset-bottom);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.quick-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .quick-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--accent);
-  box-shadow: 0 12px 32px var(--accent-glow);
+  transform: translateY(-6px);
+  border-color: var(--glass-border-hi);
+  box-shadow:
+    0 30px 55px rgba(0,0,0,0.35),
+    0 0 35px var(--accent-glow),
+    inset 0 1px 0 var(--glass-border-hi),
+    inset 0 -1px 0 var(--inset-bottom);
 }
 
 .quick-card i {
-  font-size: 2rem;
+  font-size: 1.8rem;
   color: var(--accent);
-  margin-bottom: 12px;
-  display: block;
-  transition: transform 0.25s;
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent-soft) 0%, transparent 100%);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  filter: drop-shadow(0 4px 12px var(--accent-glow));
 }
 
-.quick-card:hover i { transform: scale(1.15) rotate(-6deg); }
+.quick-card:hover i {
+  transform: scale(1.15) rotate(-6deg);
+}
 
 .quick-card h3 {
   margin-bottom: 8px;
-  color: var(--accent);
+  color: var(--text);
   font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
-.quick-card p { font-size: 0.9rem; color: var(--text-muted); }
+.quick-card p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
 
-/* ========== FEATURE ITEM ========== */
+/* ========== FEATURE ITEM — Liquid ========== */
 .feature-item {
-  background: var(--surface-soft);
+  position: relative;
+  padding: 22px;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 60%, var(--surface-soft) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 12px;
-  transition: transform 0.2s, border-color 0.2s;
+  border-radius: 16px;
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.15),
+    inset 0 1px 0 var(--inset-top),
+    inset 0 -1px 0 var(--inset-bottom);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.feature-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .feature-item:hover {
   transform: translateY(-3px);
-  border-color: var(--accent);
+  border-color: var(--glass-border-hi);
+  box-shadow:
+    0 20px 45px rgba(0,0,0,0.25),
+    0 0 25px var(--accent-glow),
+    inset 0 1px 0 var(--glass-border-hi);
 }
 
 .feature-item i {
   color: var(--accent);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   margin-right: 12px;
-  transition: transform 0.25s;
+  transition: transform 0.3s;
+  filter: drop-shadow(0 0 8px var(--accent-glow));
 }
 
-.feature-item:hover i { transform: scale(1.15) translateY(-3px); }
+.feature-item:hover i {
+  transform: scale(1.15) translateY(-3px);
+}
 
 .feature-item strong {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
+  font-weight: 600;
   display: inline-block;
+  letter-spacing: -0.015em;
 }
 
 .feature-item p {
-  margin-top: 8px;
+  margin-top: 10px;
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
 }
 
 /* ========== GALERİ ========== */
@@ -275,91 +396,131 @@ img { max-width: 100%; height: auto; display: block; }
 
 .gallery-container img {
   max-width: 100%;
-  border-radius: 12px;
-  border: 2px solid var(--glass-border);
-  transition: opacity 0.4s ease, transform 0.25s;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  transition: opacity 0.4s ease, transform 0.3s;
+  box-shadow:
+    0 20px 50px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .gallery-container:hover img { transform: scale(1.01); }
 
 .gallery-thumbs {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 .thumb {
-  width: 80px; height: 60px;
+  width: 82px; height: 62px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  opacity: 0.6;
+  opacity: 0.55;
   border: 2px solid transparent;
-  transition: opacity 0.15s, transform 0.15s, border-color 0.15s;
+  transition: opacity 0.2s, transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-.thumb:hover { opacity: 1; transform: scale(1.05); }
-.thumb.active { opacity: 1; border-color: var(--accent); }
+.thumb:hover {
+  opacity: 1;
+  transform: scale(1.06);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
 
-/* ========== SSS ========== */
+.thumb.active {
+  opacity: 1;
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* ========== SSS — Liquid ========== */
 .faq-item {
-  background: var(--surface-soft);
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: 14px;
   margin-bottom: 12px;
   overflow: hidden;
-  transition: border-color 0.2s;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.12),
+    inset 0 1px 0 var(--inset-top);
 }
 
 .faq-question {
-  padding: 16px 20px;
+  padding: 18px 22px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.15s;
+  transition: background 0.2s;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
 }
 
-.faq-question:hover { background: var(--surface); }
+.faq-question:hover { background: var(--surface-hi); }
 
 .faq-answer {
   max-height: 0;
   overflow: hidden;
-  padding: 0 20px;
-  transition: max-height 0.35s ease, padding 0.35s ease;
+  padding: 0 22px;
+  transition: max-height 0.4s ease, padding 0.4s ease;
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 0.93rem;
+  line-height: 1.7;
 }
 
 .faq-item.open .faq-answer {
   max-height: 500px;
-  padding: 0 20px 16px;
+  padding: 0 22px 18px;
 }
 
-.faq-item.open { border-color: var(--accent); }
+.faq-item.open {
+  border-color: var(--accent);
+  box-shadow:
+    0 15px 40px rgba(0,0,0,0.2),
+    0 0 25px var(--accent-glow),
+    inset 0 1px 0 var(--glass-border-hi);
+}
 
-/* ========== TEMA BUTONU ========== */
+/* ========== TEMA BUTONU — Liquid ========== */
 .theme-toggle {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 54px; height: 54px;
+  width: 56px; height: 56px;
   border-radius: 50%;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%);
   color: white;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.2);
   cursor: pointer;
   font-size: 1.25rem;
-  box-shadow: 0 6px 24px var(--accent-glow);
+  box-shadow:
+    0 10px 30px var(--accent-glow),
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    inset 0 -2px 4px rgba(0,0,0,0.15);
   z-index: 9998;
-  transition: transform 0.2s;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   font-family: inherit;
+  overflow: hidden;
 }
 
-.theme-toggle:hover { transform: scale(1.08) rotate(12deg); }
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+  border-radius: 50% 50% 0 0;
+  pointer-events: none;
+}
+
+.theme-toggle:hover { transform: scale(1.1) rotate(15deg); }
 
 /* ========== SAYFA GEÇİŞ ANİMASYONU ========== */
 .tikla-section,
@@ -368,7 +529,7 @@ img { max-width: 100%; height: auto; display: block; }
 .feature-item,
 .gallery-container,
 .faq-item {
-  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: fadeInUp 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .quick-card:nth-child(1) { animation-delay: 0.04s; }
@@ -383,13 +544,22 @@ img { max-width: 100%; height: auto; display: block; }
 .feature-item:nth-child(5) { animation-delay: 0.16s; }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(15px); }
+  from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .navbar { padding: 10px 14px; }
+  .nav-links a { padding: 7px 12px; font-size: 0.8rem; }
+  .tikla-hero h1 { font-size: 1.8rem; }
+  .tikla-hero h1 .emoji { font-size: 1.6rem; }
+  .theme-toggle { width: 50px; height: 50px; font-size: 1.1rem; }
 }
 
 /* ========== ERİŞİLEBİLİRLİK ========== */
