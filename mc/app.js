@@ -50,8 +50,8 @@ function initTheme() {
   updateThemeIcon();
 }
 function toggleTheme() {
-  document.documentElement.classList.toggle('light');
-  const isLight = document.documentElement.classList.contains('light');
+  const root = document.documentElement;
+  const isLight = root.classList.toggle('light');
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
   updateThemeIcon();
 }
@@ -63,54 +63,101 @@ function updateThemeIcon() {
     : '<i class="fa-solid fa-moon"></i>';
 }
 
-// ========== BUHAR İZİ (BELİRGİN, EN ÜST KATMAN) ==========
+// ========== BUHAR İZİ (OPTİMİZE) ==========
+const MAX_PARTICLES = 90;
+const MAX_PARTICLES_POOL = 120;
 let steamParticles = [];
 let steamCanvas, steamCtx;
+let steamRAF = null;
+let steamLastTime = 0;
+let steamLastMouseTime = 0;
 
 function initSteam() {
   steamCanvas = document.getElementById('steamCanvas');
   if (!steamCanvas) return;
-  steamCtx = steamCanvas.getContext('2d');
-  resizeSteamCanvas();
-  window.addEventListener('resize', resizeSteamCanvas);
+  steamCtx = steamCanvas.getContext('2d', { alpha: true, desynchronized: true });
+  if (!steamCtx) return;
 
+  resizeSteamCanvas();
+
+  // Passive + throttle'lı mousemove
   document.addEventListener('mousemove', (e) => {
-    for (let k = 0; k < 2; k++) {
-      steamParticles.push({
-        x: e.clientX + (Math.random() - 0.5) * 22,
-        y: e.clientY + (Math.random() - 0.5) * 22,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: -0.6 - Math.random() * 0.7,
-        size: 14 + Math.random() * 20,
-        life: 1.1,
-        decay: 0.016 + Math.random() * 0.012
-      });
+    const now = performance.now();
+    if (now - steamLastMouseTime < 16) return; // max ~60/sec
+    steamLastMouseTime = now;
+
+    // Ring buffer mantığı: MAX_PARTICLES_POOL dolduysa eskiyi at
+    if (steamParticles.length >= MAX_PARTICLES_POOL) {
+      steamParticles.shift();
     }
-    if (steamParticles.length > 90) {
-      steamParticles.splice(0, steamParticles.length - 90);
+    steamParticles.push({
+      x: e.clientX + (Math.random() - 0.5) * 22,
+      y: e.clientY + (Math.random() - 0.5) * 22,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: -0.6 - Math.random() * 0.7,
+      size: 14 + Math.random() * 20,
+      life: 1.1,
+      decay: 0.016 + Math.random() * 0.012
+    });
+    if (steamParticles.length > MAX_PARTICLES) {
+      steamParticles.splice(0, steamParticles.length - MAX_PARTICLES);
+    }
+    startSteamLoop();
+  }, { passive: true });
+
+  // Sekme gizlenince dur
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (steamRAF) { cancelAnimationFrame(steamRAF); steamRAF = null; }
+    } else if (steamParticles.length > 0) {
+      startSteamLoop();
     }
   });
-  requestAnimationFrame(animateSteam);
+
+  // Resize debounce
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeSteamCanvas, 150);
+  }, { passive: true });
+}
+
+function startSteamLoop() {
+  if (steamRAF || document.hidden) return;
+  steamLastTime = performance.now();
+  steamRAF = requestAnimationFrame(animateSteam);
 }
 
 function resizeSteamCanvas() {
   if (!steamCanvas) return;
-  steamCanvas.width = window.innerWidth;
-  steamCanvas.height = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2); // max 2x DPR (performans)
+  steamCanvas.width = window.innerWidth * dpr;
+  steamCanvas.height = window.innerHeight * dpr;
+  steamCanvas.style.width = window.innerWidth + 'px';
+  steamCanvas.style.height = window.innerHeight + 'px';
+  steamCtx.scale(dpr, dpr);
 }
 
-function animateSteam() {
-  if (!steamCtx) return;
-  steamCtx.clearRect(0, 0, steamCanvas.width, steamCanvas.height);
+function animateSteam(now) {
+  if (!steamCtx) { steamRAF = null; return; }
+
+  // Delta time (60fps referans)
+  const dt = Math.min((now - steamLastTime) / 16.67, 3);
+  steamLastTime = now;
+
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  steamCtx.clearRect(0, 0, w, h);
+
   const isLight = document.documentElement.classList.contains('light');
   const color = isLight ? '22, 163, 74' : '34, 197, 94';
 
   for (let i = steamParticles.length - 1; i >= 0; i--) {
     const p = steamParticles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.size += 0.9;
-    p.life -= p.decay;
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.size += 0.9 * dt;
+    p.life -= p.decay * dt;
     if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
 
     const alpha = p.life * 0.38;
@@ -123,12 +170,28 @@ function animateSteam() {
     steamCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     steamCtx.fill();
   }
-  requestAnimationFrame(animateSteam);
+
+  // Idle'da döngüyü durdur (CPU tasarrufu)
+  if (steamParticles.length === 0) {
+    steamRAF = null;
+    return;
+  }
+  steamRAF = requestAnimationFrame(animateSteam);
 }
 
 // ========== IP ==========
-function kopyalaIP() {
-  navigator.clipboard.writeText('turbolumc.aternos.me');
+async function kopyalaIP() {
+  try {
+    await navigator.clipboard.writeText('turbolumc.aternos.me');
+  } catch (e) {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = 'turbolumc.aternos.me';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
   const altInfo = document.getElementById('alt-ip-info');
   if (altInfo) {
     altInfo.innerHTML = `
@@ -179,10 +242,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initSteam();
 
-  if ('serviceWorker' in navigator) { try { await navigator.serviceWorker.register('/mc/sw.js'); } catch (e) {} }
+  if ('serviceWorker' in navigator) {
+    try { await navigator.serviceWorker.register('/mc/sw.js'); } catch (e) {}
+  }
 
   try {
-    const res = await fetch(`${API}/api/country`); const { tr } = await res.json();
+    const res = await fetch(`${API}/api/country`);
+    const { tr } = await res.json();
     if (!localStorage.getItem('lang')) setLang(tr ? 'tr' : 'en'); else setLang(currentLang);
   } catch { setLang(currentLang); }
 
@@ -228,7 +294,7 @@ function renderUI() {
     navLinks.innerHTML = buttons;
     userArea.innerHTML = `
       <button onclick="requestNotificationPermission()" title="Bildirim">🔔</button>
-      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')" title="Profil">
+      <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-icon" onclick="showContent('profile')" title="Profil" loading="lazy">
       <span class="username-label">${currentUser.username}</span>
       <button class="logout-btn" onclick="logout()">Çıkış</button>
     `;
@@ -244,9 +310,10 @@ function renderUI() {
 
 function showContent(section) {
   const content = document.getElementById('content');
-  content.style.animation = 'none';
-  content.offsetHeight;
-  content.style.animation = 'fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both';
+  // Sadece animasyonu resetle, class ekle/çıkar ile CSS'e bırak
+  content.classList.remove('page-enter');
+  void content.offsetWidth;
+  content.classList.add('page-enter');
 
   if (section !== 'status' && statusInterval) { clearInterval(statusInterval); statusInterval = null; }
 
@@ -305,9 +372,13 @@ async function renderStatus() {
       <p class="license-text">Bu proje GNU General Public License v3.0 ile korunmaktadır.</p>
     </div>
   `;
+
   async function updateStatus() {
     try {
-      const res = await fetch('https://api.mcsrvstat.us/2/turbolumc.aternos.me');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const res = await fetch('https://api.mcsrvstat.us/2/turbolumc.aternos.me', { signal: controller.signal });
+      clearTimeout(timeoutId);
       const data = await res.json();
       const durumEl = document.getElementById('online-durum');
       if (!durumEl) return;
@@ -318,7 +389,7 @@ async function renderStatus() {
   }
   updateStatus();
   if (statusInterval) clearInterval(statusInterval);
-  statusInterval = setInterval(updateStatus, 10000);
+  statusInterval = setInterval(updateStatus, 15000); // 10sn → 15sn (API tasarrufu)
 }
 
 async function renderShop() {
@@ -395,15 +466,15 @@ async function deleteNews(id) {
 
 async function renderCampaigns() {
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
-  const now = new Date();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 Kampanyalar</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div>`}).join('')}</div>`;
+  const now = Date.now();
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 Kampanyalar</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><b>${c.title}</b><p>${c.description}</p><p>🎁 ${c.reward}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div>`}).join('')}</div>`;
 }
 
 async function renderManageCampaigns() {
   if (!currentUser?.isAdmin) return;
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
-  const now = new Date();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📊 Kampanya Yönet</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate)<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border:1px solid var(--glass-border);"><div><b>${c.title}</b><br><small>${c.description} | 🎁 ${c.reward}</small><br><small>📅 ${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div><button class="logout-btn" onclick="deleteCampaign('${c.id}')">🗑️ Sil</button></div>`}).join('')}</div>`;
+  const now = Date.now();
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📊 Kampanya Yönet</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border:1px solid var(--glass-border);"><div><b>${c.title}</b><br><small>${c.description} | 🎁 ${c.reward}</small><br><small>📅 ${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div><button class="logout-btn" onclick="deleteCampaign('${c.id}')">🗑️ Sil</button></div>`}).join('')}</div>`;
 }
 async function deleteCampaign(id) {
   if (!confirm('Emin misiniz?')) return;
@@ -437,9 +508,9 @@ function openAuthModal(mode) {
   const isRegister = mode === 'register';
   body.innerHTML = `
     <h3 style="text-align:center; margin-bottom:1rem;">${isRegister ? 'Kaydol' : 'Giriş Yap'}</h3>
-    <input id="authUsername" placeholder="Kullanıcı adı">
-    ${isRegister ? `<input id="authEmail" type="email" placeholder="E-posta">` : ''}
-    <input id="authPassword" type="password" placeholder="Parola">
+    <input id="authUsername" placeholder="Kullanıcı adı" autocomplete="username">
+    ${isRegister ? `<input id="authEmail" type="email" placeholder="E-posta" autocomplete="email">` : ''}
+    <input id="authPassword" type="password" placeholder="Parola" autocomplete="${isRegister ? 'new-password' : 'current-password'}">
     <button class="btn-green" id="authSubmit" style="width:100%; padding:12px;">${isRegister ? 'Kaydol' : 'Giriş'}</button>
     <button id="cancelModal" style="width:100%; margin-top:8px; padding:10px;">Vazgeç</button>
     ${!isRegister ? `<p style="margin-top:12px; text-align:center;"><a href="#" style="color:var(--accent);" onclick="openForgotPasswordModal(); return false;">Şifremi unuttum</a></p>` : ''}
@@ -447,6 +518,10 @@ function openAuthModal(mode) {
   document.getElementById('authSubmit').addEventListener('click', () => handleAuth(mode));
   document.getElementById('cancelModal').addEventListener('click', closeModal);
   modal.classList.remove('hidden');
+  // Enter ile submit
+  body.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuth(mode); });
+  });
 }
 
 function openForgotPasswordModal() {
@@ -454,7 +529,7 @@ function openForgotPasswordModal() {
   const body = document.getElementById('modalBody');
   body.innerHTML = `
     <h3 style="text-align:center; margin-bottom:1rem;">Şifremi Unuttum</h3>
-    <input id="forgotEmail" type="email" placeholder="E-posta adresiniz">
+    <input id="forgotEmail" type="email" placeholder="E-posta adresiniz" autocomplete="email">
     <button class="btn-green" id="forgotSubmit" style="width:100%; padding:12px;">Gönder</button>
     <button id="cancelForgot" style="width:100%; margin-top:8px; padding:10px;">Vazgeç</button>
   `;
@@ -498,7 +573,7 @@ async function renderProfile() {
     <div class="glass-card profile-card">
       <h2>👤 Profil</h2>
       <div class="profile-avatar-section">
-        <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-avatar" id="profileAvatar">
+        <img src="${currentUser.icon || DEFAULT_AVATAR}" class="profile-avatar" id="profileAvatar" loading="lazy">
         <button id="changeAvatarBtn" class="small-btn">📁 Avatar Değiştir</button>
         <input type="file" id="avatarUpload" accept="image/*" style="display:none">
       </div>
@@ -512,8 +587,8 @@ async function renderProfile() {
       </div>
       <hr style="margin: 1rem 0; border-color: var(--glass-border);">
       <h3 style="margin-bottom:0.5rem;">🔒 Şifre Değiştir</h3>
-      <div class="profile-field"><input id="oldPass" type="password" placeholder="Mevcut şifre"></div>
-      <div class="profile-field"><input id="newPass" type="password" placeholder="Yeni şifre"></div>
+      <div class="profile-field"><input id="oldPass" type="password" placeholder="Mevcut şifre" autocomplete="current-password"></div>
+      <div class="profile-field"><input id="newPass" type="password" placeholder="Yeni şifre" autocomplete="new-password"></div>
       <button id="changePassBtn" class="small-btn">Şifreyi Güncelle</button>
       <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
         <button id="saveSettingsBtn">Kaydet</button>
@@ -532,6 +607,7 @@ async function renderProfile() {
 async function uploadAvatar(event) {
   const file = event.target.files[0];
   if (!file) return;
+  if (file.size > 2 * 1024 * 1024) return alert('Dosya çok büyük (max 2MB)');
   const reader = new FileReader();
   reader.onload = async (e) => {
     const base64 = e.target.result;
@@ -581,5 +657,14 @@ async function saveProfileSettings() {
 }
 
 function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-function logout() { localStorage.clear(); token = null; currentUser = null; location.reload(); }
+
+// DİKKAT: localStorage.clear() yerine sadece auth verilerini sil (tema ve dil korunur)
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('notificationsEnabled');
+  token = null;
+  currentUser = null;
+  location.reload();
+}
+
 function setLang(lang) { currentLang = lang; localStorage.setItem('lang', lang); renderUI(); }
