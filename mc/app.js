@@ -25,7 +25,7 @@ let notificationPreferences = JSON.parse(localStorage.getItem('notifyPrefs') || 
 
 function t(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
 
-// Global
+// Global fonksiyonlar
 window.showContent = showContent;
 window.kopyalaIP = kopyalaIP;
 window.buy = buy;
@@ -46,103 +46,24 @@ function initTheme() {
   const saved = localStorage.getItem('theme');
   const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
   const isLight = saved ? saved === 'light' : prefersLight;
-  document.body.classList.toggle('light', isLight);
+  document.documentElement.classList.toggle('light', isLight);
   updateThemeIcon();
 }
 function toggleTheme() {
-  document.body.classList.toggle('light');
-  const isLight = document.body.classList.contains('light');
+  document.documentElement.classList.toggle('light');
+  const isLight = document.documentElement.classList.contains('light');
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
   updateThemeIcon();
 }
 function updateThemeIcon() {
   const btn = document.getElementById('themeToggle');
   if (!btn) return;
-  btn.innerHTML = document.body.classList.contains('light')
+  btn.innerHTML = document.documentElement.classList.contains('light')
     ? '<i class="fa-solid fa-sun"></i>'
     : '<i class="fa-solid fa-moon"></i>';
 }
 
-// ========== DOT GRID (sadece ana ekran) ==========
-let dots = [];
-let mouse = { x: -1000, y: -1000 };
-let canvas, ctx;
-
-function initCanvas() {
-  canvas = document.getElementById('dotGridCanvas');
-  if (!canvas) return;
-  ctx = canvas.getContext('2d');
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-  window.addEventListener('mousemove', (e) => {
-    mouse.x = e.clientX; mouse.y = e.clientY;
-  });
-  window.addEventListener('mouseleave', () => {
-    mouse.x = -1000; mouse.y = -1000;
-  });
-  requestAnimationFrame(animateCanvas);
-}
-function resizeCanvas() {
-  if (!canvas) return;
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  generateDots();
-}
-function generateDots() {
-  dots = [];
-  const spacing = 42;
-  const cols = Math.ceil(canvas.width / spacing) + 1;
-  const rows = Math.ceil(canvas.height / spacing) + 1;
-  for (let i = 0; i < cols; i++) {
-    for (let j = 0; j < rows; j++) {
-      dots.push({
-        baseX: i * spacing + spacing / 2,
-        baseY: j * spacing + spacing / 2,
-        phase: Math.random() * Math.PI * 2,
-        size: 1.6
-      });
-    }
-  }
-}
-let lastFrame = 0;
-function animateCanvas(t) {
-  if (t - lastFrame > 32) { drawDots(t); lastFrame = t; }
-  requestAnimationFrame(animateCanvas);
-}
-function drawDots(t) {
-  if (!ctx || !canvas) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const isLight = document.body.classList.contains('light');
-  const colorBase = isLight ? [22, 163, 74] : [34, 197, 94];
-  const baseAlpha = isLight ? 0.35 : 0.55;
-
-  dots.forEach(dot => {
-    const dx = mouse.x - dot.baseX;
-    const dy = mouse.y - dot.baseY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const maxDist = 160;
-    let offsetX = 0, offsetY = 0;
-    let alpha = baseAlpha;
-    let size = dot.size;
-    if (dist < maxDist) {
-      const force = (maxDist - dist) / maxDist;
-      offsetX = -dx * force * 0.25;
-      offsetY = -dy * force * 0.25;
-      alpha = Math.min(1, baseAlpha + force * 0.5);
-      size = dot.size + force * 1.2;
-    }
-    const floatX = Math.sin(t * 0.0008 + dot.phase) * 2.5;
-    const floatY = Math.cos(t * 0.001 + dot.phase) * 2.5;
-    const x = dot.baseX + floatX + offsetX;
-    const y = dot.baseY + floatY + offsetY;
-    ctx.fillStyle = `rgba(${colorBase[0]}, ${colorBase[1]}, ${colorBase[2]}, ${alpha})`;
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-// ========== STEAM TRAIL (mouse takipli buhar izi) ==========
+// ========== BUHAR İZİ (MC - HAFİF) ==========
 let steamParticles = [];
 let steamCanvas, steamCtx;
 
@@ -152,22 +73,19 @@ function initSteam() {
   steamCtx = steamCanvas.getContext('2d');
   resizeSteamCanvas();
   window.addEventListener('resize', resizeSteamCanvas);
+
   document.addEventListener('mousemove', (e) => {
-    // Sadece steam görünen sayfalarda particle üret
-    if (!document.body.classList.contains('main-view') && !document.body.classList.contains('steam-only')) return;
-    for (let i = 0; i < 3; i++) {
-      steamParticles.push({
-        x: e.clientX + (Math.random() - 0.5) * 24,
-        y: e.clientY + (Math.random() - 0.5) * 24,
-        vx: (Math.random() - 0.5) * 1.2,
-        vy: -0.6 - Math.random() * 1.0,
-        size: 18 + Math.random() * 30,
-        life: 1,
-        decay: 0.012 + Math.random() * 0.018
-      });
-    }
-    if (steamParticles.length > 150) {
-      steamParticles.splice(0, steamParticles.length - 150);
+    steamParticles.push({
+      x: e.clientX + (Math.random() - 0.5) * 5,
+      y: e.clientY + (Math.random() - 0.5) * 5,
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: -0.1 - Math.random() * 0.15,
+      size: 3 + Math.random() * 5,
+      life: 0.5,
+      decay: 0.045 + Math.random() * 0.02
+    });
+    if (steamParticles.length > 18) {
+      steamParticles.splice(0, steamParticles.length - 18);
     }
   });
   requestAnimationFrame(animateSteam);
@@ -183,47 +101,26 @@ function animateSteam() {
   if (!steamCtx) return;
   steamCtx.clearRect(0, 0, steamCanvas.width, steamCanvas.height);
 
-  const isLight = document.body.classList.contains('light');
+  const isLight = document.documentElement.classList.contains('light');
   const color = isLight ? '22, 163, 74' : '34, 197, 94';
 
   for (let i = steamParticles.length - 1; i >= 0; i--) {
     const p = steamParticles[i];
     p.x += p.vx;
     p.y += p.vy;
-    p.vy -= 0.008;
-    p.vx *= 0.99;
-    p.size += 0.6;
+    p.size += 0.2;
     p.life -= p.decay;
-
-    if (p.life <= 0) {
-      steamParticles.splice(i, 1);
-      continue;
-    }
-
-    const alpha = p.life * 0.55;
+    if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
+    const alpha = p.life * 0.06;
     const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
-    gradient.addColorStop(0.6, `rgba(${color}, ${alpha * 0.4})`);
     gradient.addColorStop(1, `rgba(${color}, 0)`);
     steamCtx.fillStyle = gradient;
     steamCtx.beginPath();
     steamCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     steamCtx.fill();
   }
-
   requestAnimationFrame(animateSteam);
-}
-
-// ========== PARALAKS (diğer sekmeler) ==========
-function initParallax() {
-  const bgImage = document.getElementById('bgImage');
-  if (!bgImage) return;
-  document.addEventListener('mousemove', (e) => {
-    if (document.body.classList.contains('main-view')) return;
-    const x = (e.clientX / window.innerWidth - 0.5) * 30;
-    const y = (e.clientY / window.innerHeight - 0.5) * 30;
-    bgImage.style.transform = `scale(1.1) translate(${x}px, ${y}px)`;
-  });
 }
 
 // ========== IP ==========
@@ -277,9 +174,7 @@ async function requestNotificationPermission() {
 // ========== BAŞLAT ==========
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
-  initCanvas();
   initSteam();
-  initParallax();
 
   if ('serviceWorker' in navigator) { try { await navigator.serviceWorker.register('/mc/sw.js'); } catch (e) {} }
 
@@ -346,9 +241,6 @@ function renderUI() {
 
 function showContent(section) {
   if (section !== 'status' && statusInterval) { clearInterval(statusInterval); statusInterval = null; }
-
-  if (section === 'status') document.body.classList.add('main-view');
-  else document.body.classList.remove('main-view');
 
   switch (section) {
     case 'status': renderStatus(); break;
