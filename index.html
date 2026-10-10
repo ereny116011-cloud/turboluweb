@@ -6,30 +6,22 @@
     <title>Turbolu Studios - Projelerimiz</title>
     <meta name="description" content="Turbolu Studios, Minecraft Java ve Bedrock sunucuları ile mobil oyunlar geliştiren bağımsız bir stüdyodur.">
     
-    <!-- Canonical -->
     <link rel="canonical" href="https://turboluweb.wasmer.app/">
     
-    <!-- Open Graph -->
     <meta property="og:title" content="Turbolu Studios - Projelerimiz">
     <meta property="og:description" content="Minecraft Java ve Bedrock sunucuları ile mobil oyunlar geliştiren bağımsız stüdyo.">
     <meta property="og:url" content="https://turboluweb.wasmer.app/">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://turboluweb.wasmer.app/mc/crpr.png">
     
-    <!-- Favicon -->
     <link rel="icon" href="mc/crpr.png" type="image/png">
-    
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Styles -->
+    <link rel="stylesheet" href="fa/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- JSON-LD Yapılandırılmış Veri -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -42,7 +34,6 @@
     }
     </script>
     
-    <!-- Tema başlangıç -->
     <script>
         (function() {
             const saved = localStorage.getItem('theme');
@@ -132,7 +123,6 @@
     </button>
 
     <script>
-        // ==== TEMA ====
         const themeBtn = document.getElementById('themeToggle');
         function updateThemeIcon() {
             const isLight = document.documentElement.classList.contains('light');
@@ -145,7 +135,6 @@
         });
         updateThemeIcon();
 
-        // ==== NOKTA GRID ====
         const canvas = document.getElementById('dotGridCanvas');
         const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
         let dots = [];
@@ -239,7 +228,6 @@
         resizeCanvas();
         dotRAF = requestAnimationFrame(animateDots);
 
-        // ==== BUHAR İZİ ====
         const steamCanvas = document.getElementById('steamCanvas');
         const steamCtx = steamCanvas.getContext('2d', { alpha: true, desynchronized: true });
         let steamParticles = [];
