@@ -173,8 +173,8 @@ let bgParticles = [];
 let bgRAF = null;
 let bgLastTime = 0;
 let bgEmitAccumulator = 0;
-const BG_MAX = 26;
-const BG_EMIT_INTERVAL = 350;
+const BG_MAX = 46;
+const BG_EMIT_INTERVAL = 260;
 const BG_TARGET_FPS = 30;
 
 function initBgSteam() {
@@ -198,6 +198,13 @@ function initBgSteam() {
     }
   });
 
+  /* Açılışta ekran boş görünmesin: bulutları ömürlerinin farklı
+     evrelerinden başlat, böylece her yere dağılmış hâlde belirsinler. */
+  for (let i = 0; i < BG_MAX; i++) {
+    emitBgParticle();
+    bgParticles[bgParticles.length - 1].life = Math.random();
+  }
+
   startBgLoop();
 }
 
@@ -218,20 +225,22 @@ function resizeBgSteamCanvas() {
   bgSteamCtx.scale(dpr, dpr);
 }
 
+/* Bulutlar artık sadece ekranın alt şeridinde birikmiyor; tüm alana
+   dağılıyorlar. Ani belirmeyi önlemek için ömürlerinin başında ve
+   sonunda saydamlaşıyorlar (aşağıdaki fade hesabı). */
 function emitBgParticle() {
   const w = window.innerWidth;
   const h = window.innerHeight;
-  const x = Math.random() * w;
-  const y = h + 40;
   bgParticles.push({
-    x, y,
-    vx: (Math.random() - 0.5) * 0.4,
-    vy: -0.4 - Math.random() * 0.5,
-    size: 30 + Math.random() * 50,
+    x: Math.random() * w,
+    y: h * (0.02 + Math.random() * 1.06),
+    vx: (Math.random() - 0.5) * 0.22,
+    vy: -0.18 - Math.random() * 0.30,
+    size: 34 + Math.random() * 58,
     life: 1.0,
-    decay: 0.004 + Math.random() * 0.004,
+    decay: 0.0016 + Math.random() * 0.0018,
     wobble: Math.random() * Math.PI * 2,
-    wobbleSpeed: 0.005 + Math.random() * 0.01
+    wobbleSpeed: 0.004 + Math.random() * 0.008
   });
 }
 
@@ -263,11 +272,13 @@ function animateBgSteam(now) {
     p.wobble += p.wobbleSpeed * dt;
     p.x += (p.vx + Math.sin(p.wobble) * 0.3) * dt;
     p.y += p.vy * dt;
-    p.size += 0.35 * dt;
+    p.size += 0.25 * dt;
     p.life -= p.decay * dt;
     if (p.life <= 0 || p.y + p.size < -50) { bgParticles.splice(i, 1); continue; }
 
-    const alpha = p.life * 0.22;
+    /* 0 → 1 → 0: doğarken yumuşakça belirir, ölürken yumuşakça kaybolur */
+    const fade = Math.sin(Math.PI * Math.min(Math.max(1 - p.life, 0), 1));
+    const alpha = fade * 0.30;
     const gradient = bgSteamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
     gradient.addColorStop(0.4, `rgba(${color}, ${alpha * 0.55})`);
