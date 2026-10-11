@@ -442,7 +442,8 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* Geniş ekranda "Neden ...?" maddeleri 1800px boyunca tek sütun hâlinde
-   uzamasın: kart gibi üç kolona yayılsınlar, başlık üstte tek satır kalsın. */
+   uzamasın: kart gibi üç kolona yayılsınlar. Başlık, buton ve görsel gibi
+   feature-item olmayan öğeler tüm satırı kaplar. */
 @media (min-width: 1024px) {
   .tikla-section:has(> .feature-item) {
     display: grid;
@@ -450,10 +451,10 @@ img { max-width: 100%; height: auto; display: block; }
     gap: 16px;
     align-items: start;
   }
-  .tikla-section:has(> .feature-item) > h2 {
+  .tikla-section:has(> .feature-item) > :not(.feature-item) {
     grid-column: 1 / -1;
-    margin-bottom: 0 !important;
   }
+  .tikla-section:has(> .feature-item) > h2 { margin-bottom: 0 !important; }
   .tikla-section:has(> .feature-item) > .feature-item { margin-bottom: 0; }
 }
 
