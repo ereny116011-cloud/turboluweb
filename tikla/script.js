@@ -8,13 +8,43 @@ function updateThemeIcon() {
 }
 
 // ========== BUHAR ==========
+// İki kaynak: (1) ekranın her yerinde kendiliğinden doğan ortam bulutları,
+// (2) fare izi. Ortam bulutları sayesinde fare dururken de arka plan canlı kalır.
 var MAX_PARTICLES = 60;
-var MAX_PARTICLES_POOL = 80;
+var MAX_TRAIL = 24;
+var AMBIENT_INTERVAL = 420;
+var AMBIENT_SEED = 14;
+var TARGET_FPS = 30;
 var steamParticles = [];
 var steamCanvas, steamCtx;
 var steamRAF = null;
 var steamLastTime = 0;
 var steamLastMouseTime = 0;
+var steamLastAmbient = 0;
+var steamLastFrame = 0;
+var steamReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Ekranın rastgele bir yerinde doğan, çok yavaş süzülen ortam bulutu.
+// seedLife verilirse bulut ömrünün ortasından başlar (açılış dağılımı için).
+function spawnAmbientSteam(seedLife) {
+  steamParticles.push({
+    x: Math.random() * window.innerWidth,
+    y: window.innerHeight * (0.15 + Math.random() * 0.95),
+    vx: (Math.random() - 0.5) * 0.16,
+    vy: -0.08 - Math.random() * 0.16,
+    size: 26 + Math.random() * 46,
+    grow: 0.05 + Math.random() * 0.05,
+    sway: 6 + Math.random() * 16,
+    phase: Math.random() * Math.PI * 2,
+    ambient: true,
+    life: seedLife === undefined ? 1 : seedLife,
+    decay: 0.0012 + Math.random() * 0.0013
+  });
+}
+
+function seedAmbientSteam() {
+  for (var i = 0; i < AMBIENT_SEED; i++) spawnAmbientSteam(Math.random());
+}
 
 function initSteam() {
   steamCanvas = document.getElementById('steamCanvas');
@@ -27,26 +57,38 @@ function initSteam() {
     var now = performance.now();
     if (now - steamLastMouseTime < 16) return;
     steamLastMouseTime = now;
-    if (steamParticles.length >= MAX_PARTICLES_POOL) steamParticles.shift();
+
+    // Fare izi ayrı bir havuzda tutulur; ortam bulutlarını ezmesin
+    var trailCount = 0;
+    for (var k = 0; k < steamParticles.length; k++) {
+      if (!steamParticles[k].ambient) trailCount++;
+    }
+    if (trailCount >= MAX_TRAIL) {
+      for (var j = 0; j < steamParticles.length; j++) {
+        if (!steamParticles[j].ambient) { steamParticles.splice(j, 1); break; }
+      }
+    }
+
     steamParticles.push({
       x: e.clientX + (Math.random() - 0.5) * 10,
       y: e.clientY + (Math.random() - 0.5) * 10,
       vx: (Math.random() - 0.5) * 0.5,
       vy: -0.4 - Math.random() * 0.5,
       size: 5 + Math.random() * 9,
+      grow: 0.5,
+      sway: 0,
+      phase: 0,
+      ambient: false,
       life: 0.9,
       decay: 0.024 + Math.random() * 0.014
     });
-    if (steamParticles.length > MAX_PARTICLES) {
-      steamParticles.splice(0, steamParticles.length - MAX_PARTICLES);
-    }
     startSteamLoop();
   }, { passive: true });
 
   document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
       if (steamRAF) { cancelAnimationFrame(steamRAF); steamRAF = null; }
-    } else if (steamParticles.length > 0) {
+    } else {
       startSteamLoop();
     }
   });
@@ -56,10 +98,16 @@ function initSteam() {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(resizeSteamCanvas, 150);
   }, { passive: true });
+
+  // Hareket azaltma tercihi olmayanlarda arka plan kendiliğinden canlansın
+  if (!steamReduced) {
+    seedAmbientSteam();
+    startSteamLoop();
+  }
 }
 
 function startSteamLoop() {
-  if (steamRAF || document.hidden) return;
+  if (steamRAF || document.hidden || steamReduced) return;
   steamLastTime = performance.now();
   steamRAF = requestAnimationFrame(animateSteam);
 }
@@ -77,21 +125,36 @@ function resizeSteamCanvas() {
 
 function animateSteam(now) {
   if (!steamCtx) { steamRAF = null; return; }
+  steamRAF = requestAnimationFrame(animateSteam);
+
+  // ~30 fps: yavaş arka plan animasyonu için yeterli, GPU'yu yormaz
+  if (now - steamLastFrame < 1000 / TARGET_FPS) return;
+
+  // dt atlanan kareleri de sayar; animasyon gerçek zamana bağlı kalır
   var dt = Math.min((now - steamLastTime) / 16.67, 3);
   steamLastTime = now;
+  steamLastFrame = now;
+
+  if (now - steamLastAmbient > AMBIENT_INTERVAL && steamParticles.length < MAX_PARTICLES) {
+    steamLastAmbient = now;
+    spawnAmbientSteam();
+  }
 
   steamCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
   var isLight = document.documentElement.classList.contains('light');
   var color = isLight ? '22, 163, 74' : '34, 197, 94';
+  var swayT = now * 0.0005;
 
   for (var i = steamParticles.length - 1; i >= 0; i--) {
     var p = steamParticles[i];
-    p.x += p.vx * dt;
+    var swayX = p.sway ? Math.sin(swayT + p.phase) * p.sway * 0.02 : 0;
+    p.x += (p.vx + swayX) * dt;
     p.y += p.vy * dt;
-    p.size += 0.5 * dt;
+    p.size += p.grow * dt;
     p.life -= p.decay * dt;
-    if (p.life <= 0) { steamParticles.splice(i, 1); continue; }
-    var alpha = p.life * 0.28;
+    if (p.life <= 0 || p.y + p.size < -80) { steamParticles.splice(i, 1); continue; }
+
+    var alpha = p.ambient ? p.life * 0.18 : p.life * 0.28;
     var gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, 'rgba(' + color + ', ' + alpha + ')');
     gradient.addColorStop(0.5, 'rgba(' + color + ', ' + (alpha * 0.4) + ')');
@@ -101,9 +164,6 @@ function animateSteam(now) {
     steamCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     steamCtx.fill();
   }
-
-  if (steamParticles.length === 0) { steamRAF = null; return; }
-  steamRAF = requestAnimationFrame(animateSteam);
 }
 
 // ========== GALERİ (resimler: sss/1.png, sss/2.png, ...) ==========

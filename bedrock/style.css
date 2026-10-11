@@ -14,6 +14,7 @@
   /* Liquid glass yüzeyi */
   --glass-base: rgba(12,14,17,0.55);
   --glass-edge: rgba(255,255,255,0.16);
+  --glass-card-base: rgba(12,14,17,0.34);
   --danger: #ef4444;
 }
 
@@ -31,6 +32,7 @@
   --accent-glow: rgba(22,163,74,0.3);
   --glass-base: rgba(255,255,255,0.58);
   --glass-edge: rgba(255,255,255,0.85);
+  --glass-card-base: rgba(255,255,255,0.55);
 }
 
 /* ========== GENEL ========== */
@@ -321,21 +323,62 @@ img { max-width: 100%; height: auto; display: block; }
   animation: fadeInUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-/* ========== GLASS CARD ========== */
+/* ========== GLASS CARD — LIQUID GLASS ========== */
 .glass-card {
-  background: var(--surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg,
+      rgba(255,255,255,0.10) 0%,
+      rgba(255,255,255,0.035) 38%,
+      rgba(255,255,255,0.012) 62%,
+      rgba(255,255,255,0.07) 100%),
+    var(--glass-card-base);
+  backdrop-filter: blur(22px) saturate(175%) brightness(1.05);
+  -webkit-backdrop-filter: blur(22px) saturate(175%) brightness(1.05);
+  border: 1px solid var(--glass-edge);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 20px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow:
+    0 18px 44px rgba(0,0,0,0.38),
+    0 3px 10px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    inset 0 -1px 1px rgba(0,0,0,0.18);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+/* Camın üstündeki ışık yansıması + sağ alttan tema renginde parıltı */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 150% at 12% -30%, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0) 55%),
+    radial-gradient(95% 125% at 96% 122%, var(--accent-glow) 0%, rgba(0,0,0,0) 60%);
 }
 
 .glass-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+  border-color: rgba(255,255,255,0.22);
+  box-shadow:
+    0 24px 56px rgba(0,0,0,0.46),
+    0 4px 12px rgba(0,0,0,0.26),
+    inset 0 1px 0 rgba(255,255,255,0.34),
+    inset 0 -1px 1px rgba(0,0,0,0.20);
+}
+
+/* Açık temada cam beyazlar, gölgeler yumuşar */
+.light .glass-card {
+  border-color: rgba(255,255,255,0.9);
+  box-shadow:
+    0 16px 40px rgba(15,23,42,0.13),
+    0 2px 8px rgba(15,23,42,0.07),
+    inset 0 1px 0 rgba(255,255,255,0.98),
+    inset 0 -1px 1px rgba(15,23,42,0.06);
 }
 
 .glass-card h1,

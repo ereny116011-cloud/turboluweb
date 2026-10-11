@@ -15,6 +15,9 @@
   --accent-soft: rgba(34,197,94,0.12);
   --inset-top: rgba(255,255,255,0.14);
   --inset-bottom: rgba(0,0,0,0.25);
+  /* Island menü için liquid glass yüzeyi */
+  --glass-base: rgba(12,14,17,0.55);
+  --glass-edge: rgba(255,255,255,0.16);
 }
 
 .light {
@@ -33,6 +36,8 @@
   --accent-soft: rgba(22,163,74,0.1);
   --inset-top: rgba(255,255,255,0.9);
   --inset-bottom: rgba(0,0,0,0.05);
+  --glass-base: rgba(255,255,255,0.58);
+  --glass-edge: rgba(255,255,255,0.85);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,24 +83,58 @@ img { max-width: 100%; height: auto; display: block; }
   transform: translateZ(0);
 }
 
-/* ========== NAVBAR ========== */
+/* ========== ISLAND NAVBAR — LIQUID GLASS ==========
+   Diğer sayfalarla aynı dil: kenarlardan ayrık, hap biçimli yüzen bir ada. */
 .navbar {
+  position: sticky;
+  top: 14px;
+  z-index: 100;
+  margin: 14px auto 0;
+  width: min(1800px, calc(100% - 24px));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid var(--glass-border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  flex-wrap: wrap;
   gap: 10px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-edge);
+  overflow: hidden;
+  background:
+    linear-gradient(135deg,
+      rgba(255,255,255,0.17) 0%,
+      rgba(255,255,255,0.055) 33%,
+      rgba(255,255,255,0.015) 57%,
+      rgba(255,255,255,0.12) 100%),
+    var(--glass-base);
+  backdrop-filter: blur(26px) saturate(190%) brightness(1.08);
+  -webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.08);
   box-shadow:
-    0 4px 20px rgba(0,0,0,0.15),
-    inset 0 1px 0 var(--inset-top);
+    0 14px 40px rgba(0,0,0,0.45),
+    0 3px 10px rgba(0,0,0,0.30),
+    inset 0 1px 0 rgba(255,255,255,0.34),
+    inset 0 -1px 1px rgba(0,0,0,0.25);
+}
+
+/* Camın üstündeki ışık yansıması ve sağ alttaki yeşil parıltı */
+.navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 160% at 14% -40%, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0) 58%),
+    radial-gradient(85% 130% at 92% 135%, var(--accent-glow) 0%, rgba(0,0,0,0) 62%);
+}
+
+/* Açık temada cam beyazlar, gölgeler yumuşar */
+.light .navbar {
+  box-shadow:
+    0 12px 32px rgba(15,23,42,0.14),
+    0 2px 8px rgba(15,23,42,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.95),
+    inset 0 -1px 1px rgba(15,23,42,0.05);
 }
 
 .logo {
@@ -114,8 +153,20 @@ img { max-width: 100%; height: auto; display: block; }
 .nav-links {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  /* Sığmadığında ortalamak yerine baştan hizalar; ilk link kırpılmaz */
+  justify-content: center;
+  justify-content: safe center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 2px 0;
 }
+
+.nav-links::-webkit-scrollbar { display: none; }
 
 .nav-links a {
   text-decoration: none;
@@ -140,7 +191,8 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* ========== CONTAINER ========== */
 .container {
-  max-width: 1100px;
+  /* Ada menü en fazla 1800px; 20px iç boşlukla tam hizalanıyor */
+  max-width: 1840px;
   margin: 0 auto;
   padding: 30px 20px 80px;
 }
@@ -271,11 +323,13 @@ img { max-width: 100%; height: auto; display: block; }
 .quick-card::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 40%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  inset: 0;
+  border-radius: inherit;
   pointer-events: none;
   z-index: -1;
+  background:
+    radial-gradient(120% 150% at 14% -30%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 55%),
+    radial-gradient(95% 125% at 96% 122%, var(--accent-glow) 0%, rgba(0,0,0,0) 60%);
 }
 
 .quick-card:hover {
@@ -343,11 +397,13 @@ img { max-width: 100%; height: auto; display: block; }
 .feature-item::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 40%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  inset: 0;
+  border-radius: inherit;
   pointer-events: none;
   z-index: -1;
+  background:
+    radial-gradient(120% 150% at 12% -30%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 55%),
+    radial-gradient(95% 125% at 96% 122%, var(--accent-glow) 0%, rgba(0,0,0,0) 60%);
 }
 
 .feature-item:hover {
@@ -383,6 +439,22 @@ img { max-width: 100%; height: auto; display: block; }
   color: var(--text-muted);
   font-size: 0.92rem;
   line-height: 1.6;
+}
+
+/* Geniş ekranda "Neden ...?" maddeleri 1800px boyunca tek sütun hâlinde
+   uzamasın: kart gibi üç kolona yayılsınlar, başlık üstte tek satır kalsın. */
+@media (min-width: 1024px) {
+  .tikla-section:has(> .feature-item) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .tikla-section:has(> .feature-item) > h2 {
+    grid-column: 1 / -1;
+    margin-bottom: 0 !important;
+  }
+  .tikla-section:has(> .feature-item) > .feature-item { margin-bottom: 0; }
 }
 
 /* ========== GALERİ ========== */
