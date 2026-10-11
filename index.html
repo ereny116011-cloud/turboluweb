@@ -13,12 +13,16 @@
     <meta property="og:description" content="Minecraft Java ve Bedrock sunucuları ile mobil oyunlar geliştiren bağımsız stüdyo.">
     <meta property="og:url" content="https://turboluweb.wasmer.app/">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://turboluweb.wasmer.app/mc/crpr.png">
+    <meta property="og:image" content="https://turboluweb.wasmer.app/mc/crpr.webp">
     
-    <link rel="icon" href="mc/crpr.png" type="image/png">
+    <link rel="icon" href="mc/crpr.webp" type="image/webp">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="mc/crpr.webp">
+    <link rel="preload" as="image" href="tikla/tikla.webp">
     
     <link rel="stylesheet" href="fa/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -56,7 +60,7 @@
     <div class="portal-container">
         <header class="portal-header">
             <div class="portal-logo" onclick="window.location.href='/'">
-                <img src="mc/crpr.png" alt="Turbolu Studios" class="logo-img" width="52" height="52" fetchpriority="high" decoding="async">
+                <img src="mc/crpr.webp" alt="Turbolu Studios" class="logo-img" width="52" height="52" fetchpriority="high" decoding="async">
                 <span class="brand-text">Turbolu Studios</span>
             </div>
             <p>Projelerimize göz atın!</p>
@@ -65,7 +69,7 @@
         <div class="project-grid">
             <a href="/mc/" class="project-card">
                 <div class="project-icon">
-                    <img src="mc/crpr.png" alt="TurboluMC" class="project-icon-img" width="90" height="90" loading="eager" decoding="async">
+                    <img src="mc/crpr.webp" alt="TurboluMC" class="project-icon-img" width="90" height="90" loading="eager" fetchpriority="high" decoding="async">
                 </div>
                 <div class="project-info">
                     <h2>TurboluMC</h2>
@@ -76,7 +80,7 @@
 
             <a href="/tikla/" class="project-card">
                 <div class="project-icon">
-                    <img src="tikla/tikla.png" alt="Tıkla!" class="project-icon-img" width="90" height="90" loading="eager" decoding="async">
+                    <img src="tikla/tikla.webp" alt="Tıkla!" class="project-icon-img" width="90" height="90" loading="eager" fetchpriority="high" decoding="async">
                 </div>
                 <div class="project-info">
                     <h2>Turbolu Tıkla!</h2>
@@ -87,7 +91,7 @@
 
             <a href="/bedrock/" class="project-card">
                 <div class="project-icon">
-                    <img src="mc/crpr.png" alt="Turbolu Bedrock" class="project-icon-img" width="90" height="90" loading="eager" decoding="async">
+                    <img src="mc/crpr.webp" alt="Turbolu Bedrock" class="project-icon-img" width="90" height="90" loading="eager" fetchpriority="high" decoding="async">
                 </div>
                 <div class="project-info">
                     <h2>Turbolu Bedrock</h2>

@@ -10,10 +10,13 @@
     
     <meta property="og:site_name" content="Turbolu Studios">
     
-    <link rel="icon" href="tikla.png" type="image/png">
+    <link rel="icon" href="tikla.webp" type="image/webp">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="tikla.webp">
     
     <link rel="stylesheet" href="../fa/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -29,7 +32,7 @@
 <body>
     <nav class="navbar">
         <a href="/" class="logo">
-            <img src="tikla.png" alt="Turbolu Tıkla" width="36" height="36" style="border-radius:8px;">
+            <img src="tikla.webp" alt="Turbolu Tıkla" width="36" height="36" style="border-radius:8px;" loading="eager" fetchpriority="high" decoding="async">
             Turbolu Tıkla
         </a>
         <div class="nav-links">
