@@ -4,42 +4,428 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Şifre Sıfırla - TurboluMC</title>
+    <meta name="description" content="TurboluMC hesabın için yeni parola belirle.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="canonical" href="https://turboluweb.wasmer.app/mc/reset.html">
+    <link rel="icon" href="crpr.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../fa/css/fontawesome.min.css">
+    <link rel="stylesheet" href="../fa/css/solid.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme');
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            const isLight = saved ? saved === 'light' : prefersLight;
+            if (isLight) document.documentElement.classList.add('light');
+        })();
+    </script>
+
+    <style>
+        .reset-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 16px;
+        }
+
+        .reset-card {
+            width: 100%;
+            max-width: 430px;
+            margin: 0;
+            padding: 32px 28px 28px;
+            animation: resetIn 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        @keyframes resetIn {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .reset-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .reset-brand img {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            box-shadow: 0 0 0 1px var(--glass-edge), 0 8px 22px rgba(0,0,0,0.35);
+        }
+
+        .reset-icon {
+            width: 62px;
+            height: 62px;
+            margin: 22px auto 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            color: var(--accent);
+            background: radial-gradient(circle at 50% 30%, var(--accent-glow) 0%, transparent 72%);
+            border: 1px solid var(--glass-edge);
+        }
+
+        .reset-card h2 {
+            text-align: center;
+            font-size: 1.35rem;
+            margin: 16px 0 6px;
+            color: var(--text);
+        }
+
+        .reset-sub {
+            text-align: center;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+
+        .reset-field { margin-bottom: 14px; }
+
+        .reset-field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        /* Göster/gizle butonu input'un içinde dursun */
+        .pw-wrap { position: relative; }
+
+        .pw-wrap input { margin: 0 !important; padding-right: 48px !important; }
+
+        /* .glass-card button kuralını ezmek için !important şart */
+        .glass-card .pw-toggle {
+            position: absolute !important;
+            top: 50% !important;
+            right: 8px !important;
+            transform: translateY(-50%) !important;
+            width: 34px !important;
+            height: 34px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: none !important;
+            border-radius: 9px !important;
+            background: transparent !important;
+            color: var(--text-muted) !important;
+            font-size: 0.85rem !important;
+            cursor: pointer !important;
+            box-shadow: none !important;
+            transition: color 0.15s, background 0.15s !important;
+        }
+
+        .glass-card .pw-toggle:hover {
+            background: var(--surface-soft) !important;
+            color: var(--accent) !important;
+            transform: translateY(-50%) !important;
+        }
+
+        /* Parola gücü göstergesi */
+        .pw-meter {
+            height: 5px;
+            border-radius: 99px;
+            background: var(--surface-soft);
+            overflow: hidden;
+            margin: 6px 0 6px;
+        }
+
+        .pw-meter span {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 99px;
+            background: var(--danger);
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        .pw-hint {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            min-height: 1.2em;
+        }
+
+        .glass-card .reset-submit {
+            width: 100% !important;
+            margin-top: 4px !important;
+            padding: 14px 20px !important;
+            font-size: 0.95rem !important;
+            border-radius: 12px !important;
+        }
+
+        .glass-card .reset-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .reset-status {
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 13px 15px;
+            border-radius: 11px;
+            font-size: 0.84rem;
+            line-height: 1.55;
+            margin-bottom: 16px;
+        }
+
+        .reset-status.show { display: flex; }
+
+        .reset-status.err {
+            background: rgba(239,68,68,0.10);
+            border-left: 3px solid var(--danger);
+            color: #fca5a5;
+        }
+
+        .reset-status.ok {
+            background: rgba(34,197,94,0.10);
+            border-left: 3px solid var(--accent);
+            color: #86efac;
+        }
+
+        .light .reset-status.err { color: #b91c1c; }
+        .light .reset-status.ok  { color: #15803d; }
+
+        .reset-alt {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .reset-alt a { color: var(--accent); text-decoration: none; }
+        .reset-alt a:hover { text-decoration: underline; }
+
+        /* Hata / başarı ekranı */
+        .state-icon {
+            width: 68px;
+            height: 68px;
+            margin: 6px auto 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.7rem;
+            border: 1px solid var(--glass-edge);
+        }
+
+        .state-icon.bad  { color: var(--danger); background: radial-gradient(circle at 50% 30%, rgba(239,68,68,0.35) 0%, transparent 72%); }
+        .state-icon.good { color: var(--accent); background: radial-gradient(circle at 50% 30%, var(--accent-glow) 0%, transparent 72%); }
+
+        @media (max-width: 480px) {
+            .reset-card { padding: 26px 20px 22px; }
+        }
+    </style>
 </head>
 <body>
     <div class="bg-image"></div>
-    <div class="glass-card" style="max-width:400px; margin:100px auto; padding:2rem;">
-        <h2 style="text-align:center; color: var(--accent);">Yeni Parola Belirle</h2>
-        <p style="text-align:center; margin-bottom:1rem;">Yeni şifrenizi girin</p>
-        <input id="newPassword" type="password" placeholder="Yeni parola"><br>
-        <input id="confirmPassword" type="password" placeholder="Yeni parola (tekrar)"><br>
-        <button id="resetBtn" class="btn-green" style="width:100%;">Şifreyi Güncelle</button>
-    </div>
+
+    <main class="reset-wrap">
+        <div class="glass-card reset-card" id="card">
+            <div class="reset-brand">
+                <img src="crpr.png" alt="TurboluMC" width="38" height="38" decoding="async">
+                TurboluMC
+            </div>
+
+            <div class="reset-icon"><i class="fa-solid fa-lock" aria-hidden="true"></i></div>
+            <h2>Yeni Parola Belirle</h2>
+            <p class="reset-sub">Hesabın için yeni bir parola seç, sonra giriş yapabilirsin.</p>
+
+            <div class="reset-status" id="status" role="status" aria-live="polite"></div>
+
+            <form id="resetForm" novalidate>
+                <div class="reset-field">
+                    <label for="newPassword">Yeni parola</label>
+                    <div class="pw-wrap">
+                        <input id="newPassword" type="password" placeholder="En az 6 karakter"
+                               autocomplete="new-password" required>
+                        <button type="button" class="pw-toggle" data-target="newPassword" aria-label="Parolayı göster">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="reset-field">
+                    <label for="confirmPassword">Yeni parola (tekrar)</label>
+                    <div class="pw-wrap">
+                        <input id="confirmPassword" type="password" placeholder="Parolayı tekrarla"
+                               autocomplete="new-password" required>
+                        <button type="button" class="pw-toggle" data-target="confirmPassword" aria-label="Parolayı göster">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pw-meter" aria-hidden="true"><span id="pwBar"></span></div>
+                <p class="pw-hint" id="pwHint">Parola gücü: —</p>
+
+                <button type="submit" id="resetBtn" class="btn-green reset-submit">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> Şifreyi Güncelle
+                </button>
+            </form>
+
+            <p class="reset-alt"><a href="giris.html">← Girişe dön</a></p>
+        </div>
+    </main>
 
     <script>
+        const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
         const token = new URLSearchParams(window.location.search).get('token');
-        if (!token) alert('Geçersiz bağlantı');
 
-        document.getElementById('resetBtn').addEventListener('click', async () => {
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            if (newPassword !== confirmPassword) return alert('Parolalar uyuşmuyor');
-            if (newPassword.length < 6) return alert('Parola en az 6 karakter olmalı');
+        const card = document.getElementById('card');
+        const form = document.getElementById('resetForm');
+        const statusBox = document.getElementById('status');
+        const newInput = document.getElementById('newPassword');
+        const confirmInput = document.getElementById('confirmPassword');
+        const bar = document.getElementById('pwBar');
+        const hint = document.getElementById('pwHint');
+        const submitBtn = document.getElementById('resetBtn');
 
-            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/reset-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, newPassword })
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('Şifre başarıyla sıfırlandı. Giriş yapabilirsiniz.');
-                window.location.href = 'index.html';
-            } else {
-                alert(data.error || 'Bir hata oluştu');
+        function showStatus(message, type) {
+            statusBox.className = 'reset-status show ' + type;
+            statusBox.innerHTML = '<i class="fa-solid ' +
+                (type === 'err' ? 'fa-triangle-exclamation' : 'fa-circle-check') +
+                '" aria-hidden="true"></i><span>' + message + '</span>';
+        }
+
+        /* ---------- Bağlantı geçersizse: uyarı yerine düzgün bir ekran ---------- */
+        if (!token) {
+            card.innerHTML = `
+                <div class="reset-brand">
+                    <img src="crpr.png" alt="TurboluMC" width="38" height="38" decoding="async">
+                    TurboluMC
+                </div>
+                <div class="state-icon bad"><i class="fa-solid fa-link-slash" aria-hidden="true"></i></div>
+                <h2>Bağlantı Geçersiz</h2>
+                <p class="reset-sub">
+                    Bu parola sıfırlama bağlantısı eksik ya da bozulmuş görünüyor.
+                    Yeni bir bağlantı isteyebilirsin.
+                </p>
+                <p class="reset-alt" style="margin-top:0;">
+                    <a href="../sifremi-unuttum.html">Yeni bağlantı iste</a> &nbsp;·&nbsp;
+                    <a href="giris.html">Girişe dön</a>
+                </p>`;
+        } else {
+            /* ---------- Parola gücü ---------- */
+            const LEVELS = [
+                { label: 'Çok zayıf', color: 'var(--danger)' },
+                { label: 'Zayıf',     color: 'var(--danger)' },
+                { label: 'Orta',      color: '#f59e0b' },
+                { label: 'İyi',       color: '#a3e635' },
+                { label: 'Güçlü',     color: 'var(--accent)' }
+            ];
+
+            function scorePassword(pw) {
+                let score = 0;
+                if (pw.length >= 6) score++;
+                if (pw.length >= 10) score++;
+                if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+                if (/\d/.test(pw)) score++;
+                if (/[^A-Za-z0-9]/.test(pw)) score++;
+                return Math.min(score, 4);
             }
-        });
+
+            newInput.addEventListener('input', () => {
+                const pw = newInput.value;
+                if (!pw) {
+                    bar.style.width = '0';
+                    hint.textContent = 'Parola gücü: —';
+                    return;
+                }
+                const score = scorePassword(pw);
+                const level = LEVELS[score === 0 ? 0 : score];
+                bar.style.width = ((score + 1) / 5 * 100) + '%';
+                bar.style.background = level.color;
+                hint.textContent = 'Parola gücü: ' + level.label;
+            });
+
+            /* ---------- Göster / gizle ---------- */
+            document.querySelectorAll('.pw-toggle').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const input = document.getElementById(btn.dataset.target);
+                    const shown = input.type === 'text';
+                    input.type = shown ? 'password' : 'text';
+                    btn.innerHTML = '<i class="fa-solid ' + (shown ? 'fa-eye' : 'fa-eye-slash') + '" aria-hidden="true"></i>';
+                    btn.setAttribute('aria-label', shown ? 'Parolayı göster' : 'Parolayı gizle');
+                    input.focus();
+                });
+            });
+
+            /* ---------- Gönder ---------- */
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const newPassword = newInput.value;
+                const confirmPassword = confirmInput.value;
+
+                if (newPassword.length < 6) {
+                    return showStatus('Parola en az 6 karakter olmalı.', 'err');
+                }
+                if (newPassword !== confirmPassword) {
+                    return showStatus('Girdiğin parolalar birbiriyle uyuşmuyor.', 'err');
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Güncelleniyor...';
+                statusBox.className = 'reset-status';
+
+                try {
+                    const res = await fetch(API + '/api/reset-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token, newPassword })
+                    });
+                    const data = await res.json();
+
+                    if (!data.success) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Şifreyi Güncelle';
+                        return showStatus(data.error || 'Parola güncellenemedi. Bağlantının süresi dolmuş olabilir.', 'err');
+                    }
+
+                    card.innerHTML = `
+                        <div class="reset-brand">
+                            <img src="crpr.png" alt="TurboluMC" width="38" height="38" decoding="async">
+                            TurboluMC
+                        </div>
+                        <div class="state-icon good"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
+                        <h2>Parolan Güncellendi</h2>
+                        <p class="reset-sub">
+                            Yeni parolan kaydedildi. Artık bu parolayla giriş yapabilirsin.
+                        </p>
+                        <p style="text-align:center; margin:0;">
+                            <a href="giris.html" class="btn-green"
+                               style="display:inline-block; padding:13px 34px; border-radius:12px; color:white; text-decoration:none; font-weight:600; font-size:0.92rem;">
+                                Giriş Yap
+                            </a>
+                        </p>`;
+                } catch (err) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Şifreyi Güncelle';
+                    showStatus('Sunucuya ulaşılamadı. İnternet bağlantını kontrol edip tekrar dene.', 'err');
+                }
+            });
+        }
     </script>
 </body>
 </html>
