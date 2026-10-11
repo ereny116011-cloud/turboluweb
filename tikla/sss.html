@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbolu Tıkla! - SSS (Sıkça Sorulan Sorular)</title>
     <meta name="description" content="Turbolu Tıkla! hakkında sıkça sorulan sorular ve cevapları.">
     
@@ -44,7 +44,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="tikla-hero">
             <h1><span class="emoji">❓</span> Sıkça Sorulan Sorular</h1>
             <p>Aklına takılan soruların cevapları burada</p>
@@ -52,35 +52,35 @@
 
         <section class="tikla-section">
             <div class="faq-item">
-                <div class="faq-question">Oyun ücretsiz mi? <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="faq-question">Oyun ücretsiz mi? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></div>
                 <div class="faq-answer"><p>Evet, Turbolu Tıkla! tamamen ücretsizdir. İçerisinde isteğe bağlı reklamlar bulunur.</p></div>
             </div>
             <div class="faq-item">
-                <div class="faq-question">Hangi cihazlarda çalışır? <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="faq-question">Hangi cihazlarda çalışır? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></div>
                 <div class="faq-answer"><p>Android 5.0 ve üzeri tüm cihazlarda sorunsuz çalışır.</p></div>
             </div>
             <div class="faq-item">
-                <div class="faq-question">İnternet bağlantısı gerekli mi? <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="faq-question">İnternet bağlantısı gerekli mi? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></div>
                 <div class="faq-answer"><p>Hayır, oyunu çevrimdışı oynayabilirsin. Sadece skor tablosu için internet gerekir.</p></div>
             </div>
             <div class="faq-item">
-                <div class="faq-question">İlerlemem kaydediliyor mu? <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="faq-question">İlerlemem kaydediliyor mu? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></div>
                 <div class="faq-answer"><p>Evet, ilerlemen otomatik olarak buluta kaydedilir. Farklı cihazdan bile devam edebilirsin.</p></div>
             </div>
             <div class="faq-item">
-                <div class="faq-question">Yeni sürümü nasıl indiririm? <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="faq-question">Yeni sürümü nasıl indiririm? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></div>
                 <div class="faq-answer"><p>Yeni sürümler sitemizin ana sayfasındaki <strong>İndir</strong> butonundan paylaşılır.</p></div>
             </div>
             <div class="faq-item">
-                <div class="faq-question">Şikayet/öneri nasıl iletebilirim? <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="faq-question">Şikayet/öneri nasıl iletebilirim? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></div>
                 <div class="faq-answer"><p>İletişim bölümünden e-posta ile bize ulaşabilirsin. Tüm geri bildirimler değerlendirilir.</p></div>
             </div>
         </section>
-    </div>
+    </main>
 
-    <canvas id="steamCanvas"></canvas>
-    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir">
-        <i class="fa-solid fa-moon"></i>
+    <canvas id="steamCanvas" aria-hidden="true"></canvas>
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" aria-label="Tema Değiştir">
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
     </button>
     <script src="script.js"></script>
 </body>

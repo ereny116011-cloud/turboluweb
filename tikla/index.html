@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbolu Tıkla! - Mobil Tıklama Oyunu</title>
     <meta name="description" content="Turbolu Tıkla!, bağımlılık yapan mobil tıklama oyunu. Tıkla, yüksel, eğlen!">
     
@@ -49,12 +49,12 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="tikla-hero">
             <h1><span class="emoji">🎮</span> Turbolu Tıkla!</h1>
             <p>Bağımlılık yapan mobil tıklama oyunu. Tıkla, yüksel, eğlen!</p>
             <a href="/tikla/download" class="download-btn">
-                <i class="fa-solid fa-download"></i> İndir
+                <i class="fa-solid fa-download" aria-hidden="true"></i> İndir
             </a>
         </section>
 
@@ -62,22 +62,22 @@
             <h2 style="text-align:center; color: var(--accent-hi); margin-bottom: 1.5rem; font-weight: 600; letter-spacing: -0.02em;">Hızlı Erişim</h2>
             <div class="quick-grid">
                 <a href="ozellikler.html" class="quick-card">
-                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
                     <h3>Özellikler</h3>
                     <p>Oyunun sunduğu tüm özellikler</p>
                 </a>
                 <a href="ekran-goruntuleri.html" class="quick-card">
-                    <i class="fa-solid fa-image"></i>
+                    <i class="fa-solid fa-image" aria-hidden="true"></i>
                     <h3>Ekran Görüntüleri</h3>
                     <p>Oyun içi görüntüler</p>
                 </a>
                 <a href="sss.html" class="quick-card">
-                    <i class="fa-solid fa-circle-question"></i>
+                    <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
                     <h3>SSS</h3>
                     <p>Sıkça sorulan sorular</p>
                 </a>
                 <a href="virus-testi.html" class="quick-card">
-                    <i class="fa-solid fa-shield-halved"></i>
+                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
                     <h3>Virüs Testi</h3>
                     <p>Güvenlik raporu</p>
                 </a>
@@ -87,26 +87,26 @@
         <section class="tikla-section">
             <h2 style="text-align:center; color: var(--accent-hi); margin-bottom: 1.5rem; font-weight: 600; letter-spacing: -0.02em;">Neden Turbolu Tıkla?</h2>
             <div class="feature-item">
-                <i class="fa-solid fa-bolt"></i>
+                <i class="fa-solid fa-bolt" aria-hidden="true"></i>
                 <strong>Hızlı ve Akıcı</strong>
                 <p>Donma yok, lag yok. Sadece tıkla ve eğlen.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-mobile-screen"></i>
+                <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i>
                 <strong>Mobil Uyumlu</strong>
                 <p>Her ekran boyutuna uyum sağlar.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-gift"></i>
+                <i class="fa-solid fa-gift" aria-hidden="true"></i>
                 <strong>Bol Ödül</strong>
                 <p>Günlük ödüller ve kampanyalar.</p>
             </div>
         </section>
-    </div>
+    </main>
 
-    <canvas id="steamCanvas"></canvas>
-    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir">
-        <i class="fa-solid fa-moon"></i>
+    <canvas id="steamCanvas" aria-hidden="true"></canvas>
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" aria-label="Tema Değiştir">
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
     </button>
     <script src="script.js"></script>
 </body>

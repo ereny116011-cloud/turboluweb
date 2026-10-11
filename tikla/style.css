@@ -59,7 +59,6 @@ body {
 
 img { max-width: 100%; height: auto; display: block; }
 
-/* Emoji renk düzeltmesi — gradient-clip olan başlıklarda */
 .emoji {
   -webkit-text-fill-color: initial;
   -webkit-background-clip: initial;
@@ -79,7 +78,7 @@ img { max-width: 100%; height: auto; display: block; }
   transform: translateZ(0);
 }
 
-/* ========== NAVBAR — Liquid ========== */
+/* ========== NAVBAR ========== */
 .navbar {
   display: flex;
   align-items: center;
@@ -159,7 +158,6 @@ img { max-width: 100%; height: auto; display: block; }
   margin-bottom: 16px;
   color: var(--text);
   letter-spacing: -0.03em;
-  /* Emoji'nin gradient ile yeşil olmaması için emoji span kullanılır */
 }
 
 .tikla-hero h1 .emoji {
@@ -167,7 +165,6 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: 2.2rem;
   vertical-align: middle;
   margin: 0 4px;
-  /* Yeşile boyanmasını engelle */
   background: none !important;
   -webkit-text-fill-color: initial !important;
   color: initial;
@@ -182,7 +179,7 @@ img { max-width: 100%; height: auto; display: block; }
   line-height: 1.6;
 }
 
-/* ========== BUTONLAR — Liquid ========== */
+/* ========== BUTONLAR ========== */
 .download-btn,
 .virus-btn {
   display: inline-flex;
@@ -243,7 +240,7 @@ img { max-width: 100%; height: auto; display: block; }
   box-shadow: 0 15px 30px var(--accent-glow);
 }
 
-/* ========== QUICK CARDS — Liquid ========== */
+/* ========== QUICK CARDS ========== */
 .quick-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -324,7 +321,7 @@ img { max-width: 100%; height: auto; display: block; }
   line-height: 1.5;
 }
 
-/* ========== FEATURE ITEM — Liquid ========== */
+/* ========== FEATURE ITEM ========== */
 .feature-item {
   position: relative;
   padding: 22px;
@@ -436,7 +433,37 @@ img { max-width: 100%; height: auto; display: block; }
   box-shadow: 0 0 20px var(--accent-glow);
 }
 
-/* ========== SSS — Liquid ========== */
+.gallery-fallback {
+  text-align: center;
+  padding: 50px 20px;
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface-soft) 100%);
+  border: 1px dashed var(--glass-border-hi);
+  border-radius: 16px;
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.gallery-fallback .fallback-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 12px var(--accent-glow));
+  line-height: 1;
+}
+
+.gallery-fallback .fallback-title {
+  color: var(--accent-hi);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.gallery-fallback .fallback-sub {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* ========== SSS ========== */
 .faq-item {
   background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 100%);
   backdrop-filter: blur(20px) saturate(180%);
@@ -488,7 +515,7 @@ img { max-width: 100%; height: auto; display: block; }
     inset 0 1px 0 var(--glass-border-hi);
 }
 
-/* ========== TEMA BUTONU — Liquid ========== */
+/* ========== TEMA BUTONU ========== */
 .theme-toggle {
   position: fixed;
   bottom: 24px;
@@ -560,6 +587,7 @@ img { max-width: 100%; height: auto; display: block; }
   .tikla-hero h1 { font-size: 1.8rem; }
   .tikla-hero h1 .emoji { font-size: 1.6rem; }
   .theme-toggle { width: 50px; height: 50px; font-size: 1.1rem; }
+  .quick-grid { gap: 14px; }
 }
 
 /* ========== ERİŞİLEBİLİRLİK ========== */

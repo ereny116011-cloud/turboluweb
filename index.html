@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbolu Studios - Projelerimiz</title>
     <meta name="description" content="Turbolu Studios, Minecraft Java ve Bedrock sunucuları ile mobil oyunlar geliştiren bağımsız bir stüdyodur.">
     
@@ -54,10 +54,10 @@
     </script>
 </head>
 <body>
-    <canvas id="dotGridCanvas" class="bg-canvas"></canvas>
-    <canvas id="steamCanvas" class="steam-canvas"></canvas>
+    <canvas id="dotGridCanvas" class="bg-canvas" aria-hidden="true"></canvas>
+    <canvas id="steamCanvas" class="steam-canvas" aria-hidden="true"></canvas>
 
-    <div class="portal-container">
+    <main class="portal-container">
         <header class="portal-header">
             <div class="portal-logo" onclick="window.location.href='/'">
                 <img src="mc/crpr.webp" alt="Turbolu Studios" class="logo-img" width="52" height="52" fetchpriority="high" decoding="async">
@@ -101,7 +101,7 @@
             </a>
 
             <a href="#" class="project-card future" onclick="alert('Yakında!'); return false;">
-                <div class="project-icon"><i class="fa-solid fa-question"></i></div>
+                <div class="project-icon"><i class="fa-solid fa-question" aria-hidden="true"></i></div>
                 <div class="project-info">
                     <h2>Yeni Proje</h2>
                     <p>Çok yakında...</p>
@@ -111,32 +111,32 @@
         </div>
 
         <section class="info-section">
-            <h2><i class="fa-solid fa-circle-info"></i> Hakkımızda</h2>
+            <h2><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Hakkımızda</h2>
             <p>Turbolu Studios, yenilikçi ve eğlenceli dijital projeler geliştiren bağımsız bir stüdyodur. Minecraft sunucularından mobil oyunlara kadar geniş bir yelpazede çalışıyoruz. Amacımız, kullanıcılarımıza kaliteli, güvenli ve eğlenceli deneyimler sunmaktır.</p>
         </section>
 
         <section class="info-section">
-            <h2><i class="fa-solid fa-envelope"></i> İletişim</h2>
+            <h2><i class="fa-solid fa-envelope" aria-hidden="true"></i> İletişim</h2>
             <div class="contact-links">
-                <a href="mailto:ereny116011@gmail.com"><i class="fa-solid fa-envelope"></i> ereny116011@gmail.com</a>
-                <a href="mailto:yilmaz6011@hotmail.com"><i class="fa-solid fa-envelope"></i> yilmaz6011@hotmail.com</a>
+                <a href="mailto:ereny116011@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i> ereny116011@gmail.com</a>
+                <a href="mailto:yilmaz6011@hotmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i> yilmaz6011@hotmail.com</a>
             </div>
         </section>
 
         <footer class="portal-footer">
             <p>&copy; 2026 Turbolu Studios. Tüm Hakları Saklıdır.</p>
         </footer>
-    </div>
+    </main>
 
-    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir">
-        <i class="fa-solid fa-moon"></i>
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" aria-label="Tema Değiştir">
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
     </button>
 
     <script>
         const themeBtn = document.getElementById('themeToggle');
         function updateThemeIcon() {
             const isLight = document.documentElement.classList.contains('light');
-            themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+            themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' : '<i class="fa-solid fa-moon" aria-hidden="true"></i>';
         }
         themeBtn.addEventListener('click', () => {
             const isLight = document.documentElement.classList.toggle('light');

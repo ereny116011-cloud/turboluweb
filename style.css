@@ -42,16 +42,17 @@
 /* ========== GENEL ========== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
 
 body {
-  /* Modern sans — Pixelify SADECE marka yazısında */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
   font-weight: 400;
   color: var(--text);
   min-height: 100vh;
-  /* Boğukluğu gideren katmanlı arka plan */
   background:
     radial-gradient(ellipse 800px 600px at 10% 0%, var(--accent-soft) 0%, transparent 60%),
     radial-gradient(ellipse 600px 500px at 90% 100%, var(--accent-soft) 0%, transparent 60%),
@@ -65,7 +66,6 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Pixel Sans sadece marka yazıları için */
 .brand-text,
 .portal-logo {
   font-family: 'Pixelify Sans', 'Inter', sans-serif;
@@ -75,7 +75,6 @@ body {
 
 img { max-width: 100%; height: auto; display: block; }
 
-/* Emojileri normal renkte tut */
 .emoji,
 [class*="fa-"] {
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Font Awesome 6 Free', sans-serif;
@@ -131,7 +130,9 @@ img { max-width: 100%; height: auto; display: block; }
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   animation: brandShift 6s ease infinite;
+  will-change: background-position;
 }
 
 @keyframes brandShift {
@@ -140,10 +141,10 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .portal-logo:hover { transform: scale(1.04); }
+
 .logo-img {
   width: 56px; height: 56px;
   border-radius: 14px;
-  /* Logo drop-shadow ile ayrışsın */
   box-shadow: 0 8px 24px var(--accent-glow), inset 0 0 0 1px rgba(255,255,255,0.1);
 }
 
@@ -153,11 +154,10 @@ img { max-width: 100%; height: auto; display: block; }
   font-weight: 400;
 }
 
-/* ========== LIQUID GLASS TEMEL SINIF ========== */
+/* ========== LIQUID GLASS TEMEL ========== */
 .liquid {
   position: relative;
-  background:
-    linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 50%, var(--surface-soft) 100%);
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 50%, var(--surface-soft) 100%);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--glass-border);
@@ -169,34 +169,6 @@ img { max-width: 100%; height: auto; display: block; }
   isolation: isolate;
 }
 
-/* Üst highlight — cam parlaması */
-.liquid::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Köşe parlaklığı — liquid etkisi */
-.liquid::after {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 40%);
-  pointer-events: none;
-  z-index: -1;
-  transition: transform 0.6s ease;
-}
-
-.liquid:hover::after {
-  transform: translate(10%, 10%);
-}
-
 /* ========== PROJE GRID ========== */
 .project-grid {
   display: grid;
@@ -206,14 +178,12 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .project-card {
-  composes: liquid; /* referans amaçlı */
   position: relative;
   display: flex;
   align-items: center;
   gap: 20px;
   padding: 24px;
-  background:
-    linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 60%, var(--surface-soft) 100%);
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 60%, var(--surface-soft) 100%);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--glass-border);
@@ -327,8 +297,7 @@ img { max-width: 100%; height: auto; display: block; }
   position: relative;
   padding: 28px;
   margin-bottom: 22px;
-  background:
-    linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 60%, var(--surface-soft) 100%);
+  background: linear-gradient(135deg, var(--surface-hi) 0%, var(--surface) 60%, var(--surface-soft) 100%);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--glass-border);
@@ -422,15 +391,14 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: 0.85rem;
 }
 
-/* ========== TEMA BUTONU — Liquid ========== */
+/* ========== TEMA BUTONU ========== */
 .theme-toggle {
   position: fixed;
   bottom: 24px;
   right: 24px;
   width: 56px; height: 56px;
   border-radius: 50%;
-  background:
-    linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hi) 100%);
   color: white;
   border: 1px solid rgba(255,255,255,0.2);
   cursor: pointer;
@@ -482,8 +450,9 @@ img { max-width: 100%; height: auto; display: block; }
 .project-card:nth-child(1) { animation-delay: 0.05s; }
 .project-card:nth-child(2) { animation-delay: 0.1s; }
 .project-card:nth-child(3) { animation-delay: 0.15s; }
-.info-section:nth-of-type(1) { animation-delay: 0.2s; }
-.info-section:nth-of-type(2) { animation-delay: 0.25s; }
+.project-card:nth-child(4) { animation-delay: 0.2s; }
+.info-section:nth-of-type(1) { animation-delay: 0.25s; }
+.info-section:nth-of-type(2) { animation-delay: 0.3s; }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }

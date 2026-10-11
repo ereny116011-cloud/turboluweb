@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbolu Tıkla! - Ekran Görüntüleri</title>
     <meta name="description" content="Turbolu Tıkla! oyunundan ekran görüntüleri. Oyun içi görüntülere göz atın.">
     
@@ -45,7 +45,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="tikla-hero">
             <h1><span class="emoji">📸</span> Ekran Görüntüleri</h1>
             <p>Oyun içi görüntülere göz atın</p>
@@ -53,16 +53,16 @@
 
         <section class="tikla-section">
             <div class="gallery-container" id="gallery">
-                <img id="galleryImage" src="sss/1.png" alt="Ekran görüntüsü" loading="eager" fetchpriority="high" decoding="async">
+                <img id="galleryImage" src="sss/1.png" alt="Turbolu Tıkla ekran görüntüsü" loading="eager" fetchpriority="high" decoding="async">
                 <div id="galleryFallback" class="gallery-fallback" style="display:none;"></div>
                 <div class="gallery-thumbs" id="galleryThumbs"></div>
             </div>
         </section>
-    </div>
+    </main>
 
-    <canvas id="steamCanvas"></canvas>
-    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir">
-        <i class="fa-solid fa-moon"></i>
+    <canvas id="steamCanvas" aria-hidden="true"></canvas>
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" aria-label="Tema Değiştir">
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
     </button>
     <script src="script.js"></script>
 </body>

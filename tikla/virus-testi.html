@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbolu Tıkla! - Virüs Testi ve Güvenlik Raporu</title>
     <meta name="description" content="Turbolu Tıkla! güvenlik raporu. VirusTotal sonuçları, imzalı APK ve gizlilik bilgileri.">
     
@@ -44,7 +44,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="tikla-hero">
             <h1><span class="emoji">🛡️</span> Virüs Testi</h1>
             <p>Turbolu Tıkla! güvenlik raporu</p>
@@ -52,36 +52,36 @@
 
         <section class="tikla-section">
             <div class="feature-item">
-                <i class="fa-solid fa-shield-halved"></i>
+                <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
                 <strong>VirusTotal Sonucu</strong>
                 <p>0/72 antivirüs motoru tehdit buldu. %100 temiz.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-circle-check"></i>
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
                 <strong>İmzalı APK</strong>
                 <p>Uygulama dijital olarak imzalanmıştır.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-lock"></i>
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
                 <strong>Gizlilik</strong>
                 <p>Kişisel verileriniz şifrelenir, 3. taraflarla paylaşılmaz.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-user-shield"></i>
+                <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
                 <strong>İzinler</strong>
                 <p>Sadece gerekli izinler istenir, gereksiz izin yoktur.</p>
             </div>
             <div style="text-align:center; margin-top: 30px;">
-                <a href="https://www.virustotal.com/" target="_blank" class="virus-btn">
-                    <i class="fa-solid fa-external-link"></i> VirusTotal'de Kontrol Et
+                <a href="https://www.virustotal.com/" target="_blank" rel="noopener" class="virus-btn">
+                    <i class="fa-solid fa-external-link" aria-hidden="true"></i> VirusTotal'de Kontrol Et
                 </a>
             </div>
         </section>
-    </div>
+    </main>
 
-    <canvas id="steamCanvas"></canvas>
-    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir">
-        <i class="fa-solid fa-moon"></i>
+    <canvas id="steamCanvas" aria-hidden="true"></canvas>
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" aria-label="Tema Değiştir">
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
     </button>
     <script src="script.js"></script>
 </body>

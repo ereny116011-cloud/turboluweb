@@ -62,7 +62,6 @@ img { max-width: 100%; height: auto; display: block; }
   transform: translateZ(0);
 }
 
-/* ========== ARKA PLAN BLOBLAR ========== */
 .steam-container {
   position: fixed;
   top: 0; left: 0;
@@ -95,7 +94,6 @@ img { max-width: 100%; height: auto; display: block; }
   66% { transform: translate3d(-25px,25px,0) scale(0.95); }
 }
 
-/* ========== MOUSE BUHAR CANVAS ========== */
 .steam-canvas {
   position: fixed;
   top: 0; left: 0;
@@ -129,12 +127,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 .navbar::-webkit-scrollbar { display: none; }
 
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
+.nav-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
 .back-btn {
   background: var(--surface-soft);
@@ -303,7 +296,7 @@ img { max-width: 100%; height: auto; display: block; }
 .hero-card h1 { font-size: 1.8rem; margin-bottom: 1rem; }
 .hero-card p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1rem; }
 
-/* ========== ADMIN FORM MODERN ========== */
+/* ========== ADMIN FORM ========== */
 #content > .glass-card input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
 #content > .glass-card textarea,
 #content > .glass-card select,

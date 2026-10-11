@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbolu Tıkla! - Özellikler</title>
     <meta name="description" content="Turbolu Tıkla! oyununun sunduğu tüm özellikler: başarımlar, ekonomi sistemi, arkadaşlarla oyna ve daha fazlası.">
     
@@ -44,7 +44,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="tikla-hero">
             <h1><span class="emoji">⭐</span> Özellikler</h1>
             <p>Turbolu Tıkla!'nın sunduğu tüm özellikler</p>
@@ -52,41 +52,41 @@
 
         <section class="tikla-section">
             <div class="feature-item">
-                <i class="fa-solid fa-hand-pointer"></i>
+                <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
                 <strong>Basit Tıklama Mekaniği</strong>
                 <p>Tek parmakla oyna, herkes anında alışır.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-trophy"></i>
+                <i class="fa-solid fa-trophy" aria-hidden="true"></i>
                 <strong>Başarımlar</strong>
                 <p>Yüzlerce başarım seni bekliyor.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-coins"></i>
+                <i class="fa-solid fa-coins" aria-hidden="true"></i>
                 <strong>Ekonomi Sistemi</strong>
                 <p>Kazandığın puanlarla yükseltmeler al.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-users"></i>
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
                 <strong>Arkadaşlarla Oyna</strong>
                 <p>Skor tablosunda yarış.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-cloud"></i>
+                <i class="fa-solid fa-cloud" aria-hidden="true"></i>
                 <strong>Bulut Kayıt</strong>
                 <p>İlerlemen otomatik olarak kaydedilir.</p>
             </div>
             <div class="feature-item">
-                <i class="fa-solid fa-moon"></i>
+                <i class="fa-solid fa-moon" aria-hidden="true"></i>
                 <strong>Karanlık/Aydınlık Tema</strong>
                 <p>Gözünü yormayan iki tema seçeneği.</p>
             </div>
         </section>
-    </div>
+    </main>
 
-    <canvas id="steamCanvas"></canvas>
-    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir">
-        <i class="fa-solid fa-moon"></i>
+    <canvas id="steamCanvas" aria-hidden="true"></canvas>
+    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" aria-label="Tema Değiştir">
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
     </button>
     <script src="script.js"></script>
 </body>
