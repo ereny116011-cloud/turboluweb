@@ -12,20 +12,52 @@
     <div class="bg-image"></div>
     <div class="glass-card" style="max-width:400px; margin:100px auto; padding:2rem;">
         <h2 style="text-align:center;">Şifremi Unuttum</h2>
-        <input id="email" type="email" placeholder="E-posta adresiniz"><br>
-        <button class="btn-green" style="width:100%;" onclick="sendReset()">Gönder</button>
+        <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem; line-height:1.6;">
+            Hesabına kayıtlı e-postayı yaz, sana sıfırlama bağlantısı gönderelim.
+        </p>
+
+        <div id="durum" style="display:none; padding:12px 14px; border-radius:10px; font-size:0.84rem; line-height:1.55; margin-bottom:14px; color:var(--text);"></div>
+
+        <input id="email" type="email" placeholder="E-posta adresiniz" autocomplete="email"><br>
+        <button class="btn-green" id="gonderBtn" style="width:100%;" onclick="sendReset()">Gönder</button>
+
+        <p style="font-size:0.78rem; color:var(--text-muted); text-align:center; margin-top:16px; line-height:1.6;">
+            Mail birkaç dakika içinde gelmezse <strong>Gereksiz / Spam</strong> klasörünü de kontrol et.
+        </p>
         <p style="text-align:center; margin-top:10px;"><a href="mc/giris.html">Giriş Yap</a></p>
     </div>
     <script>
+        function durumGoster(mesaj, hataMi) {
+            const kutu = document.getElementById('durum');
+            kutu.style.display = 'block';
+            kutu.style.background = hataMi ? 'rgba(239,68,68,0.10)' : 'rgba(34,197,94,0.10)';
+            kutu.style.borderLeft = '3px solid ' + (hataMi ? '#ef4444' : '#22c55e');
+            kutu.textContent = mesaj;
+        }
+
         async function sendReset() {
             const email = document.getElementById('email').value.trim();
-            const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            alert(data.message || data.error);
+            const btn = document.getElementById('gonderBtn');
+
+            if (!email) { durumGoster('Lütfen e-posta adresini yaz.', true); return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Gönderiliyor...';
+
+            try {
+                const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                durumGoster(data.message || data.error || 'İşlem tamamlandı.', !!data.error);
+            } catch (e) {
+                durumGoster('Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.', true);
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Gönder';
         }
     </script>
 </body>
