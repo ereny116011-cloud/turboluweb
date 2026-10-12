@@ -6,7 +6,8 @@
     <title>Market - TurboluMC</title>
     <link rel="icon" href="../crpr.png" type="image/png">
     <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../fa/css/fontawesome.min.css">
+    <link rel="stylesheet" href="../../fa/css/solid.min.css">
 </head>
 <body>
     <div class="bg-image"></div>
@@ -29,12 +30,18 @@
     </div>
     <script src="../app.js"></script>
     <script>
+        // API'den gelen metni HTML'e güvenle basmak için (XSS koruması)
+        function escHtml(v) {
+            return v == null ? '' : String(v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
         async function loadItems() {
             const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/items');
             const items = await res.json();
             document.getElementById('items').innerHTML = items.length === 0 ? '<p>Henüz ürün yok.</p>' : items.map(i => `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
-                    <div><b>${i.name}</b><br><small>${i.price} puan</small></div>
+                    <div><b>${escHtml(i.name)}</b><br><small>${escHtml(i.price)} puan</small></div>
                     <button onclick="buy('${i.id}')">Satın Al</button>
                 </div>
             `).join('');
