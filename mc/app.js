@@ -323,9 +323,9 @@ async function kopyalaIP() {
   if (altInfo) {
     altInfo.innerHTML = `
       <p style="margin-top: 12px; font-size: 0.9rem; opacity: 0.9;">
-        ✅ IP Kopyalandı!<br>
-        ⚠️ Giremediyseniz alternatif IP: <strong style="color: var(--accent);">turbolu.aternos.me:13795</strong><br>
-        ❓ Bağlantı sorunu yaşarsanız admin ile iletişime geçiniz.
+        <i class="fa-solid fa-circle-check"></i> IP Kopyalandı!<br>
+        <i class="fa-solid fa-triangle-exclamation"></i> Giremediyseniz alternatif IP: <strong style="color: var(--accent);">turbolu.aternos.me:13795</strong><br>
+        <i class="fa-solid fa-circle-question"></i> Bağlantı sorunu yaşarsanız admin ile iletişime geçiniz.
       </p>`;
   }
 }
@@ -361,7 +361,7 @@ async function subscribeToPush() {
 async function requestNotificationPermission() {
   if (!token) return alert('Önce giriş yapmalısınız.');
   const result = await subscribeToPush();
-  if (result) { localStorage.setItem('notificationsEnabled', 'true'); alert('✅ Bildirimler aktif edildi!'); }
+  if (result) { localStorage.setItem('notificationsEnabled', 'true'); alert('Bildirimler aktif edildi!'); }
 }
 
 // ========== BAŞLAT ==========
@@ -401,27 +401,27 @@ function renderUI() {
   if (currentUser) {
     if (currentUser.isAdmin) {
       buttons = `
-        <button onclick="showContent('requests')">📋 Talepler</button>
-        <button onclick="showContent('addAnnouncement')">📢 Duyuru</button>
-        <button onclick="showContent('manageAnnouncements')">📋 Duyuru Yönet</button>
-        <button onclick="showContent('addCampaign')">🎯 Kampanya</button>
-        <button onclick="showContent('manageCampaigns')">📊 Kampanya Yönet</button>
-        <button onclick="showContent('addNews')">📰 Haber</button>
-        <button onclick="showContent('manageNews')">📋 Haber Yönet</button>
-        <button onclick="showContent('addItem')">🛒 Ürün Ekle</button>
+        <button onclick="showContent('requests')"><i class="fa-solid fa-clipboard-list"></i> Talepler</button>
+        <button onclick="showContent('addAnnouncement')"><i class="fa-solid fa-bullhorn"></i> Duyuru</button>
+        <button onclick="showContent('manageAnnouncements')"><i class="fa-solid fa-clipboard-list"></i> Duyuru Yönet</button>
+        <button onclick="showContent('addCampaign')"><i class="fa-solid fa-bullseye"></i> Kampanya</button>
+        <button onclick="showContent('manageCampaigns')"><i class="fa-solid fa-chart-simple"></i> Kampanya Yönet</button>
+        <button onclick="showContent('addNews')"><i class="fa-solid fa-newspaper"></i> Haber</button>
+        <button onclick="showContent('manageNews')"><i class="fa-solid fa-clipboard-list"></i> Haber Yönet</button>
+        <button onclick="showContent('addItem')"><i class="fa-solid fa-cart-shopping"></i> Ürün Ekle</button>
       `;
     } else {
       buttons = `
-        <button onclick="showContent('shop')">🛒 Market</button>
-        <button onclick="showContent('inventory')">📦 Taleplerim</button>
-        <button onclick="showContent('campaigns')">📣 Kampanyalar</button>
-        <button onclick="showContent('announcements')">📢 Duyurular</button>
-        <button onclick="showContent('news')">📰 Haberler</button>
+        <button onclick="showContent('shop')"><i class="fa-solid fa-cart-shopping"></i> Market</button>
+        <button onclick="showContent('inventory')"><i class="fa-solid fa-box"></i> Taleplerim</button>
+        <button onclick="showContent('campaigns')"><i class="fa-solid fa-tags"></i> Kampanyalar</button>
+        <button onclick="showContent('announcements')"><i class="fa-solid fa-bullhorn"></i> Duyurular</button>
+        <button onclick="showContent('news')"><i class="fa-solid fa-newspaper"></i> Haberler</button>
       `;
     }
     navLinks.innerHTML = buttons;
     userArea.innerHTML = `
-      <button onclick="requestNotificationPermission()" title="Bildirim">🔔</button>
+      <button onclick="requestNotificationPermission()" title="Bildirim"><i class="fa-solid fa-bell"></i></button>
       <img src="${esc(currentUser.icon || DEFAULT_AVATAR)}" class="profile-icon" onclick="showContent('profile')" title="Profil" loading="lazy">
       <span class="username-label">${esc(currentUser.username)}</span>
       <button class="logout-btn" onclick="logout()">Çıkış</button>
@@ -508,7 +508,7 @@ async function renderStatus() {
       const data = await res.json();
       const durumEl = document.getElementById('online-durum');
       if (!durumEl) return;
-      durumEl.innerHTML = data.online ? '<span style="color:#22c55e">🟢 Çevrimiçi</span>' : '<span style="color:#ef4444">🔴 Çevrimdışı</span>';
+      durumEl.innerHTML = data.online ? '<span style="color:#22c55e"><i class="fa-solid fa-circle" style="color:#22c55e"></i> Çevrimiçi</span>' : '<span style="color:#ef4444"><i class="fa-solid fa-circle" style="color:#ef4444"></i> Çevrimdışı</span>';
       document.getElementById('oyuncu-sayisi').textContent = `${data.players?.online ?? 0} / ${data.players?.max ?? 0}`;
       document.getElementById('sunucu-surum').textContent = data.version || '-';
     } catch (e) {}
@@ -521,28 +521,28 @@ async function renderStatus() {
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>🛒 Market</h2>${currentUser ? `<p>Bakiye: <strong>${currentUser.balance}</strong> puan</p>` : ''}${items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-soft); border-radius:10px; margin:8px 0; border:1px solid var(--glass-border);"><div><b>${esc(i.name)}</b><p style="font-size:0.85rem; opacity:0.7;">${i.price} puan</p></div><button onclick="buy('${i.id}')">Satın Al</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-cart-shopping"></i> Market</h2>${currentUser ? `<p>Bakiye: <strong>${currentUser.balance}</strong> puan</p>` : ''}${items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-soft); border-radius:10px; margin:8px 0; border:1px solid var(--glass-border);"><div><b>${esc(i.name)}</b><p style="font-size:0.85rem; opacity:0.7;">${i.price} puan</p></div><button onclick="buy('${i.id}')">Satın Al</button></div>`).join('')}</div>`;
 }
 async function buy(itemId) {
   if (!token) return alert('Lütfen giriş yapın.');
   const res = await fetch(`${API}/api/buy`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ itemId }) });
   const data = await res.json();
   if (data.error) alert(data.error);
-  else { alert('✅ Talep alındı!'); currentUser.balance = data.new_balance; renderShop(); }
+  else { alert('Talep alındı!'); currentUser.balance = data.new_balance; renderShop(); }
 }
 
 async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
   const requests = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📦 Taleplerim</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; border:1px solid var(--glass-border);"><div><b>${esc(r.item)}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}; color:white;">${r.status}</span></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-box"></i> Taleplerim</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; border:1px solid var(--glass-border);"><div><b>${esc(r.item)}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}; color:white;">${r.status}</span></div>`).join('')}</div>`;
 }
 
 async function renderRequests() {
   if (!currentUser?.isAdmin) return;
   const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
   const content = document.getElementById('content');
-  content.innerHTML = `<div class="glass-card"><h2>📋 Talepler</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;"><div><b>${esc(r.user)}</b> → ${esc(r.item)} (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><div style="display:flex; gap:6px;">${r.status==='pending'?`<button onclick="completeRequest('${r.id}')">✅</button><button class="logout-btn" onclick="rejectRequest('${r.id}')">❌</button>`:`<span>${r.status}</span>`}</div></div></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Talepler</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;"><div><b>${esc(r.user)}</b> <i class="fa-solid fa-arrow-right"></i> ${esc(r.item)} (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><div style="display:flex; gap:6px;">${r.status==='pending'?`<button onclick="completeRequest('${r.id}')"><i class="fa-solid fa-circle-check"></i></button><button class="logout-btn" onclick="rejectRequest('${r.id}')"><i class="fa-solid fa-xmark"></i></button>`:`<span>${r.status}</span>`}</div></div></div>`).join('')}</div>`;
 }
 async function completeRequest(id) {
   await fetch(`${API}/api/admin/complete-request`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: id }) });
@@ -557,20 +557,20 @@ async function rejectRequest(id) {
 async function renderAnnouncements() {
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📢 Duyurular</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div class="announcement-item"><h3>${esc(a.title)}</h3><p>${esc(a.content)}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-bullhorn"></i> Duyurular</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div class="announcement-item"><h3>${esc(a.title)}</h3><p>${esc(a.content)}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
 async function renderNews() {
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📰 Haberler</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${esc(n.title)}</h3><p>${esc(n.content)}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-newspaper"></i> Haberler</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${esc(n.title)}</h3><p>${esc(n.content)}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
 async function renderManageAnnouncements() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📋 Duyuru Yönet</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${esc(a.title)}</b><br><small>${new Date(a.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteAnnouncement('${a.id}')">🗑️ Sil</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Duyuru Yönet</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${esc(a.title)}</b><br><small>${new Date(a.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteAnnouncement('${a.id}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`).join('')}</div>`;
 }
 async function deleteAnnouncement(id) {
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
@@ -582,7 +582,7 @@ async function renderManageNews() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2>📋 Haber Yönet</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${esc(n.title)}</b><br><small>${new Date(n.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteNews('${n.id}')">🗑️ Sil</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Haber Yönet</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${esc(n.title)}</b><br><small>${new Date(n.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteNews('${n.id}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`).join('')}</div>`;
 }
 async function deleteNews(id) {
   if (!confirm('Bu haberi silmek istediğinize emin misiniz?')) return;
@@ -593,14 +593,14 @@ async function deleteNews(id) {
 async function renderCampaigns() {
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = Date.now();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📣 Kampanyalar</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><b>${esc(c.title)}</b><p>${esc(c.description)}</p><p>🎁 ${esc(c.reward)}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div>`}).join('')}</div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-tags"></i> Kampanyalar</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><b>${esc(c.title)}</b><p>${esc(c.description)}</p><p><i class="fa-solid fa-gift"></i> ${esc(c.reward)}</p><small>${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'<i class="fa-solid fa-triangle-exclamation"></i> Süresi Doldu':''}</small></div>`}).join('')}</div>`;
 }
 
 async function renderManageCampaigns() {
   if (!currentUser?.isAdmin) return;
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = Date.now();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2>📊 Kampanya Yönet</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border:1px solid var(--glass-border);"><div><b>${esc(c.title)}</b><br><small>${esc(c.description)} | 🎁 ${esc(c.reward)}</small><br><small>📅 ${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'⚠️ Süresi Doldu':''}</small></div><button class="logout-btn" onclick="deleteCampaign('${c.id}')">🗑️ Sil</button></div>`}).join('')}</div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-chart-simple"></i> Kampanya Yönet</h2>${campaigns.map(c=>{const expired=c.endDate&&new Date(c.endDate).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border:1px solid var(--glass-border);"><div><b>${esc(c.title)}</b><br><small>${esc(c.description)} | <i class="fa-solid fa-gift"></i> ${esc(c.reward)}</small><br><small><i class="fa-solid fa-calendar"></i> ${c.endDate?new Date(c.endDate).toLocaleString():'Süresiz'} ${expired?'<i class="fa-solid fa-triangle-exclamation"></i> Süresi Doldu':''}</small></div><button class="logout-btn" onclick="deleteCampaign('${c.id}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`}).join('')}</div>`;
 }
 async function deleteCampaign(id) {
   if (!confirm('Emin misiniz?')) return;
@@ -610,10 +610,10 @@ async function deleteCampaign(id) {
 
 function renderAdminForm(type) {
   let html = '';
-  if (type === 'announcement') html = `<h2>📢 Duyuru Ekle</h2><input id="title" placeholder="Başlık"><textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('announcement')">Ekle</button>`;
-  else if (type === 'campaign') html = `<h2>🎯 Kampanya Ekle</h2><input id="title" placeholder="Başlık"><input id="description" placeholder="Açıklama"><input id="reward" placeholder="Ödül"><label>📅 Bitiş Tarihi:</label><input id="endDate" type="datetime-local"><button onclick="submitAdmin('campaign')">Ekle</button>`;
-  else if (type === 'news') html = `<h2>📰 Haber Ekle</h2><input id="title" placeholder="Başlık"><textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('news')">Ekle</button>`;
-  else if (type === 'item') html = `<h2>🛒 Ürün Ekle</h2><input id="itemName" placeholder="Ürün adı"><input id="itemPrice" type="number" placeholder="Fiyat"><input id="itemCommand" placeholder="Komut"><button onclick="submitAdmin('item')">Ekle</button>`;
+  if (type === 'announcement') html = `<h2><i class="fa-solid fa-bullhorn"></i> Duyuru Ekle</h2><input id="title" placeholder="Başlık"><textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('announcement')">Ekle</button>`;
+  else if (type === 'campaign') html = `<h2><i class="fa-solid fa-bullseye"></i> Kampanya Ekle</h2><input id="title" placeholder="Başlık"><input id="description" placeholder="Açıklama"><input id="reward" placeholder="Ödül"><label><i class="fa-solid fa-calendar"></i> Bitiş Tarihi:</label><input id="endDate" type="datetime-local"><button onclick="submitAdmin('campaign')">Ekle</button>`;
+  else if (type === 'news') html = `<h2><i class="fa-solid fa-newspaper"></i> Haber Ekle</h2><input id="title" placeholder="Başlık"><textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('news')">Ekle</button>`;
+  else if (type === 'item') html = `<h2><i class="fa-solid fa-cart-shopping"></i> Ürün Ekle</h2><input id="itemName" placeholder="Ürün adı"><input id="itemPrice" type="number" placeholder="Fiyat"><input id="itemCommand" placeholder="Komut"><button onclick="submitAdmin('item')">Ekle</button>`;
   document.getElementById('content').innerHTML = `<div class="glass-card admin-form" style="max-width:600px; margin:2rem auto;">${html}</div>`;
 }
 
@@ -696,28 +696,28 @@ async function renderProfile() {
   const content = document.getElementById('content');
   content.innerHTML = `
     <div class="glass-card profile-card">
-      <h2>👤 Profil</h2>
+      <h2><i class="fa-solid fa-user"></i> Profil</h2>
       <div class="profile-avatar-section">
         <img src="${esc(currentUser.icon || DEFAULT_AVATAR)}" class="profile-avatar" id="profileAvatar" loading="lazy">
-        <button id="changeAvatarBtn" class="small-btn">📁 Avatar Değiştir</button>
+        <button id="changeAvatarBtn" class="small-btn"><i class="fa-solid fa-folder"></i> Avatar Değiştir</button>
         <input type="file" id="avatarUpload" accept="image/*" style="display:none">
       </div>
       <div class="profile-field">
-        <label>🌐 Dil</label>
+        <label><i class="fa-solid fa-globe"></i> Dil</label>
         <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select>
       </div>
       <div class="profile-field">
-        <label>💬 Durum</label>
+        <label><i class="fa-solid fa-comment"></i> Durum</label>
         <select id="statusSelect"><option value="Online">Çevrimiçi</option><option value="Offline">Çevrimdışı</option></select>
       </div>
       <hr style="margin: 1rem 0; border-color: var(--glass-border);">
-      <h3 style="margin-bottom:0.5rem;">🔒 Şifre Değiştir</h3>
+      <h3 style="margin-bottom:0.5rem;"><i class="fa-solid fa-lock"></i> Şifre Değiştir</h3>
       <div class="profile-field"><input id="oldPass" type="password" placeholder="Mevcut şifre" autocomplete="current-password"></div>
       <div class="profile-field"><input id="newPass" type="password" placeholder="Yeni şifre" autocomplete="new-password"></div>
       <button id="changePassBtn" class="small-btn">Şifreyi Güncelle</button>
       <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
         <button id="saveSettingsBtn">Kaydet</button>
-        <button onclick="showContent('status')">← Geri</button>
+        <button onclick="showContent('status')"><i class="fa-solid fa-arrow-left"></i> Geri</button>
       </div>
     </div>
   `;

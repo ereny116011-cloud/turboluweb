@@ -16,43 +16,43 @@
         <nav class="navbar">
             <div class="logo" onclick="window.location.href='/'"><img src="../crpr.png" class="logo-img"> TurboluMC</div>
             <div class="nav-links">
-                <a href="../market">🛒 Market</a>
-                <a href="../taleplerim">📦 Taleplerim</a>
-                <a href="../kampanyalar">📣 Kampanyalar</a>
-                <a href="../duyurular">📢 Duyurular</a>
-                <a href="../haberler">📰 Haberler</a>
+                <a href="../market"><i class="fa-solid fa-cart-shopping"></i> Market</a>
+                <a href="../taleplerim"><i class="fa-solid fa-box"></i> Taleplerim</a>
+                <a href="../kampanyalar"><i class="fa-solid fa-tags"></i> Kampanyalar</a>
+                <a href="../duyurular"><i class="fa-solid fa-bullhorn"></i> Duyurular</a>
+                <a href="../haberler"><i class="fa-solid fa-newspaper"></i> Haberler</a>
             </div>
             <div class="user-area" id="userArea"></div>
         </nav>
         <main class="glass-card profile-card" style="max-width:500px; margin:2rem auto;">
-            <h2>👤 Profil</h2>
+            <h2><i class="fa-solid fa-user"></i> Profil</h2>
             <div class="profile-avatar-section">
                 <img src="../crpr.png" class="profile-avatar" id="profileAvatar">
-                <button class="small-btn" onclick="document.getElementById('avatarUpload').click()">📁 Avatar Değiştir</button>
+                <button class="small-btn" onclick="document.getElementById('avatarUpload').click()"><i class="fa-solid fa-folder"></i> Avatar Değiştir</button>
                 <input type="file" id="avatarUpload" accept="image/*" style="display:none">
             </div>
             <div class="profile-field">
-                <label>🌐 Dil</label>
+                <label><i class="fa-solid fa-globe"></i> Dil</label>
                 <select id="langSelect">
                     <option value="tr">Türkçe</option>
                     <option value="en">English</option>
                 </select>
             </div>
             <div class="profile-field">
-                <label>💬 Durum</label>
+                <label><i class="fa-solid fa-comment"></i> Durum</label>
                 <select id="statusSelect">
                     <option value="Online">Çevrimiçi</option>
                     <option value="Offline">Çevrimdışı</option>
                 </select>
             </div>
             <hr style="margin:1rem 0; border-color: rgba(255,255,255,0.1);">
-            <h3>🔒 Şifre Değiştir</h3>
+            <h3><i class="fa-solid fa-lock"></i> Şifre Değiştir</h3>
             <input id="oldPass" type="password" placeholder="Mevcut şifre">
             <input id="newPass" type="password" placeholder="Yeni şifre">
             <button class="small-btn" onclick="changePassword()">Şifreyi Güncelle</button>
             <div style="margin-top:20px; display:flex; gap:10px;">
                 <button onclick="saveProfile()">Kaydet</button>
-                <button onclick="window.location.href='../index.html'">← Geri</button>
+                <button onclick="window.location.href='../index.html'"><i class="fa-solid fa-arrow-left"></i> Geri</button>
             </div>
         </main>
     </div>
