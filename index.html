@@ -3,47 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turbolu Studios - Projelerimiz</title>
-    <meta name="description" content="Turbolu Studios, Minecraft Java ve Bedrock sunucuları ile mobil oyunlar geliştiren bağımsız bir stüdyodur.">
-    
+    <title>Turbolu Studios — Minecraft Sunucuları ve Mobil Oyunlar</title>
+    <meta name="description" content="Turbolu Studios; Java ve Bedrock Minecraft sunucuları işleten, kendi mobil oyunlarını geliştiren bağımsız bir stüdyodur.">
+
     <link rel="canonical" href="https://turboluweb.wasmer.app/">
-    
+
     <meta property="og:site_name" content="Turbolu Studios">
-    <meta property="og:title" content="Turbolu Studios - Projelerimiz">
-    <meta property="og:description" content="Minecraft Java ve Bedrock sunucuları ile mobil oyunlar geliştiren bağımsız stüdyo.">
+    <meta property="og:title" content="Turbolu Studios — Minecraft Sunucuları ve Mobil Oyunlar">
+    <meta property="og:description" content="Java ve Bedrock Minecraft sunucuları işleten, kendi mobil oyunlarını geliştiren bağımsız stüdyo.">
     <meta property="og:url" content="https://turboluweb.wasmer.app/">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://turboluweb.wasmer.app/mc/crpr.webp">
-    
+    <meta name="theme-color" content="#0b0e13">
+
     <link rel="icon" href="mc/crpr.webp" type="image/webp">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="preload" as="font" type="font/woff2" href="fa/webfonts/fa-solid-900.woff2" crossorigin>
-    
     <link rel="stylesheet" href="fa/css/fontawesome.min.css">
     <link rel="stylesheet" href="fa/css/solid.min.css">
     <link rel="stylesheet" href="style.css">
-    
+
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
+      "@type": "Organization",
       "name": "Turbolu Studios",
-      "alternateName": ["Turboluweb", "TurboluWeb", "Turbolu", "Turbolu MC", "Turbolu Bedrock"],
+      "alternateName": ["Turboluweb", "Turbolu", "Turbolu MC", "Turbolu Bedrock"],
       "url": "https://turboluweb.wasmer.app/",
-      "description": "Turbolu Studios, Minecraft Java ve Bedrock sunucuları ile mobil oyunlar geliştiren bağımsız bir stüdyodur.",
-      "inLanguage": "tr-TR",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Turbolu Studios",
-        "url": "https://turboluweb.wasmer.app/"
-      }
+      "logo": "https://turboluweb.wasmer.app/mc/crpr.webp",
+      "description": "Java ve Bedrock Minecraft sunucuları işleten, mobil oyun geliştiren bağımsız stüdyo.",
+      "email": "ereny116011@gmail.com"
     }
     </script>
-    
+
     <script>
         (function() {
             const saved = localStorage.getItem('theme');
@@ -54,89 +50,161 @@
     </script>
 </head>
 <body>
-    <canvas id="dotGridCanvas" class="bg-canvas" aria-hidden="true"></canvas>
-    <canvas id="steamCanvas" class="steam-canvas" aria-hidden="true"></canvas>
 
-    <main class="portal-container">
-        <header class="portal-header">
-            <div class="portal-logo" onclick="window.location.href='/'">
-                <img src="mc/crpr.webp" alt="Turbolu Studios" class="logo-img" width="52" height="52" fetchpriority="high" decoding="async">
-                <span class="brand-text">Turbolu Studios</span>
-            </div>
-            <p>Projelerimize göz atın!</p>
-        </header>
-
-        <div class="project-grid">
-            <a href="/mc/" class="project-card">
-                <div class="project-icon">
-                    <img src="mc/crpr.webp" alt="TurboluMC" class="project-icon-img" width="90" height="90" loading="eager" fetchpriority="high" decoding="async">
-                </div>
-                <div class="project-info">
-                    <h2>TurboluMC</h2>
-                    <p>Java Edition Sunucumuz</p>
-                    <span class="project-badge">Aktif</span>
-                </div>
+    <header class="site-header">
+        <div class="wrap header-inner">
+            <a class="brand" href="/">
+                <img src="mc/crpr.webp" alt="" width="34" height="34" fetchpriority="high" decoding="async">
+                <span>Turbolu Studios</span>
             </a>
 
-            <a href="/tikla/" class="project-card">
-                <div class="project-icon">
-                    <img src="tikla/tikla.webp" alt="Tıkla!" class="project-icon-img" width="90" height="90" loading="eager" fetchpriority="high" decoding="async">
-                </div>
-                <div class="project-info">
-                    <h2>Turbolu Tıkla!</h2>
-                    <p>Mobil Tıklama Oyunu</p>
-                    <span class="project-badge">Aktif</span>
-                </div>
-            </a>
+            <nav class="site-nav" aria-label="Ana menü">
+                <a href="#projeler">Projeler</a>
+                <a href="#hakkimizda">Hakkımızda</a>
+                <a href="#iletisim">İletişim</a>
+            </nav>
 
-            <a href="/bedrock/" class="project-card">
-                <div class="project-icon">
-                    <img src="mc/crpr.webp" alt="Turbolu Bedrock" class="project-icon-img" width="90" height="90" loading="eager" fetchpriority="high" decoding="async">
-                </div>
-                <div class="project-info">
-                    <h2>Turbolu Bedrock</h2>
-                    <p>Bedrock Edition Sunucumuz</p>
-                    <span class="project-badge">Aktif</span>
-                </div>
-            </a>
-
-            <a href="#" class="project-card future" onclick="alert('Yakında!'); return false;">
-                <div class="project-icon"><i class="fa-solid fa-question" aria-hidden="true"></i></div>
-                <div class="project-info">
-                    <h2>Yeni Proje</h2>
-                    <p>Çok yakında...</p>
-                    <span class="project-badge">Yakında</span>
-                </div>
-            </a>
+            <button id="themeToggle" class="icon-btn" aria-label="Tema değiştir" title="Tema değiştir">
+                <i class="fa-solid fa-moon" aria-hidden="true"></i>
+            </button>
         </div>
+    </header>
 
-        <section class="info-section">
-            <h2><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Hakkımızda</h2>
-            <p>Turbolu Studios, yenilikçi ve eğlenceli dijital projeler geliştiren bağımsız bir stüdyodur. Minecraft sunucularından mobil oyunlara kadar geniş bir yelpazede çalışıyoruz. Amacımız, kullanıcılarımıza kaliteli, güvenli ve eğlenceli deneyimler sunmaktır.</p>
-        </section>
-
-        <section class="info-section">
-            <h2><i class="fa-solid fa-envelope" aria-hidden="true"></i> İletişim</h2>
-            <div class="contact-links">
-                <a href="mailto:ereny116011@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i> ereny116011@gmail.com</a>
-                <a href="mailto:yilmaz6011@hotmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i> yilmaz6011@hotmail.com</a>
+    <main>
+        <section class="hero wrap">
+            <p class="eyebrow">Bağımsız oyun ve sunucu stüdyosu</p>
+            <h1>Minecraft sunucuları işletiyor,<br>kendi oyunlarımızı geliştiriyoruz.</h1>
+            <p class="lead">
+                Turbolu Studios; Java ve Bedrock Edition sunucuları çalıştıran, aynı zamanda
+                mobil oyun geliştiren küçük bir ekip. Sunucularımız kesintisiz, topluluğumuz aktif.
+            </p>
+            <div class="hero-actions">
+                <a class="btn btn-primary" href="#projeler">
+                    Projelere göz at <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-ghost" href="/mc/">
+                    <i class="fa-solid fa-server" aria-hidden="true"></i> Sunucu paneli
+                </a>
             </div>
         </section>
 
-        <footer class="portal-footer">
-            <p>&copy; 2026 Turbolu Studios. Tüm Hakları Saklıdır.</p>
-        </footer>
+        <section id="projeler" class="wrap section">
+            <div class="section-head">
+                <h2>Projeler</h2>
+                <p>Şu an üzerinde çalıştığımız ürünler</p>
+            </div>
+
+            <div class="grid">
+                <a class="card" href="/mc/">
+                    <img src="mc/crpr.webp" alt="TurboluMC" width="56" height="56" loading="eager" decoding="async">
+                    <div class="card-body">
+                        <h3>TurboluMC</h3>
+                        <p>Java Edition sunucumuz. Market, duyurular, kampanyalar ve oyuncu paneli.</p>
+                        <div class="tags">
+                            <span class="tag tag-live"><span class="dot"></span>Aktif</span>
+                            <span class="tag">Java</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right card-arrow" aria-hidden="true"></i>
+                </a>
+
+                <a class="card" href="/bedrock/">
+                    <img src="mc/crpr.webp" alt="Turbolu Bedrock" width="56" height="56" loading="eager" decoding="async">
+                    <div class="card-body">
+                        <h3>Turbolu Bedrock</h3>
+                        <p>Telefon, tablet ve konsoldan katılabilen cross-play destekli Bedrock sunucumuz.</p>
+                        <div class="tags">
+                            <span class="tag tag-live"><span class="dot"></span>Aktif</span>
+                            <span class="tag">Bedrock</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right card-arrow" aria-hidden="true"></i>
+                </a>
+
+                <a class="card" href="/tikla/">
+                    <img src="tikla/tikla.webp" alt="Turbolu Tıkla!" width="56" height="56" loading="eager" decoding="async">
+                    <div class="card-body">
+                        <h3>Turbolu Tıkla!</h3>
+                        <p>Android için geliştirdiğimiz bağımlılık yapan tıklama oyunu. Ücretsiz.</p>
+                        <div class="tags">
+                            <span class="tag tag-live"><span class="dot"></span>Aktif</span>
+                            <span class="tag">Android</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right card-arrow" aria-hidden="true"></i>
+                </a>
+
+                <div class="card card-muted">
+                    <span class="card-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+                    <div class="card-body">
+                        <h3>Yeni proje</h3>
+                        <p>Şu an geliştirme aşamasında. Yakında duyuracağız.</p>
+                        <div class="tags"><span class="tag">Yakında</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="hakkimizda" class="wrap section">
+            <div class="split">
+                <div>
+                    <h2>Hakkımızda</h2>
+                    <p class="prose">
+                        Turbolu Studios, Minecraft sunucuları ve mobil oyunlar üzerine çalışan bağımsız
+                        bir stüdyodur. Sunucularımızı kendi altyapımızda işletiyor, oyunlarımızı sıfırdan
+                        geliştiriyoruz.
+                    </p>
+                    <p class="prose">
+                        Amacımız hileye kapalı, lag olmayan ve topluluğun kendini rahat hissettiği
+                        ortamlar kurmak. Geri bildirimlerin tamamı değerlendirilir.
+                    </p>
+                </div>
+
+                <dl class="facts">
+                    <div><dt>2</dt><dd>Minecraft sunucusu</dd></div>
+                    <div><dt>1</dt><dd>Mobil oyun</dd></div>
+                    <div><dt>7/24</dt><dd>Aktif topluluk</dd></div>
+                    <div><dt>0 ₺</dt><dd>Sunucu erişim ücreti</dd></div>
+                </dl>
+            </div>
+        </section>
+
+        <section id="iletisim" class="wrap section">
+            <div class="section-head">
+                <h2>İletişim</h2>
+                <p>Soru, öneri ve şikayetlerin için</p>
+            </div>
+
+            <div class="contact-list">
+                <a href="mailto:ereny116011@gmail.com">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    <span>ereny116011@gmail.com</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square ext" aria-hidden="true"></i>
+                </a>
+                <a href="mailto:yilmaz6011@hotmail.com">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    <span>yilmaz6011@hotmail.com</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square ext" aria-hidden="true"></i>
+                </a>
+            </div>
+        </section>
     </main>
 
-    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" aria-label="Tema Değiştir">
-        <i class="fa-solid fa-moon" aria-hidden="true"></i>
-    </button>
+    <footer class="site-footer">
+        <div class="wrap footer-inner">
+            <span>© 2026 Turbolu Studios</span>
+            <span class="footer-sep">·</span>
+            <span>GNU GPL v3 lisansı ile korunmaktadır</span>
+        </div>
+    </footer>
 
     <script>
         const themeBtn = document.getElementById('themeToggle');
         function updateThemeIcon() {
             const isLight = document.documentElement.classList.contains('light');
-            themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun" aria-hidden="true"></i>' : '<i class="fa-solid fa-moon" aria-hidden="true"></i>';
+            themeBtn.innerHTML = isLight
+                ? '<i class="fa-solid fa-sun" aria-hidden="true"></i>'
+                : '<i class="fa-solid fa-moon" aria-hidden="true"></i>';
         }
         themeBtn.addEventListener('click', () => {
             const isLight = document.documentElement.classList.toggle('light');
@@ -144,249 +212,6 @@
             updateThemeIcon();
         });
         updateThemeIcon();
-
-        const canvas = document.getElementById('dotGridCanvas');
-        const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
-        let dots = [];
-        let mouse = { x: -1000, y: -1000 };
-        let lastFrame = 0;
-        let dotRAF = null;
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-
-        function resizeCanvas() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            canvas.width = window.innerWidth * dpr;
-            canvas.height = window.innerHeight * dpr;
-            canvas.style.width = window.innerWidth + 'px';
-            canvas.style.height = window.innerHeight + 'px';
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.scale(dpr, dpr);
-            generateDots();
-        }
-        function generateDots() {
-            dots = [];
-            const spacing = isMobile ? 60 : 42;
-            const cols = Math.ceil(window.innerWidth / spacing) + 1;
-            const rows = Math.ceil(window.innerHeight / spacing) + 1;
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    dots.push({
-                        baseX: i * spacing + spacing / 2,
-                        baseY: j * spacing + spacing / 2,
-                        phase: Math.random() * Math.PI * 2,
-                        size: 1.6
-                    });
-                }
-            }
-        }
-        function drawDots(t) {
-            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-            const isLight = document.documentElement.classList.contains('light');
-            const colorBase = isLight ? [22, 163, 74] : [34, 197, 94];
-            const baseAlpha = isLight ? 0.35 : 0.5;
-            const maxDist = 160;
-            const maxDistSq = maxDist * maxDist;
-            for (let k = 0; k < dots.length; k++) {
-                const dot = dots[k];
-                const dx = mouse.x - dot.baseX;
-                const dy = mouse.y - dot.baseY;
-                const distSq = dx * dx + dy * dy;
-                let offsetX = 0, offsetY = 0, alpha = baseAlpha, size = dot.size;
-                if (distSq < maxDistSq) {
-                    const dist = Math.sqrt(distSq);
-                    const force = (maxDist - dist) / maxDist;
-                    offsetX = -dx * force * 0.25;
-                    offsetY = -dy * force * 0.25;
-                    alpha = Math.min(1, baseAlpha + force * 0.5);
-                    size = dot.size + force * 1.2;
-                }
-                const floatX = Math.sin(t * 0.0008 + dot.phase) * 2.5;
-                const floatY = Math.cos(t * 0.001 + dot.phase) * 2.5;
-                ctx.fillStyle = `rgba(${colorBase[0]}, ${colorBase[1]}, ${colorBase[2]}, ${alpha})`;
-                ctx.beginPath();
-                ctx.arc(dot.baseX + floatX + offsetX, dot.baseY + floatY + offsetY, size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        function animateDots(t) {
-            if (t - lastFrame > 33) { drawDots(t); lastFrame = t; }
-            dotRAF = requestAnimationFrame(animateDots);
-        }
-
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(resizeCanvas, 150);
-        }, { passive: true });
-
-        let mouseMoveTime = 0;
-        window.addEventListener('mousemove', (e) => {
-            const now = performance.now();
-            if (now - mouseMoveTime < 16) return;
-            mouseMoveTime = now;
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-        }, { passive: true });
-
-        window.addEventListener('mouseleave', () => { mouse.x = -1000; mouse.y = -1000; });
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) { if (dotRAF) { cancelAnimationFrame(dotRAF); dotRAF = null; } }
-            else if (!dotRAF) { dotRAF = requestAnimationFrame(animateDots); }
-        });
-
-        resizeCanvas();
-        dotRAF = requestAnimationFrame(animateDots);
-
-        /* ===== BUHAR =====
-           İki kaynak var:
-           1) Ortam bulutları: ekranın her yerinde kendiliğinden doğar, çok yavaş
-              süzülür ve hafifçe salınır. Fare hiç oynamasa da arka plan canlı kalır.
-           2) Fare izi: eski davranış korunuyor, imlecin ardından daha parlak buhar çıkar. */
-        const steamCanvas = document.getElementById('steamCanvas');
-        const steamCtx = steamCanvas.getContext('2d', { alpha: true, desynchronized: true });
-        const steamReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        let steamParticles = [];
-        let steamRAF = null;
-        let steamLastTime = 0;
-        let steamLastMouseTime = 0;
-        let steamLastAmbient = 0;
-        let steamLastFrame = 0;
-
-        const MAX_STEAM = 70;          // ekranda aynı anda olabilecek en fazla bulut
-        const MAX_TRAIL = 24;          // fare izinden gelen bulut üst sınırı
-        const AMBIENT_INTERVAL = 420;  // ms — yeni ortam bulutunun doğma aralığı
-        const AMBIENT_SEED = 14;       // açılışta hazır gelen bulut sayısı
-
-        function resizeSteam() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            steamCanvas.width = window.innerWidth * dpr;
-            steamCanvas.height = window.innerHeight * dpr;
-            steamCanvas.style.width = window.innerWidth + 'px';
-            steamCanvas.style.height = window.innerHeight + 'px';
-            steamCtx.setTransform(1, 0, 0, 1, 0, 0);
-            steamCtx.scale(dpr, dpr);
-        }
-        resizeSteam();
-
-        let steamResizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(steamResizeTimer);
-            steamResizeTimer = setTimeout(resizeSteam, 150);
-        }, { passive: true });
-
-        /* Ekranın rastgele bir yerinde doğan, yavaşça yukarı süzülen ortam bulutu.
-           seedLife verilirse bulut ömrünün ortasından başlar (açılış dağılımı için). */
-        function spawnAmbient(seedLife) {
-            steamParticles.push({
-                x: Math.random() * window.innerWidth,
-                y: window.innerHeight * (0.15 + Math.random() * 0.95),
-                vx: (Math.random() - 0.5) * 0.16,
-                vy: -0.08 - Math.random() * 0.16,
-                size: 26 + Math.random() * 46,
-                grow: 0.05 + Math.random() * 0.05,
-                sway: 6 + Math.random() * 16,
-                phase: Math.random() * Math.PI * 2,
-                ambient: true,
-                life: seedLife !== undefined ? seedLife : 1,
-                decay: 0.0012 + Math.random() * 0.0013
-            });
-        }
-
-        /* 1 tam yaşam döngüsü ~10-16 saniye: "yavaş animasyon" isteği böyle karşılanıyor */
-        function seedAmbient() {
-            for (let i = 0; i < AMBIENT_SEED; i++) spawnAmbient(Math.random());
-        }
-
-        document.addEventListener('mousemove', (e) => {
-            const now = performance.now();
-            if (now - steamLastMouseTime < 16) return;
-            steamLastMouseTime = now;
-
-            let trailCount = 0;
-            for (let i = 0; i < steamParticles.length; i++) if (!steamParticles[i].ambient) trailCount++;
-            if (trailCount >= MAX_TRAIL) {
-                for (let i = 0; i < steamParticles.length; i++) {
-                    if (!steamParticles[i].ambient) { steamParticles.splice(i, 1); break; }
-                }
-            }
-
-            steamParticles.push({
-                x: e.clientX + (Math.random() - 0.5) * 10,
-                y: e.clientY + (Math.random() - 0.5) * 10,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: -0.5 - Math.random() * 0.5,
-                size: 5 + Math.random() * 9,
-                grow: 0.55,
-                sway: 0,
-                phase: 0,
-                ambient: false,
-                life: 0.9,
-                decay: 0.024 + Math.random() * 0.014
-            });
-            startSteamLoop();
-        }, { passive: true });
-
-        function startSteamLoop() {
-            if (steamRAF || document.hidden) return;
-            steamLastTime = performance.now();
-            steamRAF = requestAnimationFrame(animateSteam);
-        }
-
-        function animateSteam(now) {
-            steamRAF = requestAnimationFrame(animateSteam);
-
-            /* ~30 fps: yavaş arka plan animasyonu için fazlasıyla yeterli, GPU'yu yormaz */
-            if (now - steamLastFrame < 33) return;
-
-            /* dt atlanan kareleri de sayar; animasyon gerçek zamana bağlı kalır */
-            const dt = Math.min((now - steamLastTime) / 16.67, 3);
-            steamLastTime = now;
-            steamLastFrame = now;
-
-            if (now - steamLastAmbient > AMBIENT_INTERVAL && steamParticles.length < MAX_STEAM) {
-                steamLastAmbient = now;
-                spawnAmbient();
-            }
-
-            steamCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-            const isLight = document.documentElement.classList.contains('light');
-            const color = isLight ? '22, 163, 74' : '34, 197, 94';
-            const swayT = now * 0.0005;
-
-            for (let i = steamParticles.length - 1; i >= 0; i--) {
-                const p = steamParticles[i];
-                const swayX = p.sway ? Math.sin(swayT + p.phase) * p.sway * 0.02 : 0;
-                p.x += (p.vx + swayX) * dt;
-                p.y += p.vy * dt;
-                p.size += p.grow * dt;
-                p.life -= p.decay * dt;
-
-                if (p.life <= 0 || p.y + p.size < -80) { steamParticles.splice(i, 1); continue; }
-
-                const alpha = p.ambient ? p.life * 0.18 : p.life * 0.28;
-                const gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-                gradient.addColorStop(0, `rgba(${color}, ${alpha})`);
-                gradient.addColorStop(0.5, `rgba(${color}, ${alpha * 0.4})`);
-                gradient.addColorStop(1, `rgba(${color}, 0)`);
-                steamCtx.fillStyle = gradient;
-                steamCtx.beginPath();
-                steamCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                steamCtx.fill();
-            }
-        }
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) { if (steamRAF) { cancelAnimationFrame(steamRAF); steamRAF = null; } }
-            else startSteamLoop();
-        });
-
-        /* Hareket azaltma tercihi olan kullanıcılarda hiç başlatmıyoruz */
-        if (!steamReduced) {
-            seedAmbient();
-            startSteamLoop();
-        }
     </script>
 </body>
 </html>
