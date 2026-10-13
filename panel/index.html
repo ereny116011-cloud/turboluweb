@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İçerik Yönetimi — Turbolu Studios</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="../mc/crpr.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../fa/css/fontawesome.min.css">
+    <link rel="stylesheet" href="../fa/css/solid.min.css">
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme');
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            const isLight = saved ? saved === 'light' : prefersLight;
+            if (isLight) document.documentElement.classList.add('light');
+        })();
+    </script>
+
+    <style>
+        :root {
+            --bg: #0b0e13;
+            --surface: #11151c;
+            --surface-2: #161b23;
+            --border: #232a35;
+            --border-strong: #2f3846;
+            --text: #e6eaf0;
+            --text-muted: #8b95a5;
+            --text-dim: #6b7688;
+            --accent: #22c55e;
+            --accent-hover: #16a34a;
+            --accent-soft: rgba(34,197,94,0.12);
+            --accent-border: rgba(34,197,94,0.32);
+            --danger: #ef4444;
+            --danger-soft: rgba(239,68,68,0.12);
+            --radius: 10px;
+            --radius-lg: 14px;
+        }
+        .light {
+            --bg: #ffffff;
+            --surface: #f7f8fa;
+            --surface-2: #f1f3f7;
+            --border: #e4e7ec;
+            --border-strong: #d0d5dd;
+            --text: #111827;
+            --text-muted: #667085;
+            --text-dim: #98a2b3;
+            --accent: #16a34a;
+            --accent-hover: #15803d;
+            --accent-soft: rgba(22,163,74,0.1);
+            --accent-border: rgba(22,163,74,0.32);
+            --danger-soft: rgba(239,68,68,0.1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        * { margin: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        img { display: block; max-width: 100%; }
+        a { color: inherit; }
+        h1, h2, h3 { line-height: 1.3; letter-spacing: -0.02em; font-weight: 600; }
+
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+        .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+        /* ---- Üst çubuk ---- */
+        .app-header {
+            position: sticky; top: 0; z-index: 20;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+        }
+        .header-inner {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .brand {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 600; font-size: 0.95rem;
+        }
+        .brand img { width: 32px; height: 32px; border-radius: 8px; }
+        .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+        .kullanici { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* ---- Butonlar ---- */
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            font-family: inherit; font-size: 0.875rem; font-weight: 500;
+            border: 1px solid transparent; cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .btn-primary { background: var(--accent); color: #04140a; font-weight: 600; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-ghost { background: var(--surface); border-color: var(--border); color: var(--text); }
+        .btn-ghost:hover { background: var(--surface-2); border-color: var(--border-strong); }
+        .btn-danger { background: transparent; border-color: var(--border); color: var(--danger); }
+        .btn-danger:hover { background: var(--danger-soft); border-color: var(--danger); }
+        .btn-sm { padding: 6px 11px; font-size: 0.8rem; }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        /* ---- Kart ---- */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        /* ---- Giriş ---- */
+        #giris { max-width: 400px; margin: 80px auto; }
+        #giris h1 { font-size: 1.25rem; margin-bottom: 6px; }
+        #giris p { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 20px; }
+
+        label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; }
+
+        input[type="text"], input[type="password"], input[type="number"],
+        input[type="datetime-local"], textarea, select {
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        textarea { min-height: 110px; resize: vertical; line-height: 1.6; }
+        input[type="datetime-local"] { color-scheme: dark; }
+        .light input[type="datetime-local"] { color-scheme: light; }
+
+        /* ---- Sekmeler ---- */
+        .tabs {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            margin: 28px 0 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+        .tab {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: inherit; font-size: 0.875rem; font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .tab:hover { background: var(--surface); color: var(--text); }
+        .tab.aktif { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+
+        /* ---- Bölüm ---- */
+        .bolum { display: grid; grid-template-columns: 380px 1fr; gap: 20px; align-items: start; }
+        .bolum-baslik { font-size: 1rem; margin-bottom: 16px; }
+        .alan { margin-bottom: 0; }
+
+        .liste { display: grid; gap: 10px; }
+        .oge {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            display: flex; align-items: flex-start; gap: 14px;
+        }
+        .oge-icerik { flex: 1; min-width: 0; }
+        .oge h3 { font-size: 0.95rem; margin-bottom: 4px; }
+        .oge p { font-size: 0.85rem; color: var(--text-muted); white-space: pre-wrap; }
+        .oge .meta {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-top: 10px;
+            font-size: 0.75rem; color: var(--text-dim);
+        }
+        .rozet {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 2px 8px; border-radius: 6px;
+            background: var(--surface-2); border: 1px solid var(--border);
+            font-size: 0.72rem; color: var(--text-muted);
+        }
+        .rozet-yesil { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+        .rozet-kirmizi { background: var(--danger-soft); border-color: rgba(239,68,68,0.32); color: var(--danger); }
+
+        .bos {
+            padding: 32px 20px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+        }
+
+        /* ---- Bildirim ---- */
+        #toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
+            background: var(--surface-2); border: 1px solid var(--border-strong);
+            border-radius: var(--radius); padding: 13px 20px;
+            font-size: 0.875rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.25s ease; z-index: 100;
+        }
+        #toast.goster { transform: translateX(-50%) translateY(0); }
+        #toast.hata { border-color: var(--danger); color: var(--danger); }
+
+        @media (max-width: 860px) {
+            .bolum { grid-template-columns: 1fr; }
+            #giris { margin: 40px auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="wrap header-inner">
+            <div class="brand">
+                <img src="../mc/crpr.png" alt="" width="32" height="32">
+                <span>İçerik Yönetimi</span>
+            </div>
+            <div class="header-right">
+                <span class="kullanici" id="kullaniciAdi"></span>
+                <button class="btn btn-ghost btn-sm" id="cikisBtn" hidden>
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Çıkış
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="wrap">
+
+        <!-- Giriş ekranı -->
+        <section class="card" id="giris">
+            <h1>Yönetici Girişi</h1>
+            <p>İçerikleri düzenlemek için admin hesabınla giriş yap.</p>
+            <label for="kadi">Kullanıcı adı</label>
+            <input type="text" id="kadi" autocomplete="username" placeholder="TurboluMC">
+            <label for="sifre">Parola</label>
+            <input type="password" id="sifre" autocomplete="current-password" placeholder="••••••••">
+            <button class="btn btn-primary" id="girisBtn" style="width:100%; justify-content:center;">
+                <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Giriş yap
+            </button>
+        </section>
+
+        <!-- Panel -->
+        <section id="panel" hidden>
+            <div class="tabs" id="sekmeBar"></div>
+            <div id="icerik"></div>
+        </section>
+
+    </main>
+
+    <div id="toast"></div>
+
+    <script>
+        const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
+        let token = localStorage.getItem('token');
+
+        const $ = (s) => document.querySelector(s);
+
+        function esc(v) {
+            return v == null ? '' : String(v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        let toastZaman;
+        function bildir(mesaj, hataMi) {
+            const t = $('#toast');
+            t.textContent = mesaj;
+            t.className = hataMi ? 'goster hata' : 'goster';
+            clearTimeout(toastZaman);
+            toastZaman = setTimeout(() => { t.className = ''; }, 3200);
+        }
+
+        async function api(yol, secenek = {}) {
+            secenek.headers = Object.assign(
+                { 'Content-Type': 'application/json' },
+                secenek.headers || {},
+                token ? { 'Authorization': 'Bearer ' + token } : {}
+            );
+            const r = await fetch(API + yol, secenek);
+            return r.json();
+        }
+
+        /* ---------- Giriş / Çıkış ---------- */
+        async function girisYap() {
+            const username = $('#kadi').value.trim();
+            const password = $('#sifre').value;
+            if (!username || !password) return bildir('Kullanıcı adı ve parola gerekli', true);
+
+            const btn = $('#girisBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...';
+
+            try {
+                const d = await api('/api/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+                if (d.error) { bildir(d.error, true); }
+                else if (!d.isAdmin) { bildir('Bu hesap yönetici değil', true); }
+                else {
+                    token = d.token;
+                    localStorage.setItem('token', token);
+                    paneliAc(d.username);
+                    return;
+                }
+            } catch (e) {
+                bildir('Sunucuya ulaşılamadı', true);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Giriş yap';
+        }
+
+        function cikisYap() {
+            localStorage.removeItem('token');
+            token = null;
+            location.reload();
+        }
+
+        function paneliAc(ad) {
+            $('#giris').hidden = true;
+            $('#panel').hidden = false;
+            $('#cikisBtn').hidden = false;
+            $('#kullaniciAdi').textContent = ad;
+            sekmeCiz();
+            sekmeAc('duyurular');
+        }
+
+        /* ---------- Sekmeler ---------- */
+        const SEKMELER = [
+            { id: 'duyurular',   ad: 'Duyurular',   ikon: 'fa-bullhorn' },
+            { id: 'haberler',    ad: 'Haberler',    ikon: 'fa-newspaper' },
+            { id: 'kampanyalar', ad: 'Kampanyalar', ikon: 'fa-tags' },
+            { id: 'market',      ad: 'Market',      ikon: 'fa-cart-shopping' },
+            { id: 'talepler',    ad: 'Talepler',    ikon: 'fa-clipboard-list' }
+        ];
+        let aktifSekme = 'duyurular';
+
+        function sekmeCiz() {
+            $('#sekmeBar').innerHTML = SEKMELER.map(s =>
+                `<button class="tab${s.id === aktifSekme ? ' aktif' : ''}" data-sekme="${s.id}">
+                    <i class="fa-solid ${s.ikon}"></i> ${s.ad}
+                </button>`
+            ).join('');
+        }
+
+        function sekmeAc(id) {
+            aktifSekme = id;
+            sekmeCiz();
+            $('#icerik').innerHTML = '<div class="bos">Yükleniyor...</div>';
+            ({ duyurular: duyurularCiz, haberler: haberlerCiz, kampanyalar: kampanyalarCiz,
+               market: marketCiz, talepler: taleplerCiz })[id]();
+        }
+
+        const PLATFORM_SEC = `
+            <label>Platform</label>
+            <select data-alan="platform">
+                <option value="all">İkisi de (Java + Bedrock)</option>
+                <option value="java">Sadece Java</option>
+                <option value="bedrock">Sadece Bedrock</option>
+            </select>`;
+
+        const PLATFORM_AD = { all: 'İkisi de', java: 'Java', bedrock: 'Bedrock' };
+
+        function tarih(deger) {
+            if (!deger) return '—';
+            const d = new Date(deger);
+            return isNaN(d) ? '—' : d.toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' });
+        }
+
+        /* ---------- Duyurular ---------- */
+        async function duyurularCiz() {
+            const liste = await api('/api/announcements');
+
+            $('#icerik').innerHTML = `
+                <div class="bolum">
+                    <div class="card">
+                        <h2 class="bolum-baslik">Yeni duyuru</h2>
+                        <label>Başlık</label>
+                        <input type="text" data-alan="title" placeholder="Sunucu güncellemesi">
+                        <label>İçerik</label>
+                        <textarea data-alan="content" placeholder="Duyuru metni..."></textarea>
+                        ${PLATFORM_SEC}
+                        <button class="btn btn-primary" style="width:100%; justify-content:center;" data-ekle="announcement">
+                            <i class="fa-solid fa-plus"></i> Duyuru ekle
+                        </button>
+                    </div>
+                    <div>
+                        <h2 class="bolum-baslik">Yayındaki duyurular (${liste.length})</h2>
+                        <div class="liste">${liste.length ? liste.map(a => `
+                            <div class="oge">
+                                <div class="oge-icerik">
+                                    <h3>${esc(a.title)}</h3>
+                                    <p>${esc(a.content)}</p>
+                                    <div class="meta">
+                                        <span class="rozet"><i class="fa-solid fa-calendar"></i> ${tarih(a.date)}</span>
+                                        <span class="rozet">${PLATFORM_AD[a.platform] || 'İkisi de'}</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger btn-sm" data-sil="announcement" data-id="${esc(a.id)}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>`).join('') : '<div class="bos">Henüz duyuru yok.</div>'}</div>
+                    </div>
+                </div>`;
+        }
+
+        /* ---------- Haberler ---------- */
+        async function haberlerCiz() {
+            const liste = await api('/api/news');
+
+            $('#icerik').innerHTML = `
+                <div class="bolum">
+                    <div class="card">
+                        <h2 class="bolum-baslik">Yeni haber</h2>
+                        <label>Başlık</label>
+                        <input type="text" data-alan="title" placeholder="Yeni sezon açıldı">
+                        <label>İçerik</label>
+                        <textarea data-alan="content" placeholder="Haber metni..."></textarea>
+                        ${PLATFORM_SEC}
+                        <button class="btn btn-primary" style="width:100%; justify-content:center;" data-ekle="news">
+                            <i class="fa-solid fa-plus"></i> Haber ekle
+                        </button>
+                    </div>
+                    <div>
+                        <h2 class="bolum-baslik">Yayındaki haberler (${liste.length})</h2>
+                        <div class="liste">${liste.length ? liste.map(n => `
+                            <div class="oge">
+                                <div class="oge-icerik">
+                                    <h3>${esc(n.title)}</h3>
+                                    <p>${esc(n.content)}</p>
+                                    <div class="meta">
+                                        <span class="rozet"><i class="fa-solid fa-calendar"></i> ${tarih(n.date)}</span>
+                                        <span class="rozet">${PLATFORM_AD[n.platform] || 'İkisi de'}</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger btn-sm" data-sil="news" data-id="${esc(n.id)}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>`).join('') : '<div class="bos">Henüz haber yok.</div>'}</div>
+                    </div>
+                </div>`;
+        }
+
+        /* ---------- Kampanyalar ---------- */
+        async function kampanyalarCiz() {
+            const liste = await api('/api/campaigns');
+
+            $('#icerik').innerHTML = `
+                <div class="bolum">
+                    <div class="card">
+                        <h2 class="bolum-baslik">Yeni kampanya</h2>
+                        <label>Başlık</label>
+                        <input type="text" data-alan="title" placeholder="Hafta sonu indirimi">
+                        <label>Açıklama</label>
+                        <textarea data-alan="description" placeholder="Kampanya detayı..."></textarea>
+                        <label>Ödül</label>
+                        <input type="text" data-alan="reward" placeholder="2 kat puan">
+                        <label>Bitiş tarihi (boş bırakılırsa süresiz)</label>
+                        <input type="datetime-local" data-alan="endDate">
+                        ${PLATFORM_SEC}
+                        <button class="btn btn-primary" style="width:100%; justify-content:center;" data-ekle="campaign">
+                            <i class="fa-solid fa-plus"></i> Kampanya ekle
+                        </button>
+                    </div>
+                    <div>
+                        <h2 class="bolum-baslik">Yayındaki kampanyalar (${liste.length})</h2>
+                        <div class="liste">${liste.length ? liste.map(c => `
+                            <div class="oge">
+                                <div class="oge-icerik">
+                                    <h3>${esc(c.title)}</h3>
+                                    <p>${esc(c.description)}</p>
+                                    <div class="meta">
+                                        <span class="rozet rozet-yesil"><i class="fa-solid fa-gift"></i> ${esc(c.reward)}</span>
+                                        <span class="rozet"><i class="fa-solid fa-calendar"></i> ${c.endDate ? tarih(c.endDate) : 'Süresiz'}</span>
+                                        <span class="rozet">${PLATFORM_AD[c.platform] || 'İkisi de'}</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger btn-sm" data-sil="campaign" data-id="${esc(c.id)}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>`).join('') : '<div class="bos">Henüz kampanya yok.</div>'}</div>
+                    </div>
+                </div>`;
+        }
+
+        /* ---------- Market ---------- */
+        async function marketCiz() {
+            const liste = await api('/api/items');
+
+            $('#icerik').innerHTML = `
+                <div class="bolum">
+                    <div class="card">
+                        <h2 class="bolum-baslik">Yeni ürün</h2>
+                        <label>Ürün adı</label>
+                        <input type="text" data-alan="name" placeholder="Elmas Kılıç">
+                        <label>Fiyat (puan)</label>
+                        <input type="number" data-alan="price" min="0" placeholder="100">
+                        <label>Sunucu komutu (opsiyonel)</label>
+                        <input type="text" data-alan="command" placeholder="give %player% diamond_sword 1">
+                        ${PLATFORM_SEC}
+                        <button class="btn btn-primary" style="width:100%; justify-content:center;" data-ekle="item">
+                            <i class="fa-solid fa-plus"></i> Ürün ekle
+                        </button>
+                    </div>
+                    <div>
+                        <h2 class="bolum-baslik">Market ürünleri (${liste.length})</h2>
+                        <div class="liste">${liste.length ? liste.map(i => `
+                            <div class="oge">
+                                <div class="oge-icerik">
+                                    <h3>${esc(i.name)}</h3>
+                                    <div class="meta">
+                                        <span class="rozet rozet-yesil">${esc(i.price)} puan</span>
+                                        <span class="rozet">${PLATFORM_AD[i.platform] || 'İkisi de'}</span>
+                                    </div>
+                                </div>
+                            </div>`).join('') : '<div class="bos">Henüz ürün yok.</div>'}</div>
+                    </div>
+                </div>`;
+        }
+
+        /* ---------- Talepler ---------- */
+        async function taleplerCiz() {
+            const liste = await api('/api/admin/requests');
+
+            $('#icerik').innerHTML = `
+                <h2 class="bolum-baslik">Oyuncu talepleri (${liste.length})</h2>
+                <div class="liste">${liste.length ? liste.map(r => `
+                    <div class="oge">
+                        <div class="oge-icerik">
+                            <h3>${esc(r.user)} — ${esc(r.item)}</h3>
+                            <div class="meta">
+                                <span class="rozet">${esc(r.price)} puan</span>
+                                <span class="rozet"><i class="fa-solid fa-calendar"></i> ${tarih(r.date)}</span>
+                                <span class="rozet ${r.status === 'completed' ? 'rozet-yesil' : r.status === 'rejected' ? 'rozet-kirmizi' : ''}">
+                                    ${r.status === 'completed' ? 'Tamamlandı' : r.status === 'rejected' ? 'Reddedildi' : 'Bekliyor'}
+                                </span>
+                            </div>
+                        </div>
+                        ${r.status === 'pending' ? `
+                            <button class="btn btn-ghost btn-sm" data-tamamla="${esc(r.id)}">
+                                <i class="fa-solid fa-check"></i> Onayla
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-reddet="${esc(r.id)}">
+                                <i class="fa-solid fa-xmark"></i> Reddet
+                            </button>` : ''}
+                    </div>`).join('') : '<div class="bos">Henüz talep yok.</div>'}</div>`;
+        }
+
+        /* ---------- Olay yönetimi ---------- */
+        document.addEventListener('click', async (e) => {
+            const ekle = e.target.closest('[data-ekle]');
+            const sil  = e.target.closest('[data-sil]');
+            const tam  = e.target.closest('[data-tamamla]');
+            const red  = e.target.closest('[data-reddet]');
+            const tab  = e.target.closest('[data-sekme]');
+
+            if (tab) return sekmeAc(tab.dataset.sekme);
+
+            if (ekle) {
+                const tip = ekle.dataset.ekle;
+                const al = (ad) => {
+                    const el = document.querySelector(`[data-alan="${ad}"]`);
+                    return el ? el.value.trim() : '';
+                };
+
+                let govde, yol, basari;
+                if (tip === 'announcement') {
+                    govde = { title: al('title'), content: al('content'), platform: al('platform') };
+                    yol = '/api/admin/announcement'; basari = 'Duyuru eklendi';
+                    if (!govde.title || !govde.content) return bildir('Başlık ve içerik gerekli', true);
+                } else if (tip === 'news') {
+                    govde = { title: al('title'), content: al('content'), platform: al('platform') };
+                    yol = '/api/admin/news'; basari = 'Haber eklendi';
+                    if (!govde.title || !govde.content) return bildir('Başlık ve içerik gerekli', true);
+                } else if (tip === 'campaign') {
+                    govde = { title: al('title'), description: al('description'), reward: al('reward'),
+                              endDate: al('endDate') || null, platform: al('platform') };
+                    yol = '/api/admin/campaign'; basari = 'Kampanya eklendi';
+                    if (!govde.title || !govde.description) return bildir('Başlık ve açıklama gerekli', true);
+                } else if (tip === 'item') {
+                    govde = { name: al('name'), price: Number(al('price')), command: al('command'),
+                              platform: al('platform') };
+                    yol = '/api/admin/item'; basari = 'Ürün eklendi';
+                    if (!govde.name || !(govde.price >= 0)) return bildir('Ürün adı ve geçerli bir fiyat gerekli', true);
+                }
+
+                ekle.disabled = true;
+                const d = await api(yol, { method: 'POST', body: JSON.stringify(govde) });
+                bildir(d.success ? basari : (d.error || 'İşlem başarısız'), !d.success);
+                if (d.success) sekmeAc(aktifSekme);
+                else ekle.disabled = false;
+                return;
+            }
+
+            if (sil) {
+                if (!confirm('Bu içeriği silmek istediğine emin misin?')) return;
+                const d = await api('/api/admin/' + sil.dataset.sil, {
+                    method: 'DELETE', body: JSON.stringify({ id: sil.dataset.id })
+                });
+                bildir(d.success ? 'Silindi' : (d.error || 'Silinemedi'), !d.success);
+                if (d.success) sekmeAc(aktifSekme);
+                return;
+            }
+
+            if (tam || red) {
+                const id = (tam || red).dataset.tamamla || (tam || red).dataset.reddet;
+                const yol = tam ? '/api/admin/complete-request' : '/api/admin/reject-request';
+                if (red && !confirm('Reddedilirse oyuncunun bakiyesi iade edilir. Onaylıyor musun?')) return;
+                const d = await api(yol, { method: 'POST', body: JSON.stringify({ requestId: id }) });
+                bildir(d.success ? 'İşlem tamamlandı' : (d.error || 'İşlem başarısız'), !d.success);
+                if (d.success) sekmeAc(aktifSekme);
+            }
+        });
+
+        /* ---------- Başlangıç ---------- */
+        $('#girisBtn').addEventListener('click', girisYap);
+        $('#cikisBtn').addEventListener('click', cikisYap);
+        $('#sifre').addEventListener('keydown', (e) => { if (e.key === 'Enter') girisYap(); });
+
+        (async function basla() {
+            if (!token) { $('#kadi').focus(); return; }
+            try {
+                const p = await api('/api/profile');
+                if (p && p.isAdmin) paneliAc(p.username);
+                else { localStorage.removeItem('token'); token = null; }
+            } catch (e) {
+                localStorage.removeItem('token'); token = null;
+            }
+        })();
+    </script>
+</body>
+</html>
