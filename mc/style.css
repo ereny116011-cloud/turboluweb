@@ -1,38 +1,41 @@
 /* ========== DEĞİŞKENLER ========== */
 :root {
-  --bg-base: #0a0a0a;
-  --bg-soft: #111111;
-  --surface: rgba(255,255,255,0.04);
-  --surface-soft: rgba(255,255,255,0.06);
-  --input-bg: rgba(255,255,255,0.05);
-  --glass-border: rgba(255,255,255,0.08);
-  --text: #e5e7eb;
-  --text-muted: #9ca3af;
+  --bg-base: #0b0e13;
+  --bg-soft: #11151c;
+  --surface: #11151c;
+  --surface-soft: #161b23;
+  --input-bg: #0f1319;
+  --glass-border: #232a35;
+  --glass-border-hi: #2f3846;
+  --text: #e6eaf0;
+  --text-muted: #8b95a5;
   --accent: #22c55e;
   --accent-hover: #16a34a;
-  --accent-glow: rgba(34,197,94,0.4);
-  /* Liquid glass yüzeyi */
-  --glass-base: rgba(12,14,17,0.55);
-  --glass-edge: rgba(255,255,255,0.16);
-  --glass-card-base: rgba(12,14,17,0.34);
+  --accent-glow: rgba(34,197,94,0.18);
+  --accent-soft: rgba(34,197,94,0.12);
+  --accent-border: rgba(34,197,94,0.32);
+  --header-bg: rgba(11,14,19,0.85);
   --danger: #ef4444;
+  --radius: 10px;
+  --radius-lg: 14px;
 }
 
 .light {
-  --bg-base: #f8fafc;
-  --bg-soft: #ffffff;
-  --surface: rgba(0,0,0,0.03);
-  --surface-soft: rgba(0,0,0,0.05);
-  --input-bg: rgba(0,0,0,0.04);
-  --glass-border: rgba(0,0,0,0.1);
-  --text: #1f2937;
-  --text-muted: #6b7280;
+  --bg-base: #ffffff;
+  --bg-soft: #f7f8fa;
+  --surface: #f7f8fa;
+  --surface-soft: #f1f3f7;
+  --input-bg: #ffffff;
+  --glass-border: #e4e7ec;
+  --glass-border-hi: #d0d5dd;
+  --text: #111827;
+  --text-muted: #667085;
   --accent: #16a34a;
   --accent-hover: #15803d;
-  --accent-glow: rgba(22,163,74,0.3);
-  --glass-base: rgba(255,255,255,0.58);
-  --glass-edge: rgba(255,255,255,0.85);
-  --glass-card-base: rgba(255,255,255,0.55);
+  --accent-glow: rgba(22,163,74,0.15);
+  --accent-soft: rgba(22,163,74,0.1);
+  --accent-border: rgba(22,163,74,0.32);
+  --header-bg: rgba(255,255,255,0.85);
 }
 
 /* ========== GENEL ========== */
@@ -48,8 +51,8 @@ body {
   min-height: 100vh;
   background: var(--bg-base);
   transition: background 0.3s ease, color 0.3s ease;
-  letter-spacing: 0.3px;
-  line-height: 1.5;
+  letter-spacing: 0;
+  line-height: 1.55;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
@@ -57,6 +60,12 @@ body {
 img { max-width: 100%; height: auto; display: block; }
 
 .glass-card { content-visibility: auto; contain-intrinsic-size: 0 300px; }
+
+/* Arka plan parçacıkları kapatıldı — sade görünüm.
+   JS hâlâ yüklüyor ama görünmüyorlar, performans kaybı yok. */
+.bg-steam-canvas,
+.steam-container,
+.steam-canvas { display: none !important; }
 
 /* ========== ARKA PLAN SERBEST BUHAR ========== */
 .bg-steam-canvas {
@@ -121,59 +130,21 @@ img { max-width: 100%; height: auto; display: block; }
   transform: translateZ(0);
 }
 
-/* ========== ISLAND NAVBAR — LIQUID GLASS ==========
-   Tam genişlikte bir çubuk yerine kenarlardan ayrık, hap biçimli bir "ada".
-   Arkasından geçen içeriği bulanıklaştırıp gösterir. */
+/* ========== ÜST ÇUBUK ==========
+   Eskiden yüzen hap biçimli "ada"ydı; tam genişlikte sabit bir başlığa çevrildi. */
 .navbar {
   position: sticky;
-  top: 14px;
+  top: 0;
   z-index: 100;
-  margin: 14px auto 0;
-  width: min(1800px, calc(100% - 24px));
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 9px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--glass-edge);
-  overflow: hidden;
-  background:
-    linear-gradient(135deg,
-      rgba(255,255,255,0.17) 0%,
-      rgba(255,255,255,0.055) 33%,
-      rgba(255,255,255,0.015) 57%,
-      rgba(255,255,255,0.12) 100%),
-    var(--glass-base);
-  backdrop-filter: blur(26px) saturate(190%) brightness(1.08);
-  -webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.08);
-  box-shadow:
-    0 14px 40px rgba(0,0,0,0.45),
-    0 3px 10px rgba(0,0,0,0.30),
-    inset 0 1px 0 rgba(255,255,255,0.34),
-    inset 0 -1px 1px rgba(0,0,0,0.25);
-}
-
-/* Camın üstündeki ışık yansıması ve sağ alttaki yeşil parıltı */
-.navbar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background:
-    radial-gradient(130% 160% at 14% -40%, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0) 58%),
-    radial-gradient(85% 130% at 92% 135%, var(--accent-glow) 0%, rgba(0,0,0,0) 62%);
-}
-
-/* Açık temada cam beyazlar, gölgeler yumuşar */
-.light .navbar {
-  box-shadow:
-    0 12px 32px rgba(15,23,42,0.14),
-    0 2px 8px rgba(15,23,42,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.95),
-    inset 0 -1px 1px rgba(15,23,42,0.05);
+  padding: 10px 18px;
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .nav-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -311,11 +282,9 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* ========== MAIN ========== */
 #content {
-  /* Ada menü en fazla 1800px oluyor; 20px'lik iç boşluk eklenince
-     içerik tam olarak adanın kenarlarıyla hizalanıyor. */
-  max-width: 1840px;
+  max-width: 1360px;
   margin: 0 auto;
-  padding: 24px 20px 60px;
+  padding: 32px 24px 64px;
   min-height: 60vh;
 }
 
@@ -323,62 +292,19 @@ img { max-width: 100%; height: auto; display: block; }
   animation: fadeInUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-/* ========== GLASS CARD — LIQUID GLASS ========== */
+/* ========== KART ========== */
 .glass-card {
-  position: relative;
-  isolation: isolate;
-  background:
-    linear-gradient(135deg,
-      rgba(255,255,255,0.10) 0%,
-      rgba(255,255,255,0.035) 38%,
-      rgba(255,255,255,0.012) 62%,
-      rgba(255,255,255,0.07) 100%),
-    var(--glass-card-base);
-  backdrop-filter: blur(22px) saturate(175%) brightness(1.05);
-  -webkit-backdrop-filter: blur(22px) saturate(175%) brightness(1.05);
-  border: 1px solid var(--glass-edge);
-  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 20px;
-  box-shadow:
-    0 18px 44px rgba(0,0,0,0.38),
-    0 3px 10px rgba(0,0,0,0.22),
-    inset 0 1px 0 rgba(255,255,255,0.26),
-    inset 0 -1px 1px rgba(0,0,0,0.18);
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-}
-
-/* Camın üstündeki ışık yansıması + sağ alttan tema renginde parıltı */
-.glass-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background:
-    radial-gradient(120% 150% at 12% -30%, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0) 55%),
-    radial-gradient(95% 125% at 96% 122%, var(--accent-glow) 0%, rgba(0,0,0,0) 60%);
+  transition: border-color 0.18s, background 0.18s;
 }
 
 .glass-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255,255,255,0.22);
-  box-shadow:
-    0 24px 56px rgba(0,0,0,0.46),
-    0 4px 12px rgba(0,0,0,0.26),
-    inset 0 1px 0 rgba(255,255,255,0.34),
-    inset 0 -1px 1px rgba(0,0,0,0.20);
-}
-
-/* Açık temada cam beyazlar, gölgeler yumuşar */
-.light .glass-card {
-  border-color: rgba(255,255,255,0.9);
-  box-shadow:
-    0 16px 40px rgba(15,23,42,0.13),
-    0 2px 8px rgba(15,23,42,0.07),
-    inset 0 1px 0 rgba(255,255,255,0.98),
-    inset 0 -1px 1px rgba(15,23,42,0.06);
+  border-color: var(--glass-border-hi);
+  background: var(--surface-soft);
 }
 
 .glass-card h1,
@@ -412,8 +338,6 @@ img { max-width: 100%; height: auto; display: block; }
   font-weight: 500;
   line-height: 1.5;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .glass-card input::placeholder,
@@ -642,20 +566,23 @@ img { max-width: 100%; height: auto; display: block; }
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 54px; height: 54px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: white;
-  border: none;
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--glass-border);
   cursor: pointer;
-  font-size: 1.25rem;
-  box-shadow: 0 6px 24px var(--accent-glow);
+  font-size: 1rem;
   z-index: 9998;
-  transition: transform 0.2s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
   font-family: inherit;
 }
 
-.theme-toggle:hover { transform: scale(1.08) rotate(12deg); }
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--glass-border-hi);
+  background: var(--surface-soft);
+}
 
 /* ========== PROFİL ========== */
 .profile-card { max-width: 500px; margin: 2rem auto; }
