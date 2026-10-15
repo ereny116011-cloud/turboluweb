@@ -230,23 +230,37 @@
         }
 
         // ---- Canlı sunucu durumu ----
+        // mcsrvstat CORS'a izin veriyor (access-control-allow-origin: *), bu yüzden
+        // doğrudan tarayıcıdan çağırıyoruz. Worker'a bağımlı değil.
         async function durumYukle() {
             const nokta = document.getElementById('durumNokta');
             const metin = document.getElementById('durumMetin');
+
+            let d = null;
             try {
-                const d = await fetch(API + '/api/status').then(r => r.json());
-                if (d && d.online) {
-                    const o = (d.players && d.players.online) || 0;
-                    const m = (d.players && d.players.max) || 0;
-                    nokta.className = 'live-dot online';
-                    metin.textContent = o + ' oyuncu çevrimiçi' + (m ? ' / ' + m : '');
-                } else {
-                    nokta.className = 'live-dot offline';
-                    metin.textContent = 'Sunucu şu an çevrimdışı';
-                }
-            } catch (e) {
+                const r = await fetch('https://api.mcsrvstat.us/3/turbolumc.aternos.me');
+                if (r.ok) d = await r.json();
+            } catch (e) { d = null; }
+
+            // Doğrudan çağrı olmazsa worker üzerinden dene
+            if (!d || typeof d.online === 'undefined') {
+                try {
+                    const r2 = await fetch(API + '/api/status');
+                    if (r2.ok) d = await r2.json();
+                } catch (e) { /* yok say */ }
+            }
+
+            if (d && d.online) {
+                const o = (d.players && d.players.online) || 0;
+                const m = (d.players && d.players.max) || 0;
+                nokta.className = 'live-dot online';
+                metin.textContent = o + ' oyuncu çevrimiçi' + (m ? ' / ' + m : '');
+            } else if (d && d.online === false) {
+                nokta.className = 'live-dot offline';
+                metin.textContent = 'Sunucu şu an çevrimdışı';
+            } else {
                 nokta.className = 'live-dot';
-                metin.textContent = 'Durum alınamadı';
+                metin.textContent = 'Durum bilgisi alınamadı';
             }
         }
         durumYukle();
