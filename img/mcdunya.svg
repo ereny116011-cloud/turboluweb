@@ -1,7 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 2800" width="1920" height="2800" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" role="img" aria-label="Minecraft dünyası kesiti: bulutlardan bedrocka">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 2800" width="1920" height="2800" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" role="img" aria-label="Minecraft dunyasi kesiti">
   <defs>
     <linearGradient id="gok" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4d8ff0"/><stop offset="0.6" stop-color="#a8cdfd"/><stop offset="1" stop-color="#d8ebff"/>
+      <stop offset="0" stop-color="#4d8ff0"/>
+      <stop offset="0.6" stop-color="#a8cdfd"/>
+      <stop offset="1" stop-color="#d8ebff"/>
     </linearGradient>
     <pattern id="p_grass_top" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="scale(6)">
       <rect x="0" y="0" width="1" height="1" fill="#c4d0d6"/>
@@ -1321,12 +1323,15 @@
       <rect x="1528" y="286" width="96" height="96"/>
       <rect x="1580" y="120" width="96" height="96"/>
       <rect x="1676" y="120" width="96" height="96"/>
+      <rect x="1772" y="120" width="96" height="96"/>
       <rect x="1580" y="216" width="96" height="96"/>
       <rect x="1676" y="216" width="96" height="96"/>
       <rect x="1772" y="216" width="96" height="96"/>
+      <rect x="1868" y="216" width="96" height="96"/>
   </g>
-  <rect x="0" y="960"  width="1920" height="96"  fill="url(#p_grass_top)"/>
-  <rect x="0" y="1056" width="1920" height="96"  fill="url(#p_grass_side)"/>
+  <rect x="0" y="960" width="1920" height="96" fill="url(#p_grass_top)"/>
+  <rect x="0" y="1056" width="1920" height="96" fill="url(#p_grass_side)"/>
   <rect x="0" y="1152" width="1920" height="576" fill="url(#p_dirt)"/>
   <rect x="0" y="1728" width="1920" height="976" fill="url(#p_stone)"/>
-  <rect x="0" y="2704" width="1920" height="96"  fill="url(#p_bedrock)"/></svg>
+  <rect x="0" y="2704" width="1920" height="96" fill="url(#p_bedrock)"/>
+</svg>
