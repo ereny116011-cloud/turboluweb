@@ -490,15 +490,27 @@ function showContent(section) {
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
-    <div class="glass-card hero-card">
-      <h1><i class="fa-solid fa-gamepad"></i> TurboluMC Dünyasına Hoş Geldiniz! <i class="fa-solid fa-gamepad"></i></h1>
-      <p>Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor.</p>
-      <div class="ip-box" onclick="kopyalaIP()">
-        <span>turbolumc.aternos.me</span>
-        <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
+    <div class="hero-card">
+      <div class="hero-text">
+        <h1>TurboluMC Dünyasına Hoş Geldiniz!</h1>
+        <p class="hero-sub">Kesintisiz macera, harika topluluk ve eğlence dolu anlar seni bekliyor.</p>
+        <div class="ip-box" onclick="kopyalaIP()">
+          <span>turbolumc.aternos.me</span>
+          <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
+        </div>
+        <p class="click-info">IP adresine tıklayarak kopyalayabilirsin!</p>
+        <div id="alt-ip-info"></div>
       </div>
-      <p class="click-info">IP adresine tıklayarak kopyalayabilirsin!</p>
-      <div id="alt-ip-info"></div>
+      <div class="promo">
+        <div class="promo-inner">
+          <div class="promo-bar"><span></span><span></span><span></span></div>
+          <div class="promo-body">
+            <p class="promo-line"><b>TurboluMC</b> · Java Edition</p>
+            <p class="promo-line promo-dim">turbolumc.aternos.me</p>
+            <p class="promo-line promo-ok">✓ Sunucu aktif · 7/24 topluluk</p>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="glass-card" id="features">
       <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Neden Biz?</h2>

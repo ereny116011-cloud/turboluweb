@@ -777,3 +777,58 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 }
+/* ========== QWEN TARZI: duz koyu zemin + lavanta panel ========== */
+body { background: #0a0a0c; background-image: none; }
+
+.hero-card {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 40px;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 28px 4px 8px;
+  margin-bottom: 28px;
+}
+
+.hero-card h1 {
+  font-size: clamp(1.7rem, 3.6vw, 2.5rem);
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.hero-sub { color: var(--text-muted); font-size: 1rem; margin-bottom: 22px; }
+
+.promo { background: #b3adf2; border-radius: 20px; padding: 20px; }
+
+.promo-inner {
+  background: #101013;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.promo-bar {
+  display: flex; align-items: center; gap: 6px;
+  height: 34px; padding-inline: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.promo-bar span { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.22); }
+.promo-bar span:first-child { background: #f87171; }
+.promo-bar span:nth-child(2) { background: #fbbf24; }
+.promo-bar span:last-child { background: #34d399; }
+
+.promo-body {
+  padding: 18px 20px 22px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.82rem; line-height: 1.9;
+}
+
+.promo-line { color: #e8e8ee; margin: 0; }
+.promo-dim { color: #7d7d8c; }
+.promo-ok { color: #4ade80; }
+
+@media (max-width: 900px) {
+  .hero-card { grid-template-columns: 1fr; gap: 26px; }
+}
