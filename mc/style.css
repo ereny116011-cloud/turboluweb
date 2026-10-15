@@ -778,7 +778,7 @@ body {
   background-repeat: no-repeat;
 }
 /* ========== QWEN TARZI: duz koyu zemin + lavanta panel ========== */
-body { background: #0a0a0c; background-image: none; }
+
 
 .hero-card {
   display: grid;
@@ -831,4 +831,24 @@ body { background: #0a0a0c; background-image: none; }
 
 @media (max-width: 900px) {
   .hero-card { grid-template-columns: 1fr; gap: 26px; }
+}
+/* Koyu zemin: .light body daha guclu oldugu icin ikisini de eziyoruz.
+   .light degiskenleri de koyu temaya cevriliyor ki yazilar okunsun. */
+body,
+.light body {
+  background: #0a0a0c;
+  background-image: none;
+}
+
+.light {
+  --bg-base: #0a0a0c;
+  --bg-soft: #11151c;
+  --surface: #11151c;
+  --surface-soft: #161b23;
+  --input-bg: #0f1319;
+  --glass-border: #232a35;
+  --glass-border-hi: #2f3846;
+  --text: #e6eaf0;
+  --text-muted: #8b95a5;
+  --header-bg: rgba(10,10,12,0.85);
 }
