@@ -83,24 +83,24 @@
        üsttekinin gövdesini örtünce geriye sadece aydınlanmış tepe kalıyor. -->
   <g stroke-linejoin="round">
     <ellipse cx="745" cy="1585" rx="1370" ry="1345" transform="rotate(-3.5 745 1585)"
-             fill="url(#d1)" stroke="rgba(168,150,255,0.42)" stroke-width="3"/>
+             fill="url(#d1)" stroke="rgba(190,175,255,0.62)" stroke-width="3"/>
     <ellipse cx="905" cy="1585" rx="1265" ry="1240" transform="rotate(-2 905 1585)"
-             fill="url(#d2)" stroke="rgba(198,150,255,0.40)" stroke-width="3"/>
+             fill="url(#d2)" stroke="rgba(215,175,255,0.60)" stroke-width="3"/>
     <ellipse cx="1020" cy="1600" rx="1150" ry="1112" transform="rotate(1.5 1020 1600)"
-             fill="url(#d3)" stroke="rgba(255,150,240,0.40)" stroke-width="3"/>
+             fill="url(#d3)" stroke="rgba(255,180,245,0.60)" stroke-width="3"/>
     <ellipse cx="820" cy="1645" rx="1045" ry="988" transform="rotate(-1.5 820 1645)"
-             fill="url(#d4)" stroke="rgba(255,160,215,0.42)" stroke-width="3"/>
+             fill="url(#d4)" stroke="rgba(255,185,228,0.62)" stroke-width="3"/>
     <ellipse cx="1095" cy="1615" rx="905" ry="812" transform="rotate(2.5 1095 1615)"
-             fill="url(#d5)" stroke="rgba(255,175,175,0.42)" stroke-width="3"/>
+             fill="url(#d5)" stroke="rgba(255,198,198,0.62)" stroke-width="3"/>
     <ellipse cx="850" cy="1665" rx="790" ry="678" transform="rotate(-1 850 1665)"
-             fill="url(#d6)" stroke="rgba(255,205,150,0.44)" stroke-width="3"/>
+             fill="url(#d6)" stroke="rgba(255,222,180,0.64)" stroke-width="3"/>
     <ellipse cx="1035" cy="1700" rx="705" ry="596" transform="rotate(1.5 1035 1700)"
-             fill="url(#d7)" stroke="rgba(255,232,180,0.46)" stroke-width="3"/>
+             fill="url(#d7)" stroke="rgba(255,242,205,0.66)" stroke-width="3"/>
     <ellipse cx="855" cy="1760" rx="640" ry="540" transform="rotate(-1 855 1760)"
-             fill="url(#d8)" stroke="rgba(255,250,220,0.42)" stroke-width="3"/>
+             fill="url(#d8)" stroke="rgba(255,253,235,0.62)" stroke-width="3"/>
   </g>
   <!-- Alt bölgede sıralanan küçük dağlar: tek dev altın kütlesini kırar -->
-  <g stroke-linejoin="round" stroke="rgba(255,255,255,0.12)" stroke-width="2">
+  <g stroke-linejoin="round" stroke="rgba(255,255,255,0.45)" stroke-width="3">
     <ellipse cx="860"  cy="2320" rx="1300" ry="1150" fill="url(#d4)"/>
     <ellipse cx="950"  cy="2420" rx="1180" ry="1050" fill="url(#d3)"/>
     <ellipse cx="800"  cy="2500" rx="1060" ry="960"  fill="url(#d3)"/>
