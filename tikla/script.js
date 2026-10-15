@@ -1,10 +1,35 @@
-// ========== TEMA ==========
+// ========== TEMA: Koyu / Açık / Duvar kağıdı ==========
+var TEMA_MODLAR = ['dark', 'light', 'wallpaper'];
+var TEMA_ETIKET = { dark: 'Koyu', light: 'Açık', wallpaper: 'Duvar kağıdı' };
+var TEMA_IKON = { dark: 'fa-moon', light: 'fa-sun', wallpaper: 'fa-image' };
+
+function aktifTema() {
+  var root = document.documentElement;
+  if (root.classList.contains('wallpaper')) return 'wallpaper';
+  if (root.classList.contains('light')) return 'light';
+  return 'dark';
+}
+
+function temaUygula(mod) {
+  var root = document.documentElement;
+  root.classList.remove('light', 'wallpaper');
+  if (mod === 'light') root.classList.add('light');
+  else if (mod === 'wallpaper') root.classList.add('wallpaper');
+  localStorage.setItem('theme', mod);
+  updateThemeIcon();
+}
+
+function toggleTheme() {
+  temaUygula(TEMA_MODLAR[(TEMA_MODLAR.indexOf(aktifTema()) + 1) % TEMA_MODLAR.length]);
+}
+
 function updateThemeIcon() {
   var btn = document.getElementById('themeToggle');
   if (!btn) return;
-  btn.innerHTML = document.documentElement.classList.contains('light')
-    ? '<i class="fa-solid fa-sun"></i>'
-    : '<i class="fa-solid fa-moon"></i>';
+  var mod = aktifTema();
+  btn.innerHTML = '<i class="fa-solid ' + TEMA_IKON[mod] + '"></i>';
+  btn.title = 'Tema: ' + TEMA_ETIKET[mod] + ' (değiştirmek için tıkla)';
+  btn.setAttribute('aria-label', btn.title);
 }
 
 // ========== BUHAR ==========
@@ -333,9 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (themeBtn) {
     updateThemeIcon();
     themeBtn.addEventListener('click', function() {
-      var isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
-      updateThemeIcon();
+      toggleTheme();
     });
   }
 

@@ -68,26 +68,52 @@ window.requestNotificationPermission = requestNotificationPermission;
 window.toggleTheme = toggleTheme;
 window.submitAdmin = submitAdmin;
 
-// ========== TEMA ==========
+// ========== TEMA: Koyu / Açık / Duvar kağıdı ==========
+const TEMA_MODLAR = ['dark', 'light', 'wallpaper'];
+const TEMA_ETIKET = { dark: 'Koyu', light: 'Açık', wallpaper: 'Duvar kağıdı' };
+const TEMA_IKON = { dark: 'fa-moon', light: 'fa-sun', wallpaper: 'fa-image' };
+
+function aktifTema() {
+  const root = document.documentElement;
+  if (root.classList.contains('wallpaper')) return 'wallpaper';
+  if (root.classList.contains('light')) return 'light';
+  return 'dark';
+}
+
+function temaUygula(mod) {
+  const root = document.documentElement;
+  root.classList.remove('light', 'wallpaper');
+  if (mod === 'light') root.classList.add('light');
+  else if (mod === 'wallpaper') root.classList.add('wallpaper');
+  localStorage.setItem('theme', mod);
+  updateThemeIcon();
+}
+
 function initTheme() {
   const saved = localStorage.getItem('theme');
   const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-  const isLight = saved ? saved === 'light' : prefersLight;
-  document.documentElement.classList.toggle('light', isLight);
-  updateThemeIcon();
-}
-function toggleTheme() {
+  let mod = 'dark';
+  if (saved === 'light' || saved === 'wallpaper' || saved === 'dark') mod = saved;
+  else if (prefersLight) mod = 'light';
   const root = document.documentElement;
-  const isLight = root.classList.toggle('light');
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  root.classList.remove('light', 'wallpaper');
+  if (mod === 'light') root.classList.add('light');
+  else if (mod === 'wallpaper') root.classList.add('wallpaper');
   updateThemeIcon();
 }
+
+function toggleTheme() {
+  const i = TEMA_MODLAR.indexOf(aktifTema());
+  temaUygula(TEMA_MODLAR[(i + 1) % TEMA_MODLAR.length]);
+}
+
 function updateThemeIcon() {
   const btn = document.getElementById('themeToggle');
   if (!btn) return;
-  btn.innerHTML = document.documentElement.classList.contains('light')
-    ? '<i class="fa-solid fa-sun"></i>'
-    : '<i class="fa-solid fa-moon"></i>';
+  const mod = aktifTema();
+  btn.innerHTML = '<i class="fa-solid ' + TEMA_IKON[mod] + '"></i>';
+  btn.title = 'Tema: ' + TEMA_ETIKET[mod] + ' (değiştirmek için tıkla)';
+  btn.setAttribute('aria-label', btn.title);
 }
 
 // ========== MOUSE BUHAR İZİ ==========

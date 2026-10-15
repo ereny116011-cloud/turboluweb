@@ -25,8 +25,11 @@
         (function() {
             const saved = localStorage.getItem('theme');
             const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-            const isLight = saved ? saved === 'light' : prefersLight;
-            if (isLight) document.documentElement.classList.add('light');
+            let mod = 'dark';
+            if (saved === 'light' || saved === 'wallpaper' || saved === 'dark') mod = saved;
+            else if (prefersLight) mod = 'light';
+            if (mod === 'light') document.documentElement.classList.add('light');
+            else if (mod === 'wallpaper') document.documentElement.classList.add('wallpaper');
         })();
     </script>
 </head>

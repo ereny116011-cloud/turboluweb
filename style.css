@@ -590,3 +590,35 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ========== DUVAR KAĞIDI MODU (macOS Big Sur) ==========
+   Tema butonuyla açılır. Görsel yalnızca bu mod etkinken indirilir:
+   CSS arka plan resimleri sadece eşleşen kural aktifken çekilir. */
+.wallpaper {
+  --bg: #eef2f7;
+  --surface: rgba(255,255,255,0.88);
+  --surface-2: rgba(255,255,255,0.95);
+  --border: rgba(15,23,42,0.10);
+  --border-strong: rgba(15,23,42,0.20);
+  --text: #141a24;
+  --text-muted: #4b5565;
+  --text-dim: #6b7688;
+  --accent: #16a34a;
+  --accent-hover: #15803d;
+  --accent-soft: rgba(22,163,74,0.12);
+  --accent-border: rgba(22,163,74,0.32);
+  --header-bg: rgba(255,255,255,0.72);
+}
+
+.wallpaper body {
+  background: #eef2f7 url('img/bigsur.jpg') center / cover no-repeat fixed;
+}
+
+/* Görselin üstüne hafif bir perde: renkler görünsün ama yazı okunur kalsın */
+.wallpaper body::before {
+  background: rgba(244, 248, 252, 0.34);
+}
+
+@media (max-width: 640px) {
+  .wallpaper body { background-image: url('img/bigsur-kucuk.jpg'); }
+}

@@ -44,8 +44,11 @@
         (function() {
             const saved = localStorage.getItem('theme');
             const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-            const isLight = saved ? saved === 'light' : prefersLight;
-            if (isLight) document.documentElement.classList.add('light');
+            let mod = 'dark';
+            if (saved === 'light' || saved === 'wallpaper' || saved === 'dark') mod = saved;
+            else if (prefersLight) mod = 'light';
+            if (mod === 'light') document.documentElement.classList.add('light');
+            else if (mod === 'wallpaper') document.documentElement.classList.add('wallpaper');
         })();
     </script>
 </head>
@@ -307,18 +310,39 @@
         duyurulariYukle();
 
         const themeBtn = document.getElementById('themeToggle');
-        function updateThemeIcon() {
-            const isLight = document.documentElement.classList.contains('light');
-            themeBtn.innerHTML = isLight
-                ? '<i class="fa-solid fa-sun" aria-hidden="true"></i>'
-                : '<i class="fa-solid fa-moon" aria-hidden="true"></i>';
+        const TEMA_MODLAR = ['dark', 'light', 'wallpaper'];
+        const TEMA_ETIKET = { dark: 'Koyu', light: 'Açık', wallpaper: 'Duvar kağıdı' };
+        const TEMA_IKON = { dark: 'fa-moon', light: 'fa-sun', wallpaper: 'fa-image' };
+
+        function aktifTema() {
+            const root = document.documentElement;
+            if (root.classList.contains('wallpaper')) return 'wallpaper';
+            if (root.classList.contains('light')) return 'light';
+            return 'dark';
         }
+
+        function temaUygula(mod) {
+            const root = document.documentElement;
+            root.classList.remove('light', 'wallpaper');
+            if (mod === 'light') root.classList.add('light');
+            else if (mod === 'wallpaper') root.classList.add('wallpaper');
+            localStorage.setItem('theme', mod);
+            guncelleIkon();
+        }
+
+        function guncelleIkon() {
+            const mod = aktifTema();
+            themeBtn.innerHTML = '<i class="fa-solid ' + TEMA_IKON[mod] + '" aria-hidden="true"></i>';
+            themeBtn.title = 'Tema: ' + TEMA_ETIKET[mod] + ' (değiştirmek için tıkla)';
+            themeBtn.setAttribute('aria-label', themeBtn.title);
+        }
+
         themeBtn.addEventListener('click', () => {
-            const isLight = document.documentElement.classList.toggle('light');
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            updateThemeIcon();
+            const i = TEMA_MODLAR.indexOf(aktifTema());
+            temaUygula(TEMA_MODLAR[(i + 1) % TEMA_MODLAR.length]);
         });
-        updateThemeIcon();
+
+        guncelleIkon();
     </script>
 </body>
 </html>
