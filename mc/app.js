@@ -513,7 +513,7 @@ async function renderStatus() {
       </div>
     </div>
     <div class="glass-card" id="features">
-      <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Neden Biz?</h2>
+      <h2>Neden Biz?</h2>
       <div class="features-grid">
         <div class="feature-item"><i class="fa-solid fa-bolt"></i><h3>Yüksek Performans</h3><p>Donma ve lag olmadan akıcı oyun.</p></div>
         <div class="feature-item"><i class="fa-solid fa-shield-halved"></i><h3>Adil Oyun</h3><p>Hileye sıfır tolerans.</p></div>
@@ -521,8 +521,8 @@ async function renderStatus() {
       </div>
     </div>
     <div class="glass-card" id="durum">
-      <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Anlık Sunucu Durumu</h2>
-      <div class="status-info" style="text-align:center;">
+      <h2>Anlık Sunucu Durumu</h2>
+      <div class="status-info" >
         <p><strong>Durum:</strong> <span id="online-durum"><i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...</span></p>
         <p><strong>Çevrimiçi Oyuncular:</strong> <span id="oyuncu-sayisi">- / -</span></p>
         <p><strong>Sürüm:</strong> <span id="sunucu-surum">-</span></p>
