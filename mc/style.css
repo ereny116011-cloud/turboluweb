@@ -881,3 +881,34 @@ body,
 
 #durum .status-info { text-align: left; }
 #durum .status-info p { margin-bottom: 8px; }
+/* ========== METIN RENKLERI ==========
+   Kartlar koyu oldugu icin metin de acik olmali. .light sinifi
+   body'den guclu oldugu icin orada da ezmek gerekiyor. */
+body,
+.light {
+  --text: #eef1f6;
+  --text-muted: #9aa4b2;
+  --surface: #11151c;
+  --surface-soft: #161b23;
+  --glass-border: transparent;
+  --input-bg: #0f1319;
+}
+
+/* Gokyuzu uzerinde okunurluk icin hafif golge */
+.hero-card h1 {
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(6,10,26,0.75), 0 1px 3px rgba(6,10,26,0.6);
+}
+
+.hero-sub,
+.click-info {
+  color: #eef1f6;
+  text-shadow: 0 1px 10px rgba(6,10,26,0.8);
+}
+
+.hero-card .ip-box {
+  background: rgba(10,10,12,0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-color: rgba(255,255,255,0.16);
+}
