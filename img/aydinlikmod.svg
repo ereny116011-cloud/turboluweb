@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Gündoğumu manzarası">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 2800" width="1920" height="2800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Gündoğumu manzarası">
   <defs>
     <!-- Gökyüzü: gece laciverti, sağ üstte mora kayar -->
     <linearGradient id="sky" x1="0.05" y1="0" x2="0.75" y2="1">
@@ -74,9 +74,9 @@
   </defs>
 
   <!-- Gökyüzü + tepe ışığı -->
-  <rect width="1920" height="1080" fill="url(#sky)"/>
-  <rect width="1920" height="1080" fill="url(#patlama)"/>
-  <rect width="1920" height="1080" fill="url(#ustGolge)"/>
+  <rect width="1920" height="2800" fill="url(#sky)"/>
+  <rect width="1920" height="2800" fill="url(#patlama)"/>
+  <rect width="1920" height="2800" fill="url(#ustGolge)"/>
 
   <!-- Kumul katmanları: iç içe, hafif döndürülmüş elipsler.
        Her birinin kenarında ince bir ışık çizgisi var; alttaki katman
