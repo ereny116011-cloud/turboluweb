@@ -70,16 +70,16 @@
       <stop offset="0" stop-color="#050a1c" stop-opacity="0.55"/>
       <stop offset="1" stop-color="#050a1c" stop-opacity="0"/>
     </linearGradient>
-    <filter id="canli" x="-5%" y="-5%" width="110%" height="110%">
-      <feColorMatrix type="saturate" values="1.5"/>
+    <filter id="aydinlik" x="-5%" y="-5%" width="110%" height="110%">
+      <feColorMatrix type="saturate" values="0.82"/>
       <feComponentTransfer>
-        <feFuncR type="linear" slope="1.14"/>
-        <feFuncG type="linear" slope="1.14"/>
-        <feFuncB type="linear" slope="1.14"/>
+        <feFuncR type="linear" slope="0.70" intercept="0.26"/>
+        <feFuncG type="linear" slope="0.70" intercept="0.26"/>
+        <feFuncB type="linear" slope="0.70" intercept="0.26"/>
       </feComponentTransfer>
     </filter>
   </defs>
-  <g filter="url(#canli)">
+  <g filter="url(#aydinlik)">
 
   <!-- Gökyüzü + tepe ışığı -->
   <rect width="1920" height="1080" fill="url(#sky)"/>
