@@ -205,10 +205,10 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 }
 
 .hero h1 {
-  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  font-size: clamp(1.7rem, 5vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.035em;
-  max-width: 20ch;
+  max-width: 34ch;
 }
 
 .lead {
@@ -611,14 +611,11 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 }
 
 .wallpaper body {
-  background: #eef2f7 url('img/bigsur.jpg') center / cover no-repeat fixed;
+  background: #eef2f7 url('img/bigsur.svg') center / cover no-repeat fixed;
 }
 
 /* Görselin üstüne hafif bir perde: renkler görünsün ama yazı okunur kalsın */
 .wallpaper body::before {
-  background: rgba(244, 248, 252, 0.34);
+  background: rgba(246, 249, 253, 0.22);
 }
 
-@media (max-width: 640px) {
-  .wallpaper body { background-image: url('img/bigsur-kucuk.jpg'); }
-}

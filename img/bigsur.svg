@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Big Sur tarzı katmanlı degrade manzara">
+  <defs>
+    <!-- Gökyüzü: gece lacivertinden mora -->
+    <linearGradient id="gok" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#0b1330"/>
+      <stop offset="0.45" stop-color="#1d1a4e"/>
+      <stop offset="0.78" stop-color="#341a5c"/>
+      <stop offset="1" stop-color="#43185a"/>
+    </linearGradient>
+
+    <!-- Katman renkleri: arkadan öne doğru ısınan geçişler -->
+    <linearGradient id="k1" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#16214f"/>
+      <stop offset="1" stop-color="#2c1a5e"/>
+    </linearGradient>
+
+    <linearGradient id="k2" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#2b2478"/>
+      <stop offset="0.55" stop-color="#41217f"/>
+      <stop offset="1" stop-color="#5a2286"/>
+    </linearGradient>
+
+    <linearGradient id="k3" x1="0" y1="0" x2="0.75" y2="1">
+      <stop offset="0" stop-color="#692b95"/>
+      <stop offset="0.5" stop-color="#962b91"/>
+      <stop offset="1" stop-color="#b83287"/>
+    </linearGradient>
+
+    <linearGradient id="k4" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#c93a80"/>
+      <stop offset="0.45" stop-color="#e5505f"/>
+      <stop offset="1" stop-color="#f2703c"/>
+    </linearGradient>
+
+    <linearGradient id="k5" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#eb7635"/>
+      <stop offset="0.5" stop-color="#f7a63a"/>
+      <stop offset="1" stop-color="#ffc85c"/>
+    </linearGradient>
+
+    <linearGradient id="k6" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#ffb344"/>
+      <stop offset="0.5" stop-color="#ffd472"/>
+      <stop offset="1" stop-color="#fff0b8"/>
+    </linearGradient>
+
+    <!-- Tepedeki ışık parlaması -->
+    <radialGradient id="parlaklik" cx="0.42" cy="0.34" r="0.5">
+      <stop offset="0" stop-color="#ffd9f0" stop-opacity="0.55"/>
+      <stop offset="0.45" stop-color="#b06bd8" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Alt kenara doğru karartma: yazı okunurluğu için -->
+    <linearGradient id="vinyet" x1="0" y1="0.45" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0f1e" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0a0f1e" stop-opacity="0.45"/>
+    </linearGradient>
+
+    <!-- Arka katmanlara derinlik için yumuşaklık -->
+    <filter id="yumusak" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+    <filter id="hafif" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+
+  <!-- Gökyüzü -->
+  <rect width="1920" height="1080" fill="url(#gok)"/>
+  <rect width="1920" height="1080" fill="url(#parlaklik)"/>
+
+  <!-- Katman 1: en arka, en koyu -->
+  <path filter="url(#yumusak)" fill="url(#k1)"
+        d="M-60 626 C 250 524 520 360 820 382 S 1210 546 1490 498 S 1842 378 1980 338 L1980 1140 L-60 1140 Z"/>
+
+  <!-- Katman 2 -->
+  <path filter="url(#yumusak)" fill="url(#k2)"
+        d="M-60 726 C 244 644 544 502 862 518 S 1252 664 1532 616 S 1864 500 1980 468 L1980 1140 L-60 1140 Z"/>
+
+  <!-- Katman 3 -->
+  <path filter="url(#hafif)" fill="url(#k3)"
+        d="M-60 826 C 262 754 582 622 912 634 S 1302 776 1582 734 S 1872 632 1980 600 L1980 1140 L-60 1140 Z"/>
+
+  <!-- Katman 4 -->
+  <path fill="url(#k4)"
+        d="M-60 926 C 282 864 622 732 962 744 S 1352 874 1622 844 S 1884 752 1980 722 L1980 1140 L-60 1140 Z"/>
+
+  <!-- Katman 5 -->
+  <path fill="url(#k5)"
+        d="M-60 1016 C 302 964 662 842 1012 854 S 1402 966 1672 946 S 1892 874 1980 854 L1980 1140 L-60 1140 Z"/>
+
+  <!-- Katman 6: ön plandaki sıcak vurgu -->
+  <path filter="url(#hafif)" fill="url(#k6)"
+        d="M-60 1092 C 322 1052 702 952 1062 962 S 1452 1054 1722 1044 S 1902 1004 1980 992 L1980 1140 L-60 1140 Z"/>
+
+  <!-- Alt karartma -->
+  <rect width="1920" height="1080" fill="url(#vinyet)"/>
+</svg>

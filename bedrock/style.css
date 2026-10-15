@@ -768,14 +768,11 @@ body::before {
 }
 
 .wallpaper body {
-  background: #eef2f7 url('../img/bigsur.jpg') center / cover no-repeat fixed;
+  background: #eef2f7 url('../img/bigsur.svg') center / cover no-repeat fixed;
 }
 
 /* Görselin üstüne hafif bir perde: renkler görünsün ama yazı okunur kalsın */
 .wallpaper body::before {
-  background: rgba(244, 248, 252, 0.34);
+  background: rgba(246, 249, 253, 0.22);
 }
 
-@media (max-width: 640px) {
-  .wallpaper body { background-image: url('../img/bigsur-kucuk.jpg'); }
-}
