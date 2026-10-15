@@ -636,3 +636,57 @@ body {
     0 1px 3px rgba(8, 12, 30, 0.62),
     0 2px 16px rgba(8, 12, 30, 0.42);
 }
+/* ---------- Hero: solda metin, sagda gorsel panel ---------- */
+.hero {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 56px;
+  align-items: center;
+  padding-block: 72px 64px;
+}
+
+.hero-text { min-width: 0; }
+
+.hero-visual { min-width: 0; }
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.panel-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding-inline: 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.panel-bar span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+
+.panel-bar span:first-child { background: #f87171; }
+.panel-bar span:nth-child(2) { background: #fbbf24; }
+.panel-bar span:last-child { background: #34d399; }
+
+.panel-body {
+  aspect-ratio: 4 / 3;
+  background-image: url('img/mcdunya.svg');
+  background-size: cover;
+  background-position: 50% 42%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; gap: 36px; padding-block: 56px 48px; }
+  .panel-body { aspect-ratio: 16 / 9; }
+}
