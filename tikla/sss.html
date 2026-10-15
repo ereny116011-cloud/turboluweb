@@ -87,10 +87,9 @@
         (function() {
             const saved = localStorage.getItem('theme');
             const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-            let mod = 'wallpaper';
-            if (saved === 'light' || saved === 'wallpaper' || saved === 'dark') mod = saved;
+            let mod = 'light';
+            if (saved === 'light' || saved === 'dark') mod = saved;
             if (mod === 'light') document.documentElement.classList.add('light');
-            else if (mod === 'wallpaper') document.documentElement.classList.add('wallpaper');
         })();
     </script>
 </head>

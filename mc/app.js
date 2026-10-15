@@ -56,13 +56,12 @@ window.toggleTheme = toggleTheme;
 window.submitAdmin = submitAdmin;
 
 // ========== TEMA: Koyu / Açık / Duvar kağıdı ==========
-const TEMA_MODLAR = ['dark', 'light', 'wallpaper'];
-const TEMA_ETIKET = { dark: 'Koyu', light: 'Açık', wallpaper: 'Duvar kağıdı' };
-const TEMA_IKON = { dark: 'fa-moon', light: 'fa-sun', wallpaper: 'fa-image' };
+const TEMA_MODLAR = ['dark', 'light'];
+const TEMA_ETIKET = { dark: 'Koyu', light: 'Açık' };
+const TEMA_IKON = { dark: 'fa-moon', light: 'fa-sun' };
 
 function aktifTema() {
   const root = document.documentElement;
-  if (root.classList.contains('wallpaper')) return 'wallpaper';
   if (root.classList.contains('light')) return 'light';
   return 'dark';
 }
@@ -71,7 +70,6 @@ function temaUygula(mod) {
   const root = document.documentElement;
   root.classList.remove('light', 'wallpaper');
   if (mod === 'light') root.classList.add('light');
-  else if (mod === 'wallpaper') root.classList.add('wallpaper');
   localStorage.setItem('theme', mod);
   updateThemeIcon();
 }
@@ -79,12 +77,11 @@ function temaUygula(mod) {
 function initTheme() {
   const saved = localStorage.getItem('theme');
   const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-  let mod = 'wallpaper';
-  if (saved === 'light' || saved === 'wallpaper' || saved === 'dark') mod = saved;
+  let mod = 'light';
+  if (saved === 'light' || saved === 'dark') mod = saved;
   const root = document.documentElement;
   root.classList.remove('light', 'wallpaper');
   if (mod === 'light') root.classList.add('light');
-  else if (mod === 'wallpaper') root.classList.add('wallpaper');
   updateThemeIcon();
 }
 
