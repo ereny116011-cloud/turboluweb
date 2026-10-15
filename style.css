@@ -692,3 +692,7 @@ body {
 }
 /* Durum seridi grid icinde tam genislik kaplar */
 .hero .status-strip { grid-column: 1 / -1; }
+/* Ana sayfada gorsel panel kaldirildi: hero tek sutun */
+.hero { grid-template-columns: 1fr; gap: 0; max-width: 760px; }
+.hero .status-strip { grid-column: auto; }
+.panel, .panel-bar, .panel-body { display: none; }
