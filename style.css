@@ -622,9 +622,7 @@ body {
    Bu sayede renkler görünür kalırken yazılar okunuyor. */
 .light body {
   background-color: #ffffff;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.25)),
-    url('img/aydinlikmod.svg');
+  background-image: url('img/aydinlikmod.svg');
 }
 /* Açık modda arka plan canlı; arka planın üstüne gelen yazılar beyaz.
    Beyaz yazı açık gökyüzünde kaybolmasın diye altına koyu gölge konuldu. */

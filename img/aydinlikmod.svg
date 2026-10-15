@@ -1,11 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Açık tema için Big Sur tarzı manzara">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Gündoğumu manzarası">
   <defs>
     <!-- Gökyüzü: gece laciverti, sağ üstte mora kayar -->
     <linearGradient id="sky" x1="0.05" y1="0" x2="0.75" y2="1">
-      <stop offset="0"    stop-color="#dbe4f6"/>
-      <stop offset="0.32" stop-color="#e4e2f8"/>
-      <stop offset="0.62" stop-color="#efe4f7"/>
-      <stop offset="1"    stop-color="#f5e6f2"/>
+      <stop offset="0"    stop-color="#4a3690"/>
+      <stop offset="0.28" stop-color="#8a4296"/>
+      <stop offset="0.55" stop-color="#cf4f6e"/>
+      <stop offset="0.78" stop-color="#f07a3a"/>
+      <stop offset="1"    stop-color="#ffc257"/>
     </linearGradient>
 
     <!-- Her kumul: tepesi aydınlık, dibi karanlığa gömülü.
@@ -60,8 +61,8 @@
 
     <!-- Tepedeki ışık patlaması -->
     <radialGradient id="patlama" cx="0.4" cy="0.42" r="0.46">
-      <stop offset="0"    stop-color="#ffe4ff" stop-opacity="0.62"/>
-      <stop offset="0.4"  stop-color="#b478ff" stop-opacity="0.24"/>
+      <stop offset="0"    stop-color="#fff3c4" stop-opacity="0.55"/>
+      <stop offset="0.4"  stop-color="#ffb45e" stop-opacity="0.26"/>
       <stop offset="1"    stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
 
@@ -75,6 +76,7 @@
   <!-- Gökyüzü + tepe ışığı -->
   <rect width="1920" height="1080" fill="url(#sky)"/>
   <rect width="1920" height="1080" fill="url(#patlama)"/>
+  <rect width="1920" height="1080" fill="url(#ustGolge)"/>
 
   <!-- Kumul katmanları: iç içe, hafif döndürülmüş elipsler.
        Her birinin kenarında ince bir ışık çizgisi var; alttaki katman
