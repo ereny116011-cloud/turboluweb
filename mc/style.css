@@ -760,7 +760,7 @@ body::before {
 /* ========== MANZARA: her mod kendi SVG'sini kullanır ========== */
 body {
   background-color: var(--bg);
-  background-image: url('../img/bigsur-koyu.svg');
+  background-image: url('../img/mcdunya-gece.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -769,5 +769,5 @@ body {
 
 .light body {
   background-color: #ffffff;
-  background-image: url('../img/aydinlikmod.svg');
+  background-image: url('../img/mcdunya.svg');
 }
