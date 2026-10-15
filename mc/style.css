@@ -758,17 +758,22 @@ body::before {
 
 /* Görselin üstüne hafif bir perde: renkler görünsün ama yazı okunur kalsın */
 /* ========== MANZARA: her mod kendi SVG'sini kullanır ========== */
+/* ========== ARKA PLAN: Minecraft dünyası ==========
+   background-size: cover + no-repeat ZORUNLU; yoksa SVG dogal boyutunda
+   cizilip kendini tekrar eder ve katman sirasi donguye girer. */
 body {
-  background-color: var(--bg);
+  background-color: var(--bg-base);
   background-image: url('../img/mcdunya-gece.svg');
   background-size: cover;
-  image-rendering: pixelated;
   background-position: center;
   background-repeat: no-repeat;
+  image-rendering: pixelated;
 }
-
 
 .light body {
   background-color: #ffffff;
   background-image: url('../img/mcdunya.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
