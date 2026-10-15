@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 2800" width="1920" height="2800" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" role="img" aria-label="Minecraft dunyasi kesiti">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 2784" width="1920" height="2784" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" role="img" aria-label="Minecraft dunyasi kesiti">
   <defs>
     <linearGradient id="gok" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#4d8ff0"/>
-      <stop offset="0.6" stop-color="#a8cdfd"/>
+      <stop offset="0.62" stop-color="#a8cdfd"/>
       <stop offset="1" stop-color="#d8ebff"/>
     </linearGradient>
     <pattern id="p_grass_side" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="scale(6)">
@@ -3523,24 +3523,24 @@
       <rect x="14" y="15" width="2" height="1" fill="#646464"/>
     </pattern>
   </defs>
-  <rect width="1920" height="2800" fill="url(#gok)"/>
-  <rect x="0" y="900"  width="1920" height="96"   fill="url(#p_grass_side)"/>
-  <rect x="0" y="996"  width="1920" height="192"  fill="url(#p_dirt)"/>
-  <rect x="0" y="1188" width="1920" height="1020" fill="url(#p_stone)"/>
-  <rect x="0" y="2208" width="1920" height="496"  fill="url(#p_deepslate)"/>
-  <rect x="240" y="1420" width="96" height="96" fill="url(#p_coal_ore)"/>
-  <rect x="760" y="1330" width="96" height="96" fill="url(#p_iron_ore)"/>
-  <rect x="1320" y="1560" width="96" height="96" fill="url(#p_coal_ore)"/>
-  <rect x="1680" y="1410" width="96" height="96" fill="url(#p_diamond_ore)"/>
-  <rect x="420" y="1860" width="96" height="96" fill="url(#p_redstone_ore)"/>
-  <rect x="1080" y="1810" width="96" height="96" fill="url(#p_iron_ore)"/>
-  <rect x="1560" y="2040" width="96" height="96" fill="url(#p_gold_ore)"/>
-  <rect x="880" y="2150" width="96" height="96" fill="url(#p_emerald_ore)"/>
-  <rect x="180" y="2380" width="96" height="96" fill="url(#p_ds_diamond)"/>
-  <rect x="1240" y="2440" width="96" height="96" fill="url(#p_ds_coal)"/>
-  <rect x="700" y="2560" width="96" height="96" fill="url(#p_ds_lapis)"/>
-  <rect x="1620" y="2600" width="96" height="96" fill="url(#p_ds_iron)"/>
-  <rect x="320" y="2660" width="96" height="96" fill="url(#p_ds_redstone)"/>
-  <rect x="1080" y="2690" width="96" height="96" fill="url(#p_ds_emerald)"/>
-  <rect x="0" y="2704" width="1920" height="96"   fill="url(#p_bedrock)"/>
+  <rect width="1920" height="2784" fill="url(#gok)"/>
+  <rect x="0" y="864" width="1920" height="96" fill="url(#p_grass_side)"/>
+  <rect x="0" y="960" width="1920" height="192" fill="url(#p_dirt)"/>
+  <rect x="0" y="1152" width="1920" height="1056" fill="url(#p_stone)"/>
+  <rect x="0" y="2208" width="1920" height="480" fill="url(#p_deepslate)"/>
+  <rect x="192" y="1440" width="96" height="96" fill="url(#p_coal_ore)"/>
+  <rect x="768" y="1344" width="96" height="96" fill="url(#p_iron_ore)"/>
+  <rect x="1344" y="1536" width="96" height="96" fill="url(#p_coal_ore)"/>
+  <rect x="1632" y="1440" width="96" height="96" fill="url(#p_diamond_ore)"/>
+  <rect x="384" y="1824" width="96" height="96" fill="url(#p_redstone_ore)"/>
+  <rect x="1056" y="1824" width="96" height="96" fill="url(#p_iron_ore)"/>
+  <rect x="1536" y="2016" width="96" height="96" fill="url(#p_gold_ore)"/>
+  <rect x="864" y="2112" width="96" height="96" fill="url(#p_emerald_ore)"/>
+  <rect x="192" y="2304" width="96" height="96" fill="url(#p_ds_diamond)"/>
+  <rect x="1248" y="2400" width="96" height="96" fill="url(#p_ds_coal)"/>
+  <rect x="672" y="2496" width="96" height="96" fill="url(#p_ds_lapis)"/>
+  <rect x="1632" y="2592" width="96" height="96" fill="url(#p_ds_iron)"/>
+  <rect x="288" y="2592" width="96" height="96" fill="url(#p_ds_redstone)"/>
+  <rect x="1056" y="2496" width="96" height="96" fill="url(#p_ds_emerald)"/>
+  <rect x="0" y="2688" width="1920" height="96" fill="url(#p_bedrock)"/>
 </svg>
