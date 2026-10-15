@@ -690,3 +690,5 @@ body {
   .hero { grid-template-columns: 1fr; gap: 36px; padding-block: 56px 48px; }
   .panel-body { aspect-ratio: 16 / 9; }
 }
+/* Durum seridi grid icinde tam genislik kaplar */
+.hero .status-strip { grid-column: 1 / -1; }
