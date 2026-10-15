@@ -675,3 +675,16 @@ body {
     linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.25)),
     url('img/aydinlikmod.svg');
 }
+/* Açık modda arka plan canlı; arka planın üstüne gelen yazılar beyaz.
+   Beyaz yazı açık gökyüzünde kaybolmasın diye altına koyu gölge konuldu. */
+.light .hero h1,
+.light .hero .lead,
+.light .section-head h2,
+.light .section-head p,
+.light .split h2,
+.light .prose {
+  color: #ffffff;
+  text-shadow:
+    0 1px 3px rgba(8, 12, 30, 0.62),
+    0 2px 16px rgba(8, 12, 30, 0.42);
+}
