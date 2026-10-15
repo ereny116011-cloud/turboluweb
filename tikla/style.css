@@ -608,6 +608,21 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* Görselin üstüne hafif bir perde: renkler görünsün ama yazı okunur kalsın */
 .wallpaper body::before {
-  background: rgba(246, 249, 253, 0.12);
+  background: rgba(246, 249, 253, 0.05);
+}
+/* ========== MANZARA: her mod kendi SVG'sini kullanır ========== */
+body {
+  background-color: var(--bg);
+  background-image: url('../img/bigsur-koyu.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
+.wallpaper body { background-image: url('../img/bigsur.svg'); }
+
+.light body {
+  background-color: #ffffff;
+  background-image: url('../img/bigsur-canli.svg');
+}

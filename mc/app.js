@@ -79,9 +79,8 @@ function temaUygula(mod) {
 function initTheme() {
   const saved = localStorage.getItem('theme');
   const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-  let mod = 'dark';
+  let mod = 'wallpaper';
   if (saved === 'light' || saved === 'wallpaper' || saved === 'dark') mod = saved;
-  else if (prefersLight) mod = 'light';
   const root = document.documentElement;
   root.classList.remove('light', 'wallpaper');
   if (mod === 'light') root.classList.add('light');

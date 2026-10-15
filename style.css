@@ -616,7 +616,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 
 /* Görselin üstüne hafif bir perde: renkler görünsün ama yazı okunur kalsın */
 .wallpaper body::before {
-  background: rgba(246, 249, 253, 0.12);
+  background: rgba(246, 249, 253, 0.05);
 }
 /* Duvar kağıdı modunda hero'nun üstü koyu lacivert kalıyor,
    bu yüzden oradaki yazılar açık renge dönüyor. */
@@ -645,7 +645,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 .wallpaper .site-nav a:hover { background: rgba(255, 255, 255, 0.14); color: #ffffff; }
 
 .wallpaper .icon-btn {
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.10);
   color: #eef2ff;
 }
 
@@ -653,4 +653,20 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   border-color: rgba(255, 255, 255, 0.42);
   color: #ffffff;
   background: rgba(255, 255, 255, 0.12);
+}
+/* ========== MANZARA: her mod kendi SVG'sini kullanır ========== */
+body {
+  background-color: var(--bg);
+  background-image: url('img/bigsur-koyu.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.wallpaper body { background-image: url('img/bigsur.svg'); }
+
+.light body {
+  background-color: #ffffff;
+  background-image: url('img/bigsur-canli.svg');
 }
