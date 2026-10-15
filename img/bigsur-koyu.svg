@@ -70,7 +70,12 @@
       <stop offset="0" stop-color="#050a1c" stop-opacity="0.55"/>
       <stop offset="1" stop-color="#050a1c" stop-opacity="0"/>
     </linearGradient>
-  </defs>
+  <linearGradient id="gece" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0"    stop-color="#0a0c22" stop-opacity="0.30"/>
+    <stop offset="0.42" stop-color="#0a0d20" stop-opacity="0.58"/>
+    <stop offset="0.75" stop-color="#05081a" stop-opacity="0.76"/>
+    <stop offset="1"    stop-color="#02040d" stop-opacity="0.88"/>
+  </linearGradient>  </defs>
 
   <!-- Gökyüzü + tepe ışığı -->
   <rect width="1920" height="2800" fill="url(#sky)"/>
@@ -98,5 +103,5 @@
     <ellipse cx="855" cy="1760" rx="640" ry="540" transform="rotate(-1 855 1760)"
              fill="url(#d8)" stroke="rgba(255,250,220,0.42)" stroke-width="3"/>
   </g>
-  <rect width="1920" height="1080" fill="#040713" opacity="0.55"/>
+  <rect width="1920" height="2800" fill="url(#gece)"/>
 </svg>
