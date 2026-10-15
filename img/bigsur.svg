@@ -100,12 +100,12 @@
   </g>
   <!-- Alt bölgede sıralanan küçük dağlar: tek dev altın kütlesini kırar -->
   <g stroke-linejoin="round" stroke="rgba(255,255,255,0.10)" stroke-width="2">
-    <ellipse cx="120"  cy="2280" rx="330" ry="240" fill="url(#d1)"/>
-    <ellipse cx="440"  cy="2320" rx="300" ry="200" fill="url(#d2)"/>
-    <ellipse cx="740"  cy="2250" rx="360" ry="260" fill="url(#d3)"/>
-    <ellipse cx="1060" cy="2340" rx="320" ry="210" fill="url(#d1)"/>
-    <ellipse cx="1350" cy="2270" rx="350" ry="250" fill="url(#d2)"/>
-    <ellipse cx="1660" cy="2330" rx="330" ry="205" fill="url(#d3)"/>
-    <ellipse cx="1900" cy="2290" rx="300" ry="220" fill="url(#d1)"/>
+    <ellipse cx="120"  cy="1620" rx="330" ry="230" fill="url(#d2)"/>
+    <ellipse cx="440"  cy="1680" rx="300" ry="195" fill="url(#d1)"/>
+    <ellipse cx="740"  cy="1560" rx="360" ry="250" fill="url(#d2)"/>
+    <ellipse cx="1060" cy="1700" rx="320" ry="205" fill="url(#d1)"/>
+    <ellipse cx="1350" cy="1580" rx="350" ry="245" fill="url(#d2)"/>
+    <ellipse cx="1660" cy="1690" rx="330" ry="200" fill="url(#d1)"/>
+    <ellipse cx="1900" cy="1630" rx="300" ry="215" fill="url(#d2)"/>
   </g>
 </svg>
