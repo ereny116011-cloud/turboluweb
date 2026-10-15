@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Açık tema için yumuşak pastel manzara">
+  <defs>
+    <!-- Gökyüzü: gece laciverti değil, açık ve havadar -->
+    <linearGradient id="sky" x1="0.05" y1="0" x2="0.75" y2="1">
+      <stop offset="0"    stop-color="#eaeffc"/>
+      <stop offset="0.35" stop-color="#f1edfd"/>
+      <stop offset="0.7"  stop-color="#f7eefb"/>
+      <stop offset="1"    stop-color="#fbeff7"/>
+    </linearGradient>
+
+    <!-- Kumullar: her katmanın tepesi daha açık, dibi biraz daha dolu.
+         Böylece hacim korunuyor ama hiçbir renk göz yormuyor. -->
+    <linearGradient id="a1" x1="0" y1="0" x2="0.15" y2="1">
+      <stop offset="0"    stop-color="#e2def8"/>
+      <stop offset="0.35" stop-color="#cdc6f0"/>
+      <stop offset="1"    stop-color="#b3aae6"/>
+    </linearGradient>
+
+    <linearGradient id="a2" x1="0" y1="0" x2="0.15" y2="1">
+      <stop offset="0"    stop-color="#ecdcf8"/>
+      <stop offset="0.34" stop-color="#d8bff0"/>
+      <stop offset="1"    stop-color="#be99e4"/>
+    </linearGradient>
+
+    <linearGradient id="a3" x1="0" y1="0" x2="0.18" y2="1">
+      <stop offset="0"    stop-color="#f7dcf5"/>
+      <stop offset="0.33" stop-color="#e6b9e6"/>
+      <stop offset="1"    stop-color="#cd93d3"/>
+    </linearGradient>
+
+    <linearGradient id="a4" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0"    stop-color="#fddbe8"/>
+      <stop offset="0.32" stop-color="#f3bcd1"/>
+      <stop offset="1"    stop-color="#e29bb6"/>
+    </linearGradient>
+
+    <linearGradient id="a5" x1="0" y1="0" x2="0.22" y2="1">
+      <stop offset="0"    stop-color="#fedfd6"/>
+      <stop offset="0.32" stop-color="#f8c1b1"/>
+      <stop offset="1"    stop-color="#eca08c"/>
+    </linearGradient>
+
+    <linearGradient id="a6" x1="0" y1="0" x2="0.24" y2="1">
+      <stop offset="0"    stop-color="#fee6c9"/>
+      <stop offset="0.34" stop-color="#f9cda1"/>
+      <stop offset="1"    stop-color="#eeae76"/>
+    </linearGradient>
+
+    <linearGradient id="a7" x1="0" y1="0" x2="0.26" y2="1">
+      <stop offset="0"    stop-color="#fdeed3"/>
+      <stop offset="0.36" stop-color="#f9d9a8"/>
+      <stop offset="1"    stop-color="#f0bd7c"/>
+    </linearGradient>
+
+    <linearGradient id="a8" x1="0" y1="0" x2="0.28" y2="1">
+      <stop offset="0"    stop-color="#fef7e6"/>
+      <stop offset="0.4"  stop-color="#fbe5be"/>
+      <stop offset="1"    stop-color="#f4cd93"/>
+    </linearGradient>
+
+    <!-- Tepede yumuşak beyaz ışık -->
+    <radialGradient id="isik" cx="0.4" cy="0.42" r="0.5">
+      <stop offset="0"   stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="1"   stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <rect width="1920" height="1080" fill="url(#isik)"/>
+
+  <!-- Kumul katmanları: aynı kompozisyon, beyaz kenar ışıkları -->
+  <g stroke-linejoin="round" stroke="rgba(255,255,255,0.85)" stroke-width="3">
+    <ellipse cx="745"  cy="1585" rx="1370" ry="1345" transform="rotate(-3.5 745 1585)"  fill="url(#a1)"/>
+    <ellipse cx="905"  cy="1585" rx="1265" ry="1240" transform="rotate(-2 905 1585)"    fill="url(#a2)"/>
+    <ellipse cx="1020" cy="1600" rx="1150" ry="1112" transform="rotate(1.5 1020 1600)"  fill="url(#a3)"/>
+    <ellipse cx="820"  cy="1645" rx="1045" ry="988"  transform="rotate(-1.5 820 1645)"  fill="url(#a4)"/>
+    <ellipse cx="1095" cy="1615" rx="905"  ry="812"  transform="rotate(2.5 1095 1615)"  fill="url(#a5)"/>
+    <ellipse cx="850"  cy="1665" rx="790"  ry="678"  transform="rotate(-1 850 1665)"    fill="url(#a6)"/>
+    <ellipse cx="1035" cy="1700" rx="705"  ry="596"  transform="rotate(1.5 1035 1700)"  fill="url(#a7)"/>
+    <ellipse cx="855"  cy="1760" rx="640"  ry="540"  transform="rotate(-1 855 1760)"    fill="url(#a8)"/>
+  </g>
+</svg>
