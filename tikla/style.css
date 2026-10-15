@@ -608,6 +608,6 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* Görselin üstüne hafif bir perde: renkler görünsün ama yazı okunur kalsın */
 .wallpaper body::before {
-  background: rgba(246, 249, 253, 0.22);
+  background: rgba(246, 249, 253, 0.12);
 }
 
