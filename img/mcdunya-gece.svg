@@ -799,7 +799,7 @@
   <rect x="0" y="1000" width="1920" height="128" fill="url(#p_grass_top)"/>
   <rect x="0" y="1128" width="1920" height="224" fill="url(#p_grass_side)"/>
   <rect x="0" y="1352" width="1920" height="576" fill="url(#p_dirt)"/>
-  <rect x="0" y="1928" width="1920" height="1184" fill="url(#p_stone)"/>
-  <rect x="0" y="3112" width="1920" height="0" fill="url(#p_bedrock)"/>
+  <rect x="0" y="1928" width="1920" height="732" fill="url(#p_stone)"/>
+  <rect x="0" y="2660" width="1920" height="140" fill="url(#p_bedrock)"/>
   <rect width="1920" height="2800" fill="#060a1e" opacity="0.50"/>
 </svg>
