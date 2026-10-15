@@ -163,7 +163,7 @@ img { max-width: 100%; height: auto; display: block; }
   color: white;
   border-color: transparent;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px var(--accent-glow);
+  box-shadow: none;
 }
 
 /* ========== CONTAINER ========== */
@@ -265,7 +265,7 @@ img { max-width: 100%; height: auto; display: block; }
   color: white;
   border-color: transparent;
   transform: translateY(-3px);
-  box-shadow: 0 15px 30px var(--accent-glow);
+  box-shadow: none;
 }
 
 /* ========== QUICK CARDS ========== */
@@ -425,7 +425,7 @@ img { max-width: 100%; height: auto; display: block; }
 .thumb.active {
   opacity: 1;
   border-color: var(--accent);
-  box-shadow: 0 0 20px var(--accent-glow);
+  box-shadow: none;
 }
 
 .gallery-fallback {
