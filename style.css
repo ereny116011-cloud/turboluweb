@@ -71,6 +71,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ---------- Arka plan: lime + cyan yumuşak geçiş ----------
+   Görsel dosyası yok, saf CSS. Anında yüklenir, mobil veri harcamaz. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(950px 560px at 6% -12%, rgba(163, 230, 53, 0.16) 0%, transparent 62%),
+    radial-gradient(850px 600px at 96% 112%, rgba(34, 211, 238, 0.16) 0%, transparent 62%);
+}
+
+.light body::before {
+  background:
+    radial-gradient(950px 560px at 6% -12%, rgba(132, 204, 22, 0.20) 0%, transparent 62%),
+    radial-gradient(850px 600px at 96% 112%, rgba(6, 182, 212, 0.18) 0%, transparent 62%);
+}
+
 img { display: block; max-width: 100%; height: auto; }
 
 a { color: inherit; }
@@ -463,6 +482,84 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 }
 
 .footer-sep { opacity: 0.5; }
+
+/* ---------- Canlı sunucu durumu + IP ---------- */
+.status-strip {
+  margin-top: 30px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.live-dot.online { background: #a3e635; box-shadow: 0 0 0 4px rgba(163, 230, 53, 0.2); }
+.live-dot.offline { background: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); }
+
+.status-strip .sep { color: var(--border-strong); }
+
+.ip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ip-btn:hover { color: var(--accent); }
+
+.ip-btn code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.84rem;
+}
+
+.ip-btn .kopya { font-size: 0.72rem; color: var(--text-dim); }
+
+/* ---------- Duyurular ---------- */
+.duyuru-listesi { display: grid; gap: 10px; }
+
+.duyuru {
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.duyuru h3 { font-size: 0.95rem; margin-bottom: 5px; }
+
+.duyuru p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}
+
+.duyuru small {
+  display: block;
+  margin-top: 9px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
 
 /* ---------- Duyarlı ---------- */
 @media (max-width: 860px) {

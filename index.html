@@ -60,6 +60,7 @@
 
             <nav class="site-nav" aria-label="Ana menü">
                 <a href="#projeler">Projeler</a>
+                <a href="#duyurular">Duyurular</a>
                 <a href="#hakkimizda">Hakkımızda</a>
                 <a href="#iletisim">İletişim</a>
             </nav>
@@ -85,6 +86,17 @@
                 <a class="btn btn-ghost" href="#iletisim">
                     <i class="fa-solid fa-envelope" aria-hidden="true"></i> İletişim
                 </a>
+            </div>
+
+            <div class="status-strip">
+                <span class="live-dot" id="durumNokta" aria-hidden="true"></span>
+                <span id="durumMetin">Sunucu durumu kontrol ediliyor…</span>
+                <span class="sep" aria-hidden="true">·</span>
+                <button class="ip-btn" id="ipBtn" title="Sunucu adresini kopyala">
+                    <i class="fa-solid fa-server" aria-hidden="true"></i>
+                    <code id="ipMetin">turbolumc.aternos.me</code>
+                    <span class="kopya" id="ipDurum">kopyala</span>
+                </button>
             </div>
         </section>
 
@@ -145,6 +157,16 @@
             </div>
         </section>
 
+        <section id="duyurular" class="wrap section">
+            <div class="section-head">
+                <h2>Duyurular</h2>
+                <p>Sunucularımızdan son haberler</p>
+            </div>
+            <div class="duyuru-listesi" id="duyuruListesi">
+                <div class="duyuru"><p>Yükleniyor…</p></div>
+            </div>
+        </section>
+
         <section id="hakkimizda" class="wrap section">
             <div class="split">
                 <div>
@@ -199,6 +221,77 @@
     </footer>
 
     <script>
+        const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
+
+        function esc(v) {
+            return v == null ? '' : String(v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // ---- Canlı sunucu durumu ----
+        async function durumYukle() {
+            const nokta = document.getElementById('durumNokta');
+            const metin = document.getElementById('durumMetin');
+            try {
+                const d = await fetch(API + '/api/status').then(r => r.json());
+                if (d && d.online) {
+                    const o = (d.players && d.players.online) || 0;
+                    const m = (d.players && d.players.max) || 0;
+                    nokta.className = 'live-dot online';
+                    metin.textContent = o + ' oyuncu çevrimiçi' + (m ? ' / ' + m : '');
+                } else {
+                    nokta.className = 'live-dot offline';
+                    metin.textContent = 'Sunucu şu an çevrimdışı';
+                }
+            } catch (e) {
+                nokta.className = 'live-dot';
+                metin.textContent = 'Durum alınamadı';
+            }
+        }
+        durumYukle();
+        setInterval(durumYukle, 60000);
+
+        // ---- Sunucu adresini kopyala ----
+        document.getElementById('ipBtn').addEventListener('click', async () => {
+            const adres = document.getElementById('ipMetin').textContent.trim();
+            const ipucu = document.getElementById('ipDurum');
+            try {
+                await navigator.clipboard.writeText(adres);
+            } catch (e) {
+                const ta = document.createElement('textarea');
+                ta.value = adres;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+            ipucu.textContent = 'kopyalandı';
+            ipucu.style.color = '#a3e635';
+            setTimeout(() => { ipucu.textContent = 'kopyala'; ipucu.style.color = ''; }, 1800);
+        });
+
+        // ---- Son duyurular ----
+        async function duyurulariYukle() {
+            const kap = document.getElementById('duyuruListesi');
+            try {
+                const liste = await fetch(API + '/api/announcements').then(r => r.json());
+                if (!Array.isArray(liste) || liste.length === 0) {
+                    kap.innerHTML = '<div class="duyuru"><p>Henüz duyuru yok.</p></div>';
+                    return;
+                }
+                kap.innerHTML = liste.slice(0, 3).map(a => `
+                    <div class="duyuru">
+                        <h3>${esc(a.title)}</h3>
+                        <p>${esc(a.content)}</p>
+                        <small>${new Date(a.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</small>
+                    </div>`).join('');
+            } catch (e) {
+                kap.innerHTML = '<div class="duyuru"><p>Duyurular şu an yüklenemedi.</p></div>';
+            }
+        }
+        duyurulariYukle();
+
         const themeBtn = document.getElementById('themeToggle');
         function updateThemeIcon() {
             const isLight = document.documentElement.classList.contains('light');

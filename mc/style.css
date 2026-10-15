@@ -67,6 +67,24 @@ img { max-width: 100%; height: auto; display: block; }
 .steam-container,
 .steam-canvas { display: none !important; }
 
+/* Arka plan: lime + cyan yumuşak geçiş (görsel yok, saf CSS) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 540px at 6% -12%, rgba(163, 230, 53, 0.15) 0%, transparent 62%),
+    radial-gradient(820px 580px at 96% 112%, rgba(34, 211, 238, 0.15) 0%, transparent 62%);
+}
+
+.light body::before {
+  background:
+    radial-gradient(900px 540px at 6% -12%, rgba(132, 204, 22, 0.18) 0%, transparent 62%),
+    radial-gradient(820px 580px at 96% 112%, rgba(6, 182, 212, 0.16) 0%, transparent 62%);
+}
+
 /* ========== ARKA PLAN SERBEST BUHAR ========== */
 .bg-steam-canvas {
   position: fixed;
