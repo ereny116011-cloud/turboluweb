@@ -757,8 +757,9 @@ body::before {
 /* ========== MANZARA: her mod kendi SVG'sini kullanır ========== */
 body {
   background-color: var(--bg);
-  background-image: url('../img/mcdunya-gece.svg');
+  background-image: url('../img/mcdunya-gece.png');
   background-size: cover;
+  image-rendering: pixelated;
   background-position: center;
   background-repeat: no-repeat;
 }
@@ -766,5 +767,5 @@ body {
 
 .light body {
   background-color: #ffffff;
-  background-image: url('../img/mcdunya.svg');
+  background-image: url('../img/mcdunya.png');
 }
