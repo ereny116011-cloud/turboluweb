@@ -103,5 +103,15 @@
     <ellipse cx="855" cy="1760" rx="640" ry="540" transform="rotate(-1 855 1760)"
              fill="url(#d8)" stroke="rgba(255,250,220,0.42)" stroke-width="3"/>
   </g>
+  <!-- Alt bölgede sıralanan küçük dağlar: tek dev altın kütlesini kırar -->
+  <g stroke-linejoin="round" stroke="rgba(255,255,255,0.10)" stroke-width="2">
+    <ellipse cx="120"  cy="2280" rx="330" ry="240" fill="url(#d1)"/>
+    <ellipse cx="440"  cy="2320" rx="300" ry="200" fill="url(#d2)"/>
+    <ellipse cx="740"  cy="2250" rx="360" ry="260" fill="url(#d3)"/>
+    <ellipse cx="1060" cy="2340" rx="320" ry="210" fill="url(#d1)"/>
+    <ellipse cx="1350" cy="2270" rx="350" ry="250" fill="url(#d2)"/>
+    <ellipse cx="1660" cy="2330" rx="330" ry="205" fill="url(#d3)"/>
+    <ellipse cx="1900" cy="2290" rx="300" ry="220" fill="url(#d1)"/>
+  </g>
   <rect width="1920" height="2800" fill="url(#gece)"/>
 </svg>
