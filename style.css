@@ -29,8 +29,8 @@
 }
 
 .light {
-  --bg: #ffffff;
-  --surface: #f7f8fa;
+  --bg: #edf1f8;
+  --surface: #ffffff;
   --surface-2: #f1f3f7;
   --border: #e4e7ec;
   --border-strong: #d0d5dd;

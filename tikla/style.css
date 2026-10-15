@@ -22,8 +22,8 @@
 }
 
 .light {
-  --bg-base: #ffffff;
-  --surface: #f7f8fa;
+  --bg-base: #edf1f8;
+  --surface: #ffffff;
   --surface-hi: #f1f3f7;
   --surface-soft: #f1f3f7;
   --glass-border: #e4e7ec;

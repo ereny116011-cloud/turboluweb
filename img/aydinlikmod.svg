@@ -2,10 +2,10 @@
   <defs>
     <!-- Gökyüzü: gece laciverti, sağ üstte mora kayar -->
     <linearGradient id="sky" x1="0.05" y1="0" x2="0.75" y2="1">
-      <stop offset="0"    stop-color="#eaf0fd"/>
-      <stop offset="0.32" stop-color="#f0edfc"/>
-      <stop offset="0.62" stop-color="#f7eefb"/>
-      <stop offset="1"    stop-color="#fceff8"/>
+      <stop offset="0"    stop-color="#dbe4f6"/>
+      <stop offset="0.32" stop-color="#e4e2f8"/>
+      <stop offset="0.62" stop-color="#efe4f7"/>
+      <stop offset="1"    stop-color="#f5e6f2"/>
     </linearGradient>
 
     <!-- Her kumul: tepesi aydınlık, dibi karanlığa gömülü.
