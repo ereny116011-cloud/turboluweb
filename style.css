@@ -672,18 +672,6 @@ body {
 .light body {
   background-color: #ffffff;
   background-image:
-    linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)),
+    linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.25)),
     url('img/aydinlikmod.svg');
-}
-/* Açık modda renkler canlı (perde yok denecek kadar ince).
-   Yazı okunurluğu için 1-2px sıkı beyaz hale; geniş bulanıklık yok. */
-.light .hero,
-.light .section-head,
-.light .split h2,
-.light .prose {
-  text-shadow:
-     0 1px 2px rgba(255,255,255,0.98),
-     0 0 2px rgba(255,255,255,0.9),
-     1px 0 2px rgba(255,255,255,0.85),
-    -1px 0 2px rgba(255,255,255,0.85);
 }
