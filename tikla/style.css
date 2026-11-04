@@ -603,3 +603,188 @@ body {
   background-color: #ffffff;
   background-image: url('../img/aydinlikmod.svg');
 }
+
+
+/* ===== Turbolu T?kla: temiz, tutarl? oyun landing page ===== */
+body,
+.light body {
+  background-color: #0b0f17;
+  background-image:
+    radial-gradient(ellipse at 12% 0%, rgba(34, 197, 94, 0.12), transparent 36rem),
+    radial-gradient(ellipse at 88% 10%, rgba(99, 102, 241, 0.12), transparent 42rem),
+    linear-gradient(180deg, #101622 0%, #0b0f17 42rem, #0d121b 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.light body {
+  background-color: #e8edf5;
+  background-image:
+    radial-gradient(ellipse at 12% 0%, rgba(34, 197, 94, 0.08), transparent 36rem),
+    radial-gradient(ellipse at 88% 10%, rgba(99, 102, 241, 0.08), transparent 42rem),
+    linear-gradient(180deg, #e8edf5 0%, #e1e7f0 42rem, #e8edf5 100%);
+}
+
+.navbar {
+  min-height: 64px;
+  padding: 10px clamp(16px, 3vw, 32px);
+  background: var(--header-bg);
+  border-bottom-color: var(--glass-border);
+}
+
+.light .navbar {
+  --header-bg: rgba(240, 244, 250, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.nav-links { gap: 7px; }
+.nav-links a {
+  padding: 8px 13px;
+  white-space: nowrap;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.light .nav-links a { background: #f4f6fa; }
+.nav-links a:hover { background: var(--accent); }
+
+.container { max-width: 1160px; padding: 34px 24px 72px; }
+
+.tikla-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: 12px 0 34px;
+  padding: clamp(42px, 8vw, 84px) 24px;
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at 78% 5%, rgba(74, 222, 128, 0.18), transparent 24rem),
+    linear-gradient(145deg, rgba(28, 42, 55, 0.96), rgba(20, 29, 43, 0.98) 60%, rgba(30, 41, 37, 0.96));
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+}
+
+.light .tikla-hero {
+  background:
+    radial-gradient(ellipse at 78% 5%, rgba(74, 222, 128, 0.13), transparent 24rem),
+    linear-gradient(145deg, #f8fafc, #edf2f8 65%, #e8f0e9);
+}
+
+.tikla-hero h1 { font-size: clamp(2rem, 5vw, 3.25rem); }
+.tikla-hero h1 .emoji { color: var(--accent); }
+.tikla-hero p { color: var(--text-muted); }
+
+.tikla-section {
+  margin: 0 0 28px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: rgba(17, 21, 28, 0.68);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.12);
+}
+
+.light .tikla-section {
+  background: rgba(247, 249, 252, 0.84);
+  box-shadow: 0 12px 32px rgba(42, 55, 78, 0.07);
+}
+
+.tikla-section > h2 {
+  margin: 0 0 22px !important;
+  color: var(--text) !important;
+  font-size: 1.3rem;
+  text-align: left !important;
+}
+
+.quick-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.quick-card {
+  min-height: 170px;
+  padding: 22px;
+  background: var(--surface);
+  border-color: var(--glass-border);
+  box-shadow: none;
+}
+
+.quick-card:hover { transform: translateY(-3px); }
+.light .quick-card { background: #fff; }
+
+.feature-item {
+  height: 100%;
+  margin: 0;
+  padding: 22px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.light .feature-item { background: #fff; }
+
+@media (min-width: 760px) {
+  .tikla-section:has(> .feature-item) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .tikla-section:has(> .feature-item) > :not(.feature-item) { grid-column: 1 / -1; }
+  .tikla-section:has(> .feature-item) > .feature-item { margin: 0; }
+}
+
+.download-btn {
+  box-shadow: 0 10px 26px rgba(34, 197, 94, 0.22);
+}
+.download-btn:hover { box-shadow: 0 14px 32px rgba(34, 197, 94, 0.28); }
+
+.theme-toggle {
+  bottom: max(18px, env(safe-area-inset-bottom));
+  right: max(18px, env(safe-area-inset-right));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+:focus-visible { outline: 3px solid var(--accent-hi); outline-offset: 3px; }
+
+@media (max-width: 760px) {
+  .navbar { align-items: flex-start; flex-wrap: wrap; }
+  .logo { min-height: 40px; }
+  .nav-links {
+    order: 2;
+    flex-basis: 100%;
+    justify-content: flex-start;
+    margin: 2px -2px -2px;
+    padding: 4px 2px 7px;
+  }
+  .container { padding: 22px 16px 56px; }
+  .tikla-hero { margin-top: 4px; border-radius: 19px; }
+  .tikla-section { border-radius: 17px; }
+}
+
+@media (max-width: 480px) {
+  .nav-links a { padding: 7px 10px; font-size: 0.78rem; }
+  .quick-grid { grid-template-columns: 1fr; }
+  .quick-card { min-height: 0; }
+  .tikla-hero { padding-inline: 18px; }
+  .download-btn { width: min(100%, 280px); justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tikla-section, .tikla-hero, .quick-card, .feature-item, .gallery-container, .faq-item {
+    animation: none !important;
+  }
+}
+
+
+/* T?kla animasyon bulutlar? i?erik ?st?ne binmesin. */
+#steamCanvas { z-index: 0; opacity: 0.32; }
+.navbar, .container { position: relative; z-index: 1; }
+.theme-toggle { z-index: 100; }
+
+/* D?rt h?zl? ba?lant? dengeli dizilir; tabletlerde 2x2, telefonda tek s?tun. */
+@media (min-width: 1024px) {
+  .quick-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 560px) and (max-width: 1023px) {
+  .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

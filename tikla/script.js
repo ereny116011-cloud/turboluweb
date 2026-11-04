@@ -31,43 +31,17 @@ function updateThemeIcon() {
 }
 
 // ========== BUHAR ==========
-// İki kaynak: (1) ekranın her yerinde kendiliğinden doğan ortam bulutları,
-// (2) fare izi. Ortam bulutları sayesinde fare dururken de arka plan canlı kalır.
+// Buhar yalnızca kullanıcı fareyi hareket ettirince oluşur; otomatik bulut yok.
 var MAX_PARTICLES = 60;
 var MAX_TRAIL = 24;
-var AMBIENT_INTERVAL = 420;
-var AMBIENT_SEED = 14;
 var TARGET_FPS = 30;
 var steamParticles = [];
 var steamCanvas, steamCtx;
 var steamRAF = null;
 var steamLastTime = 0;
 var steamLastMouseTime = 0;
-var steamLastAmbient = 0;
 var steamLastFrame = 0;
 var steamReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-// Ekranın rastgele bir yerinde doğan, çok yavaş süzülen ortam bulutu.
-// seedLife verilirse bulut ömrünün ortasından başlar (açılış dağılımı için).
-function spawnAmbientSteam(seedLife) {
-  steamParticles.push({
-    x: Math.random() * window.innerWidth,
-    y: window.innerHeight * (0.15 + Math.random() * 0.95),
-    vx: (Math.random() - 0.5) * 0.16,
-    vy: -0.08 - Math.random() * 0.16,
-    size: 26 + Math.random() * 46,
-    grow: 0.05 + Math.random() * 0.05,
-    sway: 6 + Math.random() * 16,
-    phase: Math.random() * Math.PI * 2,
-    ambient: true,
-    life: seedLife === undefined ? 1 : seedLife,
-    decay: 0.0012 + Math.random() * 0.0013
-  });
-}
-
-function seedAmbientSteam() {
-  for (var i = 0; i < AMBIENT_SEED; i++) spawnAmbientSteam(Math.random());
-}
 
 function initSteam() {
   steamCanvas = document.getElementById('steamCanvas');
@@ -81,15 +55,11 @@ function initSteam() {
     if (now - steamLastMouseTime < 16) return;
     steamLastMouseTime = now;
 
-    // Fare izi ayrı bir havuzda tutulur; ortam bulutlarını ezmesin
+    // Fare izinin parçacık sayısını sınırlı tut.
     var trailCount = 0;
-    for (var k = 0; k < steamParticles.length; k++) {
-      if (!steamParticles[k].ambient) trailCount++;
-    }
+    for (var k = 0; k < steamParticles.length; k++) trailCount++;
     if (trailCount >= MAX_TRAIL) {
-      for (var j = 0; j < steamParticles.length; j++) {
-        if (!steamParticles[j].ambient) { steamParticles.splice(j, 1); break; }
-      }
+      steamParticles.shift();
     }
 
     steamParticles.push({
@@ -122,11 +92,6 @@ function initSteam() {
     resizeTimer = setTimeout(resizeSteamCanvas, 150);
   }, { passive: true });
 
-  // Hareket azaltma tercihi olmayanlarda arka plan kendiliğinden canlansın
-  if (!steamReduced) {
-    seedAmbientSteam();
-    startSteamLoop();
-  }
 }
 
 function startSteamLoop() {
@@ -158,11 +123,6 @@ function animateSteam(now) {
   steamLastTime = now;
   steamLastFrame = now;
 
-  if (now - steamLastAmbient > AMBIENT_INTERVAL && steamParticles.length < MAX_PARTICLES) {
-    steamLastAmbient = now;
-    spawnAmbientSteam();
-  }
-
   steamCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
   var isLight = document.documentElement.classList.contains('light');
   var color = isLight ? '22, 163, 74' : '34, 197, 94';
@@ -177,7 +137,7 @@ function animateSteam(now) {
     p.life -= p.decay * dt;
     if (p.life <= 0 || p.y + p.size < -80) { steamParticles.splice(i, 1); continue; }
 
-    var alpha = p.ambient ? p.life * 0.18 : p.life * 0.28;
+    var alpha = p.life * 0.28;
     var gradient = steamCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
     gradient.addColorStop(0, 'rgba(' + color + ', ' + alpha + ')');
     gradient.addColorStop(0.5, 'rgba(' + color + ', ' + (alpha * 0.4) + ')');

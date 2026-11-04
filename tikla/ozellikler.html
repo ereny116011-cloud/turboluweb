@@ -20,13 +20,12 @@
     
     <link rel="stylesheet" href="../fa/css/fontawesome.min.css">
     <link rel="stylesheet" href="../fa/css/solid.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
     <script>
         (function() {
             const saved = localStorage.getItem('theme');
             const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-            let mod = 'light';
-            if (saved === 'light' || saved === 'dark') mod = saved;
+            let mod = (saved === 'light' || saved === 'dark') ? saved : (prefersLight ? 'light' : 'dark');
             if (mod === 'light') document.documentElement.classList.add('light');
         })();
     </script>
