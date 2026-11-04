@@ -53,6 +53,7 @@
             } catch (e) { /* gizli mod: varsayılan koyu tema */ }
         })();
     </script>
+    <link rel="stylesheet" href="site-polish.css?v=1">
 </head>
 <body>
 
@@ -451,7 +452,7 @@
                     if (!r.ok) throw new Error('HTTP ' + r.status);
                     var liste = await r.json();
                     if (!Array.isArray(liste) || liste.length === 0) {
-                        kap.innerHTML = '<div class="duyuru"><p>Henüz duyuru yok.</p></div>';
+                        kap.innerHTML = '<div class="duyuru"><p>Şu an yeni duyuru yok. Bir gelişme olduğunda burada paylaşacağız.</p></div>';
                         return;
                     }
                     kap.innerHTML = liste.slice(0, 3).map(function (a) {

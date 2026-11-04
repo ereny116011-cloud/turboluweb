@@ -239,7 +239,7 @@ function updateGalleryImage() {
     fallbackEl.style.display = 'block';
     fallbackEl.innerHTML =
       '<div class="fallback-icon">&#128247;</div>' +
-      '<div class="fallback-title">Henüz ekran görüntüsü yok</div>' +
+      '<div class="fallback-title">Şimdilik gösterilecek ekran görüntüsü yok</div>' +
       '<div class="fallback-sub">tikla/sss/ klasörüne 1.png, 2.png, 3.png ... ekleyin</div>';
     return;
   }
