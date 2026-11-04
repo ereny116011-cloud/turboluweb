@@ -112,7 +112,7 @@ function temaUygula(mod) {
 function initTheme() {
   const saved = localStorage.getItem('theme');
   const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-  let mod = 'light';
+  let mod = prefersLight ? 'light' : 'dark';
   if (saved === 'light' || saved === 'dark') mod = saved;
   const root = document.documentElement;
   root.classList.remove('light', 'wallpaper');
@@ -525,8 +525,9 @@ async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
     <div class="glass-card hero-card">
+      <p class="hero-kicker"><i class="fa-solid fa-leaf" aria-hidden="true"></i> Birlikte oynayacak yerin hazır</p>
       <h1><i class="fa-solid fa-cube"></i> Turbolu Bedrock'a Hoş Geldiniz! <i class="fa-solid fa-cube"></i></h1>
-      <p>Telefon, tablet ve konsoldan katılın. Cross-play destekli Bedrock sunucumuz!</p>
+      <p>Telefondan, tabletten ya da konsoldan katıl; arkadaşlarınla aynı dünyada buluş.</p>
       <div class="ip-box" onclick="kopyalaIP()">
         <span>${SERVER_IP_DISPLAY}</span>
         <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
@@ -536,6 +537,7 @@ async function renderStatus() {
     </div>
     <div class="glass-card" id="features">
       <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Neden Bedrock?</h2>
+      <p class="section-note">Cihazın ne olursa olsun, maceraya beraber başlayabilirsiniz.</p>
       <div class="features-grid">
         <div class="feature-item"><i class="fa-solid fa-mobile-screen"></i><h3>Cross-Play</h3><p>Telefon, konsol, PC fark etmez — herkes oynar.</p></div>
         <div class="feature-item"><i class="fa-solid fa-shield-halved"></i><h3>Adil Oyun</h3><p>Hileye sıfır tolerans, güvenli ortam.</p></div>
@@ -544,6 +546,7 @@ async function renderStatus() {
     </div>
     <div class="glass-card" id="durum">
       <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Anlık Sunucu Durumu</h2>
+      <p class="section-note">Durum bilgisi yaklaşık 15 saniyede bir yenilenir.</p>
       <div class="status-info" style="text-align:center;">
         <p><strong>Durum:</strong> <span id="online-durum"><i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...</span></p>
         <p><strong>Çevrimiçi Oyuncular:</strong> <span id="oyuncu-sayisi">- / -</span></p>
@@ -582,7 +585,7 @@ async function renderStatus() {
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items?platform=${PLATFORM}`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-cart-shopping"></i> Market</h2>${currentUser ? `<p>Bakiye: <strong>${esc(currentUser.balance)}</strong> puan</p>` : ''}${items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-soft); border-radius:10px; margin:8px 0; border:1px solid var(--glass-border);"><div><b>${esc(i.name)}</b><p style="font-size:0.85rem; opacity:0.7;">${esc(i.price)} puan</p></div><button onclick="buy('${safeId(i.id)}')">Satın Al</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-cart-shopping"></i> Market</h2>${currentUser ? `<p>Bakiye: <strong>${esc(currentUser.balance)}</strong> puan</p>` : ''}${items.length ? items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-soft); border-radius:10px; margin:8px 0; border:1px solid var(--glass-border);"><div><b>${esc(i.name)}</b><p style="font-size:0.85rem; opacity:0.7;">${esc(i.price)} puan</p></div><button onclick="buy('${safeId(i.id)}')">Satın Al</button></div>`).join('') : '<p class="empty-note">Market şu an biraz sakin. Yeni ürünler eklendiğinde burada görebilirsin.</p>'}</div>`;
 }
 async function buy(itemId) {
   if (!token) return alert('Lütfen giriş yapın.');
@@ -596,14 +599,14 @@ async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
   const requests = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-box"></i> Taleplerim</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; border:1px solid var(--glass-border);"><div><b>${esc(r.item_name)}</b> (${esc(r.price)} puan)<br><small>${esc(new Date(r.date).toLocaleString())}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}; color:white;">${esc(r.status)}</span></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-box"></i> Taleplerim</h2>${requests.length === 0 ? '<p class="empty-note">Henüz bir isteğin yok. Marketten beğendiğin bir şeyi seçince burada takip edebilirsin.</p>' : requests.map(r => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; border:1px solid var(--glass-border);"><div><b>${esc(r.item_name)}</b> (${esc(r.price)} puan)<br><small>${esc(new Date(r.date).toLocaleString())}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}; color:white;">${esc(r.status)}</span></div>`).join('')}</div>`;
 }
 
 async function renderRequests() {
   if (!currentUser?.isAdmin) return;
   const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
   const content = document.getElementById('content');
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Talepler</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;"><div><b>${esc(r.user_name)}</b> <i class="fa-solid fa-arrow-right"></i> ${esc(r.item_name)} (${esc(r.price)} puan)<br><small>${esc(new Date(r.date).toLocaleString())} • ${esc(r.platform || 'all')}</small></div><div style="display:flex; gap:6px;">${r.status==='pending'?`<button onclick="completeRequest('${safeId(r.id)}')"><i class="fa-solid fa-circle-check"></i></button><button class="logout-btn" onclick="rejectRequest('${safeId(r.id)}')"><i class="fa-solid fa-xmark"></i></button>`:`<span>${esc(r.status)}</span>`}</div></div></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Talepler</h2>${requests.length===0?'<p class="empty-note">Şimdilik bekleyen bir talep yok. Yeni istekler gelince burada görünecek.</p>':requests.map(r=>`<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;"><div><b>${esc(r.user_name)}</b> <i class="fa-solid fa-arrow-right"></i> ${esc(r.item_name)} (${esc(r.price)} puan)<br><small>${esc(new Date(r.date).toLocaleString())} • ${esc(r.platform || 'all')}</small></div><div style="display:flex; gap:6px;">${r.status==='pending'?`<button onclick="completeRequest('${safeId(r.id)}')"><i class="fa-solid fa-circle-check"></i></button><button class="logout-btn" onclick="rejectRequest('${safeId(r.id)}')"><i class="fa-solid fa-xmark"></i></button>`:`<span>${esc(r.status)}</span>`}</div></div></div>`).join('')}</div>`;
 }
 async function completeRequest(id) {
   await fetch(`${API}/api/admin/complete-request`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: id }) });
@@ -618,13 +621,13 @@ async function rejectRequest(id) {
 async function renderAnnouncements() {
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements?platform=${PLATFORM}`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-bullhorn"></i> Duyurular</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div class="announcement-item"><h3>${esc(a.title)}</h3><p>${esc(a.content)}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-bullhorn"></i> Duyurular</h2>${announcements.length === 0 ? '<p class="empty-note">Yeni bir haberimiz olduğunda burada paylaşacağız. Şimdilik keyfine bak!</p>' : announcements.map(a => `<div class="announcement-item"><h3>${esc(a.title)}</h3><p>${esc(a.content)}</p><small>${new Date(a.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
 async function renderNews() {
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news?platform=${PLATFORM}`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-newspaper"></i> Haberler</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div class="news-item"><h3>${esc(n.title)}</h3><p>${esc(n.content)}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-newspaper"></i> Haberler</h2>${news.length === 0 ? '<p class="empty-note">Şu an paylaşacak yeni bir gelişme yok. Yeni haberler burada olacak.</p>' : news.map(n => `<div class="news-item"><h3>${esc(n.title)}</h3><p>${esc(n.content)}</p><small>${new Date(n.date).toLocaleString()}</small></div>`).join('')}</div>`;
 }
 
 async function renderManageAnnouncements() {
@@ -654,7 +657,7 @@ async function deleteNews(id) {
 async function renderCampaigns() {
   const campaigns = await fetch(`${API}/api/campaigns?platform=${PLATFORM}`).then(r => r.json());
   const now = Date.now();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-tags"></i> Kampanyalar</h2>${campaigns.map(c=>{const expired=c.end_date&&new Date(c.end_date).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><b>${esc(c.title)}</b><p>${esc(c.description)}</p><p><i class="fa-solid fa-gift"></i> ${esc(c.reward)}</p><small>${c.end_date?new Date(c.end_date).toLocaleString():'Süresiz'} ${expired?'<i class="fa-solid fa-triangle-exclamation"></i> Süresi Doldu':''}</small></div>`}).join('')}</div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-tags"></i> Kampanyalar</h2>${campaigns.length ? campaigns.map(c=>{const expired=c.end_date&&new Date(c.end_date).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><b>${esc(c.title)}</b><p>${esc(c.description)}</p><p><i class="fa-solid fa-gift"></i> ${esc(c.reward)}</p><small>${c.end_date?new Date(c.end_date).toLocaleString():'Süresiz'} ${expired?'<i class="fa-solid fa-triangle-exclamation"></i> Süresi Doldu':''}</small></div>`}).join('') : '<p class="empty-note">Şu an aktif bir kampanya yok. Yeni fırsatlar çıktığında burada duyuracağız.</p>'}</div>`;
 }
 
 async function renderManageCampaigns() {

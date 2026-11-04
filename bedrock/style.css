@@ -926,3 +926,154 @@ body {
 @media (prefers-reduced-motion: reduce) {
   #features .feature-item { transition: none; }
 }
+
+/* Thoughtful details across the whole Bedrock experience. */
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 72%, white);
+  outline-offset: 3px;
+}
+
+.navbar { box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08); }
+.nav-links button,
+.user-area button,
+.back-btn,
+.theme-toggle,
+.copy-btn,
+.small-btn,
+.modal-content button,
+.glass-card button {
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease,
+    box-shadow 160ms ease, transform 160ms ease;
+}
+
+.nav-links button:active,
+.user-area button:active,
+.back-btn:active,
+.theme-toggle:active,
+.copy-btn:active,
+.small-btn:active,
+.modal-content button:active,
+.glass-card button:active { transform: translateY(1px) scale(0.98); }
+
+.glass-card h2 { letter-spacing: -0.025em; }
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px !important;
+  color: #a3e6b4 !important;
+  font-size: 0.82rem !important;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.light .hero-kicker { color: #267846 !important; }
+.hero-kicker i { font-size: 0.9rem; }
+
+.section-note {
+  margin: -10px 0 22px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.empty-note {
+  max-width: 62ch;
+  padding: 18px 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.hero-card .ip-box {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12), inset 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.hero-card .ip-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), 0 0 0 4px var(--accent-soft);
+}
+
+#features .feature-item {
+  position: relative;
+  overflow: hidden;
+}
+
+#features .feature-item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transform: scaleY(0.35);
+  transform-origin: center;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+#features .feature-item:hover::before { opacity: 1; transform: scaleY(1); }
+#features .feature-item i { transition: transform 180ms ease; }
+#features .feature-item:hover i { transform: translateY(-2px) scale(1.06); }
+
+.glass-card input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
+.glass-card textarea,
+.glass-card select,
+.admin-form input,
+.admin-form textarea,
+.admin-form select,
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+  border-radius: 12px;
+}
+
+.glass-card input:focus,
+.glass-card textarea:focus,
+.glass-card select:focus,
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus,
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.modal-content {
+  border-radius: 20px;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+}
+
+.announcement-item,
+.news-item,
+.campaign-active,
+.campaign-expired {
+  border-radius: 12px;
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.announcement-item:hover,
+.news-item:hover,
+.campaign-active:hover { transform: translateX(3px); }
+
+.profile-avatar { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); }
+.footer { line-height: 1.8; }
+
+@media (max-width: 700px) {
+  .hero-kicker { font-size: 0.72rem !important; }
+  .section-note { font-size: 0.88rem; }
+  #content > .hero-card { padding: 30px 22px; }
+  .hero-card .ip-box { gap: 8px; padding-inline: 14px; overflow-wrap: anywhere; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
