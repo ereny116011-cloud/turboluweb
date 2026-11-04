@@ -51,10 +51,10 @@
 }
 
 .light {
-  --bg: #eef4ff;
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-2: rgba(255, 255, 255, 0.88);
-  --surface-solid: #ffffff;
+  --bg: #dce5f0;
+  --surface: rgba(237, 241, 247, 0.90);
+  --surface-2: rgba(247, 249, 252, 0.96);
+  --surface-solid: #f1f4f8;
   --border: rgba(16, 24, 48, 0.10);
   --border-strong: rgba(16, 24, 48, 0.20);
 
@@ -66,21 +66,21 @@
   --accent-hover: #15803d;
   --accent-soft: rgba(22, 163, 74, 0.10);
   --accent-border: rgba(22, 163, 74, 0.30);
-  --header-bg: rgba(255, 255, 255, 0.62);
+  --header-bg: rgba(226, 233, 243, 0.94);
 
-  --bs-sky-1: #dceeff;
-  --bs-sky-2: #ffe4ec;
-  --bs-sky-3: #ffd0b0;
+  --bs-sky-1: #a9cde4;
+  --bs-sky-2: #d9b6c4;
+  --bs-sky-3: #d99f79;
   --bs-sun: #efb978;
   --bs-sun-core: #ffe2a3;
-  --bs-wave-1a: #b8d4ff;
-  --bs-wave-1b: #e5c4f4;
-  --bs-wave-2a: #a9c5f7;
-  --bs-wave-2b: #f6b8ce;
-  --bs-wave-3a: #c4d7fa;
-  --bs-wave-3b: #e8bbd9;
-  --bs-wave-4a: #d5e4ff;
-  --bs-wave-4b: #f2d3e8;
+  --bs-wave-1a: #91b1d2;
+  --bs-wave-1b: #ad85ab;
+  --bs-wave-2a: #7898c3;
+  --bs-wave-2b: #c27f9a;
+  --bs-wave-3a: #6685ad;
+  --bs-wave-3b: #a17194;
+  --bs-wave-4a: #536f94;
+  --bs-wave-4b: #835f7e;
 }
 
 /* ---------- Temel ---------- */
@@ -409,11 +409,11 @@ h1, h2, h3 { line-height: 1.22; letter-spacing: -0.025em; font-weight: 600; }
 }
 
 .light .mac-window {
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(240, 245, 255, 0.92));
+  background: linear-gradient(160deg, rgba(238, 242, 248, 0.96), rgba(222, 230, 241, 0.96));
   border-color: rgba(16, 24, 48, 0.14);
   box-shadow:
     0 28px 70px rgba(45, 64, 110, 0.22),
-    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+    0 1px 0 rgba(255, 255, 255, 0.48) inset;
 }
 
 .mac-window:hover,
@@ -437,7 +437,7 @@ h1, h2, h3 { line-height: 1.22; letter-spacing: -0.025em; font-weight: 600; }
 
 .light .mac-bar {
   border-bottom-color: rgba(16, 24, 48, 0.08);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(221, 228, 238, 0.72);
 }
 
 .tl {
@@ -474,9 +474,9 @@ h1, h2, h3 { line-height: 1.22; letter-spacing: -0.025em; font-weight: 600; }
 
 .light .mac-preview {
   background:
-    radial-gradient(220px 150px at 82% 12%, rgba(255, 214, 153, 0.85), transparent 70%),
-    radial-gradient(260px 190px at 10% 100%, rgba(170, 198, 255, 0.85), transparent 72%),
-    linear-gradient(155deg, #dceeff 0%, #f3d8ec 55%, #ffd8c2 100%);
+    radial-gradient(220px 150px at 82% 12%, rgba(228, 166, 105, 0.32), transparent 70%),
+    radial-gradient(260px 190px at 10% 100%, rgba(133, 166, 218, 0.42), transparent 72%),
+    linear-gradient(155deg, #bfd5e7 0%, #d3b8cb 55%, #e2b99e 100%);
   border-color: rgba(16, 24, 48, 0.08);
 }
 
@@ -495,7 +495,7 @@ h1, h2, h3 { line-height: 1.22; letter-spacing: -0.025em; font-weight: 600; }
 }
 
 .light .mac-kicker {
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(231, 236, 244, 0.78);
   color: #34405e;
 }
 
@@ -534,7 +534,7 @@ h1, h2, h3 { line-height: 1.22; letter-spacing: -0.025em; font-weight: 600; }
 }
 
 .light .mac-stats > div {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(221, 228, 238, 0.72);
   border-color: rgba(16, 24, 48, 0.08);
 }
 
@@ -568,7 +568,7 @@ h1, h2, h3 { line-height: 1.22; letter-spacing: -0.025em; font-weight: 600; }
 }
 
 .light .mac-ip {
-  background: rgba(255, 255, 255, 0.62);
+  background: rgba(219, 227, 238, 0.82);
   border-color: rgba(16, 24, 48, 0.08);
 }
 
@@ -896,7 +896,7 @@ h1, h2, h3 { line-height: 1.22; letter-spacing: -0.025em; font-weight: 600; }
   backdrop-filter: blur(10px);
 }
 
-.light .site-footer { background: rgba(255, 255, 255, 0.28); }
+.light .site-footer { background: rgba(217, 226, 240, 0.48); }
 
 .footer-inner {
   padding-block: 26px;
