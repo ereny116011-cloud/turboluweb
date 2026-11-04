@@ -1,49 +1,86 @@
 /* ==========================================================================
-   TURBOLU STUDIOS — PORTAL
-   Sade, kurumsal bir arayüz. Gradyan yazı, neon parıltı ve cam efekti yok.
+   TURBOLU STUDIOS — ANA PORTAL
+   macOS Big Sur esintili, tamamen CSS + gömülü SVG ile çizilmiş arka plan.
+   Hiçbir arka plan görseli indirilmez; sadece birkaç KB'lık vektör kod çalışır.
    ========================================================================== */
 
 /* ---------- Tasarım değişkenleri ---------- */
 :root {
-  --bg: #0b0e13;
-  --surface: #11151c;
-  --surface-2: #161b23;
-  --border: #232a35;
-  --border-strong: #2f3846;
+  --bg: #080b18;
+  --surface: rgba(20, 25, 44, 0.62);
+  --surface-2: rgba(32, 39, 66, 0.68);
+  --surface-solid: #141a2d;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.20);
 
-  --text: #e6eaf0;
-  --text-muted: #8b95a5;
-  --text-dim: #6b7688;
+  --text: #eef2ff;
+  --text-muted: #aab5d0;
+  --text-dim: #7f8bad;
 
-  --accent: #22c55e;
-  --accent-hover: #16a34a;
-  --accent-soft: rgba(34, 197, 94, 0.12);
-  --accent-border: rgba(34, 197, 94, 0.32);
-  --header-bg: rgba(11, 14, 19, 0.82);
+  --accent: #4ade80;
+  --accent-hover: #22c55e;
+  --accent-soft: rgba(74, 222, 128, 0.12);
+  --accent-border: rgba(74, 222, 128, 0.30);
+  --danger: #ef4444;
+  --header-bg: rgba(8, 11, 24, 0.62);
 
-  --radius: 10px;
-  --radius-lg: 14px;
+  --radius: 12px;
+  --radius-lg: 18px;
 
-  --header-h: 60px;
-  --wrap: 1120px;
+  --header-h: 64px;
+  --wrap: 1140px;
+
+  /* Big Sur manzara renkleri (SVG içinde kullanılır) */
+  --bs-sky-1: #0a0d22;
+  --bs-sky-2: #23163f;
+  --bs-sky-3: #54274f;
+  --bs-sun: #ff9a62;
+  --bs-sun-core: #ffd39b;
+  --bs-moon: #bfd0ff;
+  --bs-moon-core: #f4f7ff;
+  --bs-moon-edge: #c3cee6;
+  --bs-moon-detail: #93a6cc;
+  --bs-wave-1a: #2a2358;
+  --bs-wave-1b: #5b3578;
+  --bs-wave-2a: #3b2464;
+  --bs-wave-2b: #9a4476;
+  --bs-wave-3a: #241d4d;
+  --bs-wave-3b: #6a356f;
+  --bs-wave-4a: #151433;
+  --bs-wave-4b: #3b2454;
 }
 
 .light {
-  --bg: #edf1f8;
-  --surface: #ffffff;
-  --surface-2: #f1f3f7;
-  --border: #e4e7ec;
-  --border-strong: #d0d5dd;
+  --bg: #eef4ff;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-2: rgba(255, 255, 255, 0.88);
+  --surface-solid: #ffffff;
+  --border: rgba(16, 24, 48, 0.10);
+  --border-strong: rgba(16, 24, 48, 0.20);
 
-  --text: #111827;
-  --text-muted: #667085;
-  --text-dim: #98a2b3;
+  --text: #101728;
+  --text-muted: #475467;
+  --text-dim: #667085;
 
   --accent: #16a34a;
   --accent-hover: #15803d;
-  --accent-soft: rgba(22, 163, 74, 0.1);
-  --accent-border: rgba(22, 163, 74, 0.32);
-  --header-bg: rgba(255, 255, 255, 0.82);
+  --accent-soft: rgba(22, 163, 74, 0.10);
+  --accent-border: rgba(22, 163, 74, 0.30);
+  --header-bg: rgba(255, 255, 255, 0.62);
+
+  --bs-sky-1: #dceeff;
+  --bs-sky-2: #ffe4ec;
+  --bs-sky-3: #ffd0b0;
+  --bs-sun: #efb978;
+  --bs-sun-core: #ffe2a3;
+  --bs-wave-1a: #b8d4ff;
+  --bs-wave-1b: #e5c4f4;
+  --bs-wave-2a: #a9c5f7;
+  --bs-wave-2b: #f6b8ce;
+  --bs-wave-3a: #c4d7fa;
+  --bs-wave-3b: #e8bbd9;
+  --bs-wave-4a: #d5e4ff;
+  --bs-wave-4b: #f2d3e8;
 }
 
 /* ---------- Temel ---------- */
@@ -55,7 +92,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-h) + 16px);
+  scroll-padding-top: calc(var(--header-h) + 18px);
   -webkit-text-size-adjust: 100%;
 }
 
@@ -71,35 +108,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------- Arka plan: lime + cyan yumuşak geçiş ----------
-   Görsel dosyası yok, saf CSS. Anında yüklenir, mobil veri harcamaz. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(950px 560px at 6% -12%, rgba(163, 230, 53, 0.16) 0%, transparent 62%),
-    radial-gradient(850px 600px at 96% 112%, rgba(34, 211, 238, 0.16) 0%, transparent 62%);
-}
-
-.light body::before {
-  background:
-    radial-gradient(950px 560px at 6% -12%, rgba(132, 204, 22, 0.20) 0%, transparent 62%),
-    radial-gradient(850px 600px at 96% 112%, rgba(6, 182, 212, 0.18) 0%, transparent 62%);
-}
-
 img { display: block; max-width: 100%; height: auto; }
 
 a { color: inherit; }
 
-h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
+h1, h2, h3 { line-height: 1.22; letter-spacing: -0.025em; font-weight: 600; }
 
 :focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #04140a;
 }
 
 .wrap {
@@ -109,6 +132,71 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   padding-inline: 24px;
 }
 
+/* Görünmez ama klavye kullanıcıları için ilk odak hedefi */
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 200;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-strong);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 0.18s ease;
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+/* ---------- Big Sur arka planı ---------- */
+.bigsur {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: var(--bg);
+  pointer-events: none;
+}
+
+.bigsur-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Karanlık temada ay, aydınlık temada güneş görünür. */
+.bs-sun-art { display: none; }
+.bs-moon-art { display: block; }
+.light .bs-sun-art { display: block; }
+.light .bs-moon-art { display: none; }
+
+.bigsur-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(5, 8, 20, 0.58) 0%, rgba(5, 8, 20, 0.10) 32%, rgba(5, 8, 20, 0.30) 68%, rgba(5, 8, 20, 0.72) 100%),
+    radial-gradient(900px 520px at 15% 0%, rgba(74, 222, 128, 0.07), transparent 65%);
+}
+
+/* Aydınlık temada ek beyaz perde yok; manzara olduğu gibi görünür. */
+.light .bigsur-vignette {
+  display: none;
+  background: none;
+}
+
+/* Aydınlık temada güneş çok sade kalsın: geniş ışık patlaması neredeyse yok. */
+.light .bs-sun-glow { opacity: 0.16; }
+.light .bs-sun-core {
+  opacity: 0.9;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.82);
+}
+
 /* ---------- Üst çubuk ---------- */
 .site-header {
   position: sticky;
@@ -116,8 +204,8 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   z-index: 50;
   height: var(--header-h);
   background: var(--header-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
   border-bottom: 1px solid var(--border);
 }
 
@@ -131,7 +219,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: -0.01em;
@@ -139,84 +227,113 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   flex-shrink: 0;
 }
 
-.brand img { border-radius: 8px; }
+.brand img {
+  border-radius: 9px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
 
 .site-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   margin-left: auto;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .site-nav a {
-  padding: 7px 12px;
-  border-radius: 8px;
+  padding: 6px 13px;
+  border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-muted);
   text-decoration: none;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.16s, background 0.16s;
 }
 
-.site-nav a:hover {
+.site-nav a:hover,
+.site-nav a:focus-visible {
   color: var(--text);
   background: var(--surface-2);
 }
 
 .icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.035);
   color: var(--text-muted);
   font-size: 0.85rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 0.16s, border-color 0.16s, background 0.16s, transform 0.16s;
 }
 
 .icon-btn:hover {
   color: var(--text);
   border-color: var(--border-strong);
   background: var(--surface-2);
+  transform: translateY(-1px);
 }
 
 /* ---------- Hero ---------- */
 .hero {
-  padding-block: 88px 72px;
-  max-width: var(--wrap);
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(320px, 0.86fr);
+  gap: 64px;
+  align-items: center;
+  padding-block: 92px 64px;
 }
 
+.hero-text { min-width: 0; }
+
 .eyebrow {
-  display: inline-block;
-  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--accent);
   background: var(--accent-soft);
   border: 1px solid var(--accent-border);
-  padding: 4px 12px;
+  padding: 5px 13px;
   border-radius: 999px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+  backdrop-filter: blur(8px);
+}
+
+.eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .hero h1 {
-  font-size: clamp(1.7rem, 5vw, 3rem);
+  font-size: clamp(1.85rem, 4.4vw, 3.15rem);
   font-weight: 700;
-  letter-spacing: -0.035em;
-  max-width: 34ch;
+  letter-spacing: -0.04em;
+  max-width: 30ch;
+  text-wrap: balance;
 }
 
 .lead {
-  margin-top: 20px;
-  max-width: 60ch;
+  margin-top: 22px;
+  max-width: 56ch;
   font-size: 1.0625rem;
   color: var(--text-muted);
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.18);
 }
+
+.light .lead { text-shadow: none; }
 
 .hero-actions {
   margin-top: 32px;
@@ -229,29 +346,38 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 11px 18px;
+  padding: 12px 19px;
   border-radius: var(--radius);
+  font-family: inherit;
   font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background 0.16s, border-color 0.16s, color 0.16s, transform 0.16s, box-shadow 0.16s;
 }
+
+.btn:hover { transform: translateY(-1px); }
 
 .btn-primary {
   background: var(--accent);
   color: #04140a;
   font-weight: 600;
+  box-shadow: 0 8px 24px rgba(74, 222, 128, 0.22);
 }
 
-.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 10px 28px rgba(74, 222, 128, 0.30);
+}
 
 .btn-ghost {
   background: var(--surface);
-  border-color: var(--border);
+  border-color: var(--border-strong);
   color: var(--text);
+  backdrop-filter: blur(10px);
 }
 
 .btn-ghost:hover {
@@ -259,9 +385,293 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   border-color: var(--border-strong);
 }
 
+/* ---------- Hero: macOS penceresi ---------- */
+.hero-visual {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mac-window {
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(160deg, rgba(31, 38, 64, 0.88), rgba(14, 18, 34, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.45),
+    0 2px 0 rgba(255, 255, 255, 0.06) inset;
+  transform: rotate(-1.1deg);
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.light .mac-window {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(240, 245, 255, 0.92));
+  border-color: rgba(16, 24, 48, 0.14);
+  box-shadow:
+    0 28px 70px rgba(45, 64, 110, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.mac-window:hover,
+.mac-window:focus-visible {
+  transform: rotate(0deg) translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 38px 90px rgba(0, 0, 0, 0.50),
+    0 2px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+.mac-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 42px;
+  padding-inline: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.light .mac-bar {
+  border-bottom-color: rgba(16, 24, 48, 0.08);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.tl {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tl-red { background: #ff5f57; }
+.tl-yellow { background: #febc2e; }
+.tl-green { background: #28c840; }
+
+.mac-title {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+.mac-body { padding: 16px; }
+
+.mac-preview {
+  border-radius: 12px;
+  padding: 22px 20px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  /* Küçük Big Sur manzarası da yine sadece CSS gradyanlarıyla çiziliyor. */
+  background:
+    radial-gradient(220px 150px at 82% 12%, rgba(255, 154, 98, 0.45), transparent 70%),
+    radial-gradient(260px 190px at 10% 100%, rgba(120, 90, 220, 0.45), transparent 72%),
+    linear-gradient(155deg, #1b1a43 0%, #3a2560 52%, #6b3367 100%);
+}
+
+.light .mac-preview {
+  background:
+    radial-gradient(220px 150px at 82% 12%, rgba(255, 214, 153, 0.85), transparent 70%),
+    radial-gradient(260px 190px at 10% 100%, rgba(170, 198, 255, 0.85), transparent 72%),
+    linear-gradient(155deg, #dceeff 0%, #f3d8ec 55%, #ffd8c2 100%);
+  border-color: rgba(16, 24, 48, 0.08);
+}
+
+.mac-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.26);
+  color: #d8e2ff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.light .mac-kicker {
+  background: rgba(255, 255, 255, 0.65);
+  color: #34405e;
+}
+
+.mac-preview h3,
+.mac-name {
+  margin-top: 16px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.mac-preview p {
+  margin-top: 2px;
+  font-size: 0.85rem;
+  color: rgba(232, 238, 255, 0.72);
+}
+
+.light .mac-preview h3,
+.light .mac-name { color: #101728; }
+.light .mac-preview p { color: #475467; }
+
+.mac-stats {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mac-stats > div {
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.light .mac-stats > div {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(16, 24, 48, 0.08);
+}
+
+.mac-stats strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.light .mac-stats strong { color: #101728; }
+
+.mac-stats span {
+  font-size: 0.68rem;
+  color: rgba(232, 238, 255, 0.62);
+}
+
+.light .mac-stats span { color: #667085; }
+
+.mac-ip {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.light .mac-ip {
+  background: rgba(255, 255, 255, 0.62);
+  border-color: rgba(16, 24, 48, 0.08);
+}
+
+.mac-ip code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.8rem;
+  color: #e8eeff;
+}
+
+.light .mac-ip code { color: #101728; }
+
+.mac-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.mac-window:hover .mac-open i { transform: translateX(3px); }
+.mac-open i { transition: transform 0.18s ease; }
+
+.hero-note {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-align: center;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.25);
+}
+
+.light .hero-note { text-shadow: none; }
+
+/* ---------- Durum şeridi ---------- */
+.status-strip {
+  margin-top: 30px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 17px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.16);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.live-dot.online {
+  background: #4ade80;
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.18);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+
+.live-dot.offline {
+  background: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.18); }
+  50% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0.06); }
+}
+
+.status-strip .sep { color: var(--border-strong); }
+
+.ip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ip-btn:hover { color: var(--accent); }
+
+.ip-btn code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.84rem;
+}
+
+.ip-btn .kopya { font-size: 0.72rem; color: var(--text-dim); }
+
 /* ---------- Bölümler ---------- */
 .section {
-  padding-block: 56px;
+  padding-block: 60px;
   border-top: 1px solid var(--border);
 }
 
@@ -269,7 +679,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 
 .section-head h2,
 .split h2 {
-  font-size: 1.375rem;
+  font-size: 1.45rem;
   margin-bottom: 6px;
 }
 
@@ -290,34 +700,38 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  padding: 20px;
+  padding: 21px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.18s, background 0.18s, transform 0.18s;
+  backdrop-filter: blur(14px) saturate(1.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  transition: border-color 0.18s, background 0.18s, transform 0.18s, box-shadow 0.18s;
 }
 
 .card:hover {
   border-color: var(--border-strong);
   background: var(--surface-2);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.22);
 }
 
 .card img {
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 13px;
   object-fit: cover;
   flex-shrink: 0;
   background: var(--surface-2);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
 .card-icon {
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 13px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -353,8 +767,8 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   transform: translateX(3px);
 }
 
-.card-muted { opacity: 0.72; cursor: default; }
-.card-muted:hover { transform: none; background: var(--surface); border-color: var(--border); }
+.card-muted { opacity: 0.94; cursor: default; }
+.card-muted:hover { transform: none; background: var(--surface); border-color: var(--border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); }
 
 /* ---------- Etiketler ---------- */
 .tags {
@@ -370,7 +784,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   font-size: 0.72rem;
   font-weight: 500;
   padding: 3px 9px;
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -387,6 +801,12 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   height: 6px;
   border-radius: 50%;
   background: currentColor;
+}
+
+.light .tag-live {
+  color: #166534;
+  background: rgba(22, 163, 74, 0.14);
+  border-color: rgba(22, 163, 74, 0.40);
 }
 
 /* ---------- Hakkımızda ---------- */
@@ -413,15 +833,16 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  backdrop-filter: blur(14px);
 }
 
 .facts > div {
   background: var(--surface);
-  padding: 18px 20px;
+  padding: 19px 20px;
 }
 
 .facts dt {
-  font-size: 1.375rem;
+  font-size: 1.4rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   margin-bottom: 2px;
@@ -443,18 +864,20 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 15px 18px;
+  padding: 16px 18px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   text-decoration: none;
   font-size: 0.9375rem;
-  transition: border-color 0.15s, background 0.15s;
+  backdrop-filter: blur(14px);
+  transition: border-color 0.16s, background 0.16s, transform 0.16s;
 }
 
 .contact-list a:hover {
   border-color: var(--border-strong);
   background: var(--surface-2);
+  transform: translateX(2px);
 }
 
 .contact-list a > i:first-child { color: var(--accent); }
@@ -469,10 +892,14 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 .site-footer {
   border-top: 1px solid var(--border);
   margin-top: 32px;
+  background: rgba(5, 8, 18, 0.24);
+  backdrop-filter: blur(10px);
 }
 
+.light .site-footer { background: rgba(255, 255, 255, 0.28); }
+
 .footer-inner {
-  padding-block: 28px;
+  padding-block: 26px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -483,67 +910,19 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 
 .footer-sep { opacity: 0.5; }
 
-/* ---------- Canlı sunucu durumu + IP ---------- */
-.status-strip {
-  margin-top: 30px;
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.875rem;
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-dim);
-  flex-shrink: 0;
-}
-
-.live-dot.online { background: #a3e635; box-shadow: 0 0 0 4px rgba(163, 230, 53, 0.2); }
-.live-dot.offline { background: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); }
-
-.status-strip .sep { color: var(--border-strong); }
-
-.ip-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 2px 4px;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.ip-btn:hover { color: var(--accent); }
-
-.ip-btn code {
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: 0.84rem;
-}
-
-.ip-btn .kopya { font-size: 0.72rem; color: var(--text-dim); }
+.footer-made { margin-left: auto; }
 
 /* ---------- Duyurular ---------- */
 .duyuru-listesi { display: grid; gap: 10px; }
 
 .duyuru {
-  padding: 16px 18px;
+  padding: 17px 19px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
 }
 
 .duyuru h3 { font-size: 0.95rem; margin-bottom: 5px; }
@@ -562,24 +941,46 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
 }
 
 /* ---------- Duyarlı ---------- */
-@media (max-width: 860px) {
+@media (max-width: 940px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-block: 64px 52px;
+    max-width: 760px;
+  }
+
+  .mac-window { transform: none; }
   .split { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 720px) {
+  .header-inner { gap: 12px; }
+  .site-nav { gap: 0; padding: 3px; }
+  .site-nav a { padding: 6px 9px; font-size: 0.82rem; }
+}
+
+@media (max-width: 540px) {
+  .brand span { display: none; }
 }
 
 @media (max-width: 640px) {
   .wrap { padding-inline: 18px; }
-  .hero { padding-block: 56px 48px; }
+  .hero { padding-block: 52px 44px; }
   .lead { font-size: 1rem; }
-  .section { padding-block: 44px; }
+  .section { padding-block: 46px; }
   .grid { grid-template-columns: 1fr; }
-  .site-nav { gap: 0; }
-  .site-nav a { padding: 7px 9px; font-size: 0.82rem; }
-  .btn { width: 100%; justify-content: center; }
+  .btn { width: 100%; }
   .hero-actions { flex-direction: column; }
+  .status-strip { border-radius: 18px; }
+  .mac-stats { grid-template-columns: repeat(3, 1fr); }
+  .footer-made { margin-left: 0; width: 100%; }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 430px) {
   .site-nav { display: none; }
+  .mac-body { padding: 12px; }
+  .mac-preview { padding: 18px 16px 16px; }
+  .mac-ip { flex-direction: column; align-items: flex-start; gap: 6px; }
 }
 
 /* ---------- Hareket azaltma ---------- */
@@ -587,112 +988,22 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
   html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-/* ========== DUVAR KAĞIDI MODU (macOS Big Sur) ==========
-   Tema butonuyla açılır. Görsel yalnızca bu mod etkinken indirilir:
-   CSS arka plan resimleri sadece eşleşen kural aktifken çekilir. */
+/* ---------- Yüksek kontrast ---------- */
+@media (prefers-contrast: more) {
+  :root {
+    --border: rgba(255, 255, 255, 0.30);
+    --border-strong: rgba(255, 255, 255, 0.48);
+    --text-muted: #c8d2ea;
+  }
 
-
-/* Görselin üstüne hafif bir perde: renkler görünsün ama yazı okunur kalsın */
-/* Duvar kağıdı modunda hero'nun üstü koyu lacivert kalıyor,
-   bu yüzden oradaki yazılar açık renge dönüyor. */
-
-
-/* Duvar kağıdı modunda üst çubuk koyulaşır: hero'nun lacivert kısmıyla kaynaşır */
-
-
-
-
-/* ========== MANZARA: her mod kendi SVG'sini kullanır ========== */
-body {
-  background-color: var(--bg);
-  background-image: url('img/bigsur-koyu.svg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  .light {
+    --border: rgba(16, 24, 48, 0.32);
+    --border-strong: rgba(16, 24, 48, 0.52);
+    --text-muted: #344054;
+  }
 }
-
-
-/* Açık modda arka planın üstüne ince bir ışık katmanı:
-   SVG dosyasındaki renkler ellenmiyor, sadece üstüne perde geliyor.
-   Bu sayede renkler görünür kalırken yazılar okunuyor. */
-.light body {
-  background-color: #ffffff;
-  background-image: url('img/aydinlikmod.svg');
-}
-/* Açık modda arka plan canlı; arka planın üstüne gelen yazılar beyaz.
-   Beyaz yazı açık gökyüzünde kaybolmasın diye altına koyu gölge konuldu. */
-.light .hero h1,
-.light .hero .lead,
-.light .section-head h2,
-.light .section-head p,
-.light .split h2,
-.light .prose {
-  color: #ffffff;
-  text-shadow:
-    0 1px 3px rgba(8, 12, 30, 0.62),
-    0 2px 16px rgba(8, 12, 30, 0.42);
-}
-/* ---------- Hero: solda metin, sagda gorsel panel ---------- */
-.hero {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 56px;
-  align-items: center;
-  padding-block: 72px 64px;
-}
-
-.hero-text { min-width: 0; }
-
-.hero-visual { min-width: 0; }
-
-.panel {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--surface);
-}
-
-.panel-bar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 38px;
-  padding-inline: 14px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-2);
-}
-
-.panel-bar span {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--border-strong);
-}
-
-.panel-bar span:first-child { background: #f87171; }
-.panel-bar span:nth-child(2) { background: #fbbf24; }
-.panel-bar span:last-child { background: #34d399; }
-
-.panel-body {
-  aspect-ratio: 4 / 3;
-  background-image: url('img/mcdunya.svg');
-  background-size: cover;
-  background-position: 50% 42%;
-  background-repeat: no-repeat;
-  image-rendering: pixelated;
-}
-
-@media (max-width: 900px) {
-  .hero { grid-template-columns: 1fr; gap: 36px; padding-block: 56px 48px; }
-  .panel-body { aspect-ratio: 16 / 9; }
-}
-/* Durum seridi grid icinde tam genislik kaplar */
-.hero .status-strip { grid-column: 1 / -1; }
-/* Ana sayfada gorsel panel kaldirildi: hero tek sutun */
-.hero { grid-template-columns: 1fr; gap: 0; max-width: 760px; }
-.hero .status-strip { grid-column: auto; }
-.panel, .panel-bar, .panel-body { display: none; }

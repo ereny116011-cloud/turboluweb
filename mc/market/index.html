@@ -36,13 +36,17 @@
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
+        // onclick içine gömülen id güvenli karakterlere indirgenir
+        function safeId(v) {
+            return String(v == null ? '' : v).replace(/[^a-zA-Z0-9_-]/g, '');
+        }
         async function loadItems() {
             const res = await fetch('https://shrill-salad-a498.ereny116011.workers.dev/api/items');
             const items = await res.json();
             document.getElementById('items').innerHTML = items.length === 0 ? '<p>Henüz ürün yok.</p>' : items.map(i => `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:8px 0;">
                     <div><b>${escHtml(i.name)}</b><br><small>${escHtml(i.price)} puan</small></div>
-                    <button onclick="buy('${i.id}')">Satın Al</button>
+                    <button onclick="buy('${safeId(i.id)}')">Satın Al</button>
                 </div>
             `).join('');
         }

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shop - TurboluMC</title>
   <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,25 +19,71 @@
       <div id="items">Yükleniyor...</div>
     </div>
   </div>
-  <script src="app.js"></script>
   <script>
-    async function loadItems() {
-      const items = await apiGet('/api/items');
-      document.getElementById('items').innerHTML = items.map(i => `
-        <div class="card" style="margin:10px 0">
-          <b>${i.name}</b> - ${i.price} puan
-          <button onclick="buyItem('${i.id}')">Satın Al</button>
-        </div>`).join('');
-      document.getElementById('balance').textContent = getUser()?.balance || 0;
-    }
-    async function buyItem(itemId) {
-      if (!getToken()) return alert('Önce giriş yap!');
-      const res = await apiPost('/api/buy', { itemId });
-      if (res.error) return alert(res.error);
-      alert('Satın alındı!');
+    (function () {
+      'use strict';
+
+      var API = 'https://shrill-salad-a498.ereny116011.workers.dev';
+
+      function esc(v) {
+        return v == null ? '' : String(v)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      // onclick="fn('...')" içine gömülen değerler için güvenli karakter seti
+      function safeId(v) {
+        return String(v == null ? '' : v).replace(/[^a-zA-Z0-9_-]/g, '');
+      }
+
+      function token() {
+        try { return localStorage.getItem('token'); } catch (e) { return null; }
+      }
+
+      async function loadItems() {
+        var kap = document.getElementById('items');
+        try {
+          var res = await fetch(API + '/api/items');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          var items = await res.json();
+          if (!Array.isArray(items)) items = [];
+          kap.innerHTML = items.length === 0 ? '<p>Henüz ürün yok.</p>' : items.map(function (i) {
+            return '<div class="card" style="margin:10px 0">' +
+              '<b>' + esc(i.name) + '</b> - ' + esc(i.price) + ' puan ' +
+              '<button data-id="' + esc(safeId(i.id)) + '" class="satin-al">Satın Al</button>' +
+              '</div>';
+          }).join('');
+        } catch (e) {
+          kap.innerHTML = '<p>Ürünler yüklenemedi. Daha sonra tekrar dene.</p>';
+        }
+      }
+
+      async function buyItem(itemId) {
+        if (!token()) { alert('Önce giriş yap!'); window.location.href = 'giris.html'; return; }
+        var res = await fetch(API + '/api/buy', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemId: itemId })
+        });
+        var data = await res.json();
+        if (data.error) return alert(data.error);
+        alert('Satın alındı!');
+        loadItems();
+      }
+
+      document.getElementById('items').addEventListener('click', function (e) {
+        var btn = e.target.closest('.satin-al');
+        if (btn) buyItem(btn.dataset.id);
+      });
+
+      var bakiye = document.getElementById('balance');
+      try {
+        var user = JSON.parse(localStorage.getItem('user') || 'null');
+        if (user && typeof user.balance !== 'undefined') bakiye.textContent = String(user.balance);
+      } catch (e) { /* yok say */ }
+
       loadItems();
-    }
-    loadItems();
+    })();
   </script>
 </body>
 </html>

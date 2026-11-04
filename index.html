@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbolu Studios — Minecraft Sunucuları ve Mobil Oyunlar</title>
     <meta name="description" content="Turbolu Studios; Java ve Bedrock Minecraft sunucuları işleten, kendi mobil oyunlarını geliştiren bağımsız bir stüdyodur.">
+    <meta name="color-scheme" content="dark light">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <link rel="canonical" href="https://turboluweb.wasmer.app/">
 
@@ -14,7 +16,7 @@
     <meta property="og:url" content="https://turboluweb.wasmer.app/">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://turboluweb.wasmer.app/mc/crpr.webp">
-    <meta name="theme-color" content="#0b0e13">
+    <meta name="theme-color" content="#080b18">
 
     <link rel="icon" href="mc/crpr.webp" type="image/webp">
 
@@ -25,7 +27,7 @@
     <link rel="preload" as="font" type="font/woff2" href="fa/webfonts/fa-solid-900.woff2" crossorigin>
     <link rel="stylesheet" href="fa/css/fontawesome.min.css">
     <link rel="stylesheet" href="fa/css/solid.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=4">
 
     <script type="application/ld+json">
     {
@@ -41,16 +43,90 @@
     </script>
 
     <script>
-        (function() {
-            const saved = localStorage.getItem('theme');
-            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-            let mod = 'light';
-            if (saved === 'light' || saved === 'dark') mod = saved;
-            if (mod === 'light') document.documentElement.classList.add('light');
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+                var mod = saved === 'light' || saved === 'dark' ? saved : (prefersLight ? 'light' : 'dark');
+                if (mod === 'light') document.documentElement.classList.add('light');
+                document.documentElement.style.colorScheme = mod;
+            } catch (e) { /* gizli mod: varsayılan koyu tema */ }
         })();
     </script>
 </head>
 <body>
+
+    <!-- Big Sur manzarası: tek bir görsel dosyası yok, tamamı kodla (SVG + CSS) çiziliyor. -->
+    <div class="bigsur" aria-hidden="true">
+        <svg class="bigsur-art" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" focusable="false">
+            <defs>
+                <linearGradient id="bs-sky" x1="0" y1="0" x2="0.62" y2="1">
+                    <stop offset="0" style="stop-color:var(--bs-sky-1)"></stop>
+                    <stop offset="0.48" style="stop-color:var(--bs-sky-2)"></stop>
+                    <stop offset="1" style="stop-color:var(--bs-sky-3)"></stop>
+                </linearGradient>
+                <radialGradient id="bs-sun" cx="0.5" cy="0.5" r="0.5">
+                    <stop offset="0" style="stop-color:var(--bs-sun);stop-opacity:0.95"></stop>
+                    <stop offset="0.45" style="stop-color:var(--bs-sun);stop-opacity:0.42"></stop>
+                    <stop offset="1" style="stop-color:var(--bs-sun);stop-opacity:0"></stop>
+                </radialGradient>
+                <radialGradient id="bs-moon-glow" cx="0.5" cy="0.5" r="0.5">
+                    <stop offset="0" style="stop-color:var(--bs-moon);stop-opacity:0.52"></stop>
+                    <stop offset="0.42" style="stop-color:var(--bs-moon);stop-opacity:0.18"></stop>
+                    <stop offset="1" style="stop-color:var(--bs-moon);stop-opacity:0"></stop>
+                </radialGradient>
+                <radialGradient id="bs-moon-body" cx="0.35" cy="0.3" r="0.85">
+                    <stop offset="0" style="stop-color:var(--bs-moon-core)"></stop>
+                    <stop offset="1" style="stop-color:var(--bs-moon-edge)"></stop>
+                </radialGradient>
+                <linearGradient id="bs-wave-1" x1="0" y1="0" x2="1" y2="0.55">
+                    <stop offset="0" style="stop-color:var(--bs-wave-1a)"></stop>
+                    <stop offset="1" style="stop-color:var(--bs-wave-1b)"></stop>
+                </linearGradient>
+                <linearGradient id="bs-wave-2" x1="0" y1="0" x2="1" y2="0.4">
+                    <stop offset="0" style="stop-color:var(--bs-wave-2a)"></stop>
+                    <stop offset="1" style="stop-color:var(--bs-wave-2b)"></stop>
+                </linearGradient>
+                <linearGradient id="bs-wave-3" x1="0" y1="0" x2="1" y2="0.3">
+                    <stop offset="0" style="stop-color:var(--bs-wave-3a)"></stop>
+                    <stop offset="1" style="stop-color:var(--bs-wave-3b)"></stop>
+                </linearGradient>
+                <linearGradient id="bs-wave-4" x1="0" y1="0" x2="1" y2="0.2">
+                    <stop offset="0" style="stop-color:var(--bs-wave-4a)"></stop>
+                    <stop offset="1" style="stop-color:var(--bs-wave-4b)"></stop>
+                </linearGradient>
+            </defs>
+
+            <rect width="1600" height="1000" fill="url(#bs-sky)"></rect>
+
+            <!-- Aydınlık tema: güneş -->
+            <g class="bs-sun-art">
+                <circle class="bs-sun-glow" cx="1210" cy="245" r="520" fill="url(#bs-sun)"></circle>
+                <circle class="bs-sun-core" cx="1210" cy="245" r="82" style="fill:var(--bs-sun-core)"></circle>
+            </g>
+
+            <!-- Karanlık tema: ay -->
+            <g class="bs-moon-art">
+                <circle cx="1210" cy="245" r="430" fill="url(#bs-moon-glow)"></circle>
+                <circle cx="1210" cy="245" r="74" fill="url(#bs-moon-body)"></circle>
+                <g style="fill:var(--bs-moon-detail);opacity:0.5">
+                    <circle cx="1183" cy="218" r="15"></circle>
+                    <circle cx="1234" cy="248" r="20"></circle>
+                    <circle cx="1202" cy="280" r="10"></circle>
+                    <circle cx="1246" cy="212" r="8"></circle>
+                    <circle cx="1174" cy="262" r="7"></circle>
+                </g>
+            </g>
+
+            <path d="M0 648 C 260 540, 440 668, 720 588 C 1010 505, 1230 640, 1600 548 L1600 1000 L0 1000 Z" fill="url(#bs-wave-1)"></path>
+            <path d="M0 760 C 300 636, 520 792, 850 690 C 1160 594, 1370 742, 1600 664 L1600 1000 L0 1000 Z" fill="url(#bs-wave-2)"></path>
+            <path d="M0 878 C 280 764, 570 918, 900 812 C 1200 715, 1410 860, 1600 796 L1600 1000 L0 1000 Z" fill="url(#bs-wave-3)"></path>
+            <path d="M0 958 C 330 882, 640 990, 980 920 C 1270 860, 1440 930, 1600 902 L1600 1000 L0 1000 Z" fill="url(#bs-wave-4)"></path>
+        </svg>
+        <div class="bigsur-vignette"></div>
+    </div>
+
+    <a class="skip-link" href="#icerik">İçeriğe geç</a>
 
     <header class="site-header">
         <div class="wrap header-inner">
@@ -66,42 +142,70 @@
                 <a href="#iletisim">İletişim</a>
             </nav>
 
-            <button id="themeToggle" class="icon-btn" aria-label="Tema değiştir" title="Tema değiştir">
+            <button id="themeToggle" type="button" class="icon-btn" aria-label="Tema değiştir" title="Tema değiştir">
                 <i class="fa-solid fa-moon" aria-hidden="true"></i>
             </button>
         </div>
     </header>
 
-    <main>
+    <main id="icerik">
         <section class="hero wrap">
-          <div class="hero-text">
-            <p class="eyebrow">Bağımsız oyun ve sunucu stüdyosu</p>
-            <h1>Minecraft sunucuları işletiyor, kendi oyunlarımızı geliştiriyoruz.</h1>
-            <p class="lead">
-                Turbolu Studios; Java ve Bedrock Edition sunucuları çalıştıran, aynı zamanda
-                mobil oyun geliştiren küçük bir ekip. Sunucularımız kesintisiz, topluluğumuz aktif.
-            </p>
-            <div class="hero-actions">
-                <a class="btn btn-primary" href="#projeler">
-                    Projelere göz at <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                </a>
-                <a class="btn btn-ghost" href="#iletisim">
-                    <i class="fa-solid fa-envelope" aria-hidden="true"></i> İletişim
-                </a>
+            <div class="hero-text">
+                <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Bağımsız oyun ve sunucu stüdyosu</p>
+                <h1>Minecraft sunucuları işletiyor, kendi oyunlarımızı geliştiriyoruz.</h1>
+                <p class="lead">
+                    Turbolu Studios; Java ve Bedrock Edition sunucuları çalıştıran, aynı zamanda
+                    mobil oyun geliştiren küçük bir ekip. Sunucularımız kesintisiz, topluluğumuz aktif.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#projeler">
+                        Projelere göz at <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-ghost" href="#iletisim">
+                        <i class="fa-solid fa-envelope" aria-hidden="true"></i> İletişim
+                    </a>
+                </div>
+
+                <div class="status-strip" role="status" aria-live="polite">
+                    <span class="live-dot" id="durumNokta" aria-hidden="true"></span>
+                    <span id="durumMetin">Sunucu durumu kontrol ediliyor…</span>
+                    <span class="sep" aria-hidden="true">·</span>
+                    <button class="ip-btn" id="ipBtn" type="button" title="Sunucu adresini kopyala">
+                        <i class="fa-solid fa-server" aria-hidden="true"></i>
+                        <code id="ipMetin">turbolumc.aternos.me</code>
+                        <span class="kopya" id="ipDurum">kopyala</span>
+                    </button>
+                </div>
             </div>
 
-          </div>
-
-            <div class="status-strip">
-                <span class="live-dot" id="durumNokta" aria-hidden="true"></span>
-                <span id="durumMetin">Sunucu durumu kontrol ediliyor…</span>
-                <span class="sep" aria-hidden="true">·</span>
-                <button class="ip-btn" id="ipBtn" title="Sunucu adresini kopyala">
-                    <i class="fa-solid fa-server" aria-hidden="true"></i>
-                    <code id="ipMetin">turbolumc.aternos.me</code>
-                    <span class="kopya" id="ipDurum">kopyala</span>
-                </button>
-            </div></section>
+            <div class="hero-visual">
+                <a class="mac-window" href="/mc/">
+                    <div class="mac-bar">
+                        <span class="tl tl-red" aria-hidden="true"></span>
+                        <span class="tl tl-yellow" aria-hidden="true"></span>
+                        <span class="tl tl-green" aria-hidden="true"></span>
+                        <span class="mac-title">turbolu.studio</span>
+                    </div>
+                    <div class="mac-body">
+                        <div class="mac-preview">
+                            <div class="mac-kicker"><span class="live-dot" id="pencereNokta" aria-hidden="true"></span> canlı sunucu</div>
+                            <div class="mac-name">TurboluMC</div>
+                            <p>Java Edition · serbest dünya</p>
+                            <div class="mac-stats">
+                                <div><strong id="pencereOyuncu">—</strong><span>oyuncu</span></div>
+                                <div><strong>7/24</strong><span>topluluk</span></div>
+                                <div><strong>0 ₺</strong><span>katılım</span></div>
+                            </div>
+                        </div>
+                        <div class="mac-ip">
+                            <code>turbolumc.aternos.me</code>
+                            <span class="mac-open">Panele git <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </a>
+                <p class="hero-note">Sunucuya katılmak için adrese tıkla, kopyala ve oyuna yapıştır.</p>
+            </div>
+        </section>
 
         <section id="projeler" class="wrap section">
             <div class="section-head">
@@ -165,7 +269,7 @@
                 <h2>Duyurular</h2>
                 <p>Sunucularımızdan son haberler</p>
             </div>
-            <div class="duyuru-listesi" id="duyuruListesi">
+            <div class="duyuru-listesi" id="duyuruListesi" aria-live="polite">
                 <div class="duyuru"><p>Yükleniyor…</p></div>
             </div>
         </section>
@@ -218,129 +322,167 @@
     <footer class="site-footer">
         <div class="wrap footer-inner">
             <span>© 2026 Turbolu Studios</span>
-            <span class="footer-sep">·</span>
+            <span class="footer-sep" aria-hidden="true">·</span>
             <span>GNU GPL v3 lisansı ile korunmaktadır</span>
+            <span class="footer-made">Türkiye'den, bir fincan kahveyle yapıldı.</span>
         </div>
     </footer>
 
     <script>
-        const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
+        (function () {
+            'use strict';
 
-        function esc(v) {
-            return v == null ? '' : String(v)
-                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
+            var API = 'https://shrill-salad-a498.ereny116011.workers.dev';
+            var SUNUCU = 'turbolumc.aternos.me';
 
-        // ---- Canlı sunucu durumu ----
-        // mcsrvstat CORS'a izin veriyor (access-control-allow-origin: *), bu yüzden
-        // doğrudan tarayıcıdan çağırıyoruz. Worker'a bağımlı değil.
-        async function durumYukle() {
-            const nokta = document.getElementById('durumNokta');
-            const metin = document.getElementById('durumMetin');
+            function $(id) { return document.getElementById(id); }
 
-            let d = null;
-            try {
-                const r = await fetch('https://api.mcsrvstat.us/3/turbolumc.aternos.me');
-                if (r.ok) d = await r.json();
-            } catch (e) { d = null; }
+            function esc(v) {
+                return v == null ? '' : String(v)
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            }
 
-            // Doğrudan çağrı olmazsa worker üzerinden dene
-            if (!d || typeof d.online === 'undefined') {
+            function tarihYaz(deger) {
+                var d = new Date(deger);
+                if (isNaN(d.getTime())) return '';
+                return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+
+            /* ---- Canlı sunucu durumu ---- */
+            async function durumYukle() {
+                var nokta = $('durumNokta');
+                var metin = $('durumMetin');
+                var pencereNokta = $('pencereNokta');
+                var pencereOyuncu = $('pencereOyuncu');
+                if (!nokta || !metin) return;
+
+                var d = null;
+                var controller = new AbortController();
+                var zamanlayici = setTimeout(function () { controller.abort(); }, 7000);
+
                 try {
-                    const r2 = await fetch(API + '/api/status');
-                    if (r2.ok) d = await r2.json();
-                } catch (e) { /* yok say */ }
-            }
+                    var r = await fetch('https://api.mcsrvstat.us/3/' + SUNUCU, { signal: controller.signal });
+                    if (r.ok) d = await r.json();
+                } catch (e) { d = null; }
+                clearTimeout(zamanlayici);
 
-            if (d && d.online) {
-                const o = (d.players && d.players.online) || 0;
-                const m = (d.players && d.players.max) || 0;
-                nokta.className = 'live-dot online';
-                metin.textContent = o + ' oyuncu çevrimiçi' + (m ? ' / ' + m : '');
-            } else if (d && d.online === false) {
-                nokta.className = 'live-dot offline';
-                metin.textContent = 'Sunucu şu an çevrimdışı';
-            } else {
-                nokta.className = 'live-dot';
-                metin.textContent = 'Durum bilgisi alınamadı';
-            }
-        }
-        durumYukle();
-        setInterval(durumYukle, 60000);
-
-        // ---- Sunucu adresini kopyala ----
-        document.getElementById('ipBtn').addEventListener('click', async () => {
-            const adres = document.getElementById('ipMetin').textContent.trim();
-            const ipucu = document.getElementById('ipDurum');
-            try {
-                await navigator.clipboard.writeText(adres);
-            } catch (e) {
-                const ta = document.createElement('textarea');
-                ta.value = adres;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-            }
-            ipucu.textContent = 'kopyalandı';
-            ipucu.style.color = '#a3e635';
-            setTimeout(() => { ipucu.textContent = 'kopyala'; ipucu.style.color = ''; }, 1800);
-        });
-
-        // ---- Son duyurular ----
-        async function duyurulariYukle() {
-            const kap = document.getElementById('duyuruListesi');
-            try {
-                const liste = await fetch(API + '/api/announcements').then(r => r.json());
-                if (!Array.isArray(liste) || liste.length === 0) {
-                    kap.innerHTML = '<div class="duyuru"><p>Henüz duyuru yok.</p></div>';
-                    return;
+                if (!d || typeof d.online === 'undefined') {
+                    try {
+                        var r2 = await fetch(API + '/api/status');
+                        if (r2.ok) d = await r2.json();
+                    } catch (e) { /* yok say */ }
                 }
-                kap.innerHTML = liste.slice(0, 3).map(a => `
-                    <div class="duyuru">
-                        <h3>${esc(a.title)}</h3>
-                        <p>${esc(a.content)}</p>
-                        <small>${new Date(a.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</small>
-                    </div>`).join('');
-            } catch (e) {
-                kap.innerHTML = '<div class="duyuru"><p>Duyurular şu an yüklenemedi.</p></div>';
+
+                if (d && d.online) {
+                    var o = (d.players && d.players.online) || 0;
+                    var m = (d.players && d.players.max) || 0;
+                    nokta.className = 'live-dot online';
+                    metin.textContent = o + ' oyuncu çevrimiçi' + (m ? ' / ' + m : '');
+                    if (pencereNokta) pencereNokta.className = 'live-dot online';
+                    if (pencereOyuncu) pencereOyuncu.textContent = o;
+                } else if (d && d.online === false) {
+                    nokta.className = 'live-dot offline';
+                    metin.textContent = 'Sunucu şu an çevrimdışı';
+                    if (pencereNokta) pencereNokta.className = 'live-dot offline';
+                    if (pencereOyuncu) pencereOyuncu.textContent = '0';
+                } else {
+                    nokta.className = 'live-dot';
+                    metin.textContent = 'Durum bilgisi alınamadı';
+                    if (pencereNokta) pencereNokta.className = 'live-dot';
+                    if (pencereOyuncu) pencereOyuncu.textContent = '—';
+                }
             }
-        }
-        duyurulariYukle();
+            durumYukle();
+            setInterval(durumYukle, 60000);
 
-        const themeBtn = document.getElementById('themeToggle');
-        const TEMA_MODLAR = ['dark', 'light'];
-        const TEMA_ETIKET = { dark: 'Koyu', light: 'Açık' };
-        const TEMA_IKON = { dark: 'fa-moon', light: 'fa-sun' };
+            /* ---- Sunucu adresini kopyala ---- */
+            var ipBtn = $('ipBtn');
+            if (ipBtn) {
+                ipBtn.addEventListener('click', async function () {
+                    var ipucu = $('ipDurum');
+                    try {
+                        await navigator.clipboard.writeText(SUNUCU);
+                    } catch (e) {
+                        var ta = document.createElement('textarea');
+                        ta.value = SUNUCU;
+                        ta.setAttribute('readonly', '');
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        try { document.execCommand('copy'); } catch (err) { /* yok say */ }
+                        document.body.removeChild(ta);
+                    }
+                    if (!ipucu) return;
+                    ipucu.textContent = 'kopyalandı';
+                    ipucu.style.color = '#86efac';
+                    setTimeout(function () { ipucu.textContent = 'kopyala'; ipucu.style.color = ''; }, 1800);
+                });
+            }
 
-        function aktifTema() {
-            const root = document.documentElement;
-                      if (root.classList.contains('light')) return 'light';
-            return 'dark';
-        }
+            /* ---- Son duyurular ---- */
+            async function duyurulariYukle() {
+                var kap = $('duyuruListesi');
+                if (!kap) return;
+                try {
+                    var r = await fetch(API + '/api/announcements');
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    var liste = await r.json();
+                    if (!Array.isArray(liste) || liste.length === 0) {
+                        kap.innerHTML = '<div class="duyuru"><p>Henüz duyuru yok.</p></div>';
+                        return;
+                    }
+                    kap.innerHTML = liste.slice(0, 3).map(function (a) {
+                        var t = tarihYaz(a.date);
+                        return '<div class="duyuru">' +
+                            '<h3>' + esc(a.title) + '</h3>' +
+                            '<p>' + esc(a.content) + '</p>' +
+                            (t ? '<small>' + esc(t) + '</small>' : '') +
+                            '</div>';
+                    }).join('');
+                } catch (e) {
+                    kap.innerHTML = '<div class="duyuru"><p>Duyurular şu an yüklenemedi.</p></div>';
+                }
+            }
+            duyurulariYukle();
 
-        function temaUygula(mod) {
-            const root = document.documentElement;
-            root.classList.remove('light', 'wallpaper');
-            if (mod === 'light') root.classList.add('light');
-            localStorage.setItem('theme', mod);
+            /* ---- Tema ---- */
+            var themeBtn = $('themeToggle');
+            var TEMA_MODLAR = ['dark', 'light'];
+            var TEMA_ETIKET = { dark: 'Koyu', light: 'Açık' };
+            var TEMA_IKON = { dark: 'fa-moon', light: 'fa-sun' };
+
+            function aktifTema() {
+                return document.documentElement.classList.contains('light') ? 'light' : 'dark';
+            }
+
+            function guncelleIkon() {
+                if (!themeBtn) return;
+                var mod = aktifTema();
+                themeBtn.innerHTML = '<i class="fa-solid ' + TEMA_IKON[mod] + '" aria-hidden="true"></i>';
+                themeBtn.title = 'Tema: ' + TEMA_ETIKET[mod] + ' (değiştirmek için tıkla)';
+                themeBtn.setAttribute('aria-label', themeBtn.title);
+                document.documentElement.style.colorScheme = mod;
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute('content', mod === 'light' ? '#eef4ff' : '#080b18');
+            }
+
+            function temaUygula(mod) {
+                var root = document.documentElement;
+                root.classList.toggle('light', mod === 'light');
+                try { localStorage.setItem('theme', mod); } catch (e) { /* yok say */ }
+                guncelleIkon();
+            }
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function () {
+                    var i = TEMA_MODLAR.indexOf(aktifTema());
+                    temaUygula(TEMA_MODLAR[(i + 1) % TEMA_MODLAR.length]);
+                });
+            }
             guncelleIkon();
-        }
-
-        function guncelleIkon() {
-            const mod = aktifTema();
-            themeBtn.innerHTML = '<i class="fa-solid ' + TEMA_IKON[mod] + '" aria-hidden="true"></i>';
-            themeBtn.title = 'Tema: ' + TEMA_ETIKET[mod] + ' (değiştirmek için tıkla)';
-            themeBtn.setAttribute('aria-label', themeBtn.title);
-        }
-
-        themeBtn.addEventListener('click', () => {
-            const i = TEMA_MODLAR.indexOf(aktifTema());
-            temaUygula(TEMA_MODLAR[(i + 1) % TEMA_MODLAR.length]);
-        });
-
-        guncelleIkon();
+        })();
     </script>
 </body>
 </html>

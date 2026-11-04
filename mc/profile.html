@@ -2,27 +2,71 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profil - TurboluMC</title>
   <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
-    <header><h1><i class="fa-solid fa-user"></i> Profil</h1><a href="index.html"><i class="fa-solid fa-arrow-left"></i> Ana Sayfa</a></header>
+    <header>
+      <h1><i class="fa-solid fa-user"></i> Profil</h1>
+      <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Ana Sayfa</a>
+    </header>
     <div class="card" id="profileInfo">
-      <p>Kullanıcı adı: <span id="displayName"></span></p>
-      <p>Bakiye: <span id="displayBalance"></span></p>
+      <p>Profil yükleniyor…</p>
     </div>
   </div>
-  <script src="app.js"></script>
   <script>
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      document.getElementById('displayName').textContent = user.username;
-      document.getElementById('displayBalance').textContent = user.balance;
-    } else {
-      document.getElementById('profileInfo').innerHTML = '<p>Lütfen önce giriş yapın.</p>';
-    }
+    (function () {
+      'use strict';
+
+      var API = 'https://shrill-salad-a498.ereny116011.workers.dev';
+      var kutu = document.getElementById('profileInfo');
+
+      function token() {
+        try { return localStorage.getItem('token'); } catch (e) { return null; }
+      }
+
+      function satir(etiket, deger) {
+        var p = document.createElement('p');
+        var b = document.createElement('strong');
+        b.textContent = etiket + ': ';
+        p.appendChild(b);
+        p.appendChild(document.createTextNode(String(deger)));
+        return p;
+      }
+
+      async function yukle() {
+        var t = token();
+        if (!t) { window.location.href = 'giris.html'; return; }
+
+        try {
+          var res = await fetch(API + '/api/profile', {
+            headers: { 'Authorization': 'Bearer ' + t }
+          });
+          var veri = await res.json();
+          if (!res.ok || veri.error) throw new Error(veri.error || 'Profil alınamadı');
+
+          kutu.replaceChildren(
+            satir('Kullanıcı adı', veri.username || '-'),
+            satir('Bakiye', (veri.balance == null ? 0 : veri.balance) + ' puan')
+          );
+        } catch (e) {
+          kutu.replaceChildren();
+          var p = document.createElement('p');
+          p.textContent = 'Profil yüklenemedi. Oturumun süresi dolmuş olabilir.';
+          var a = document.createElement('a');
+          a.href = 'giris.html';
+          a.textContent = ' Yeniden giriş yap';
+          p.appendChild(a);
+          kutu.appendChild(p);
+        }
+      }
+
+      yukle();
+    })();
   </script>
 </body>
 </html>

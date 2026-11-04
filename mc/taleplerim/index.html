@@ -31,6 +31,11 @@
     </div>
     <script src="../app.js"></script>
     <script>
+        function escHtml(v) {
+            return v == null ? '' : String(v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
         async function loadRequests() {
             const token = localStorage.getItem('token');
             if (!token) { window.location.href='../giris.html'; return; }
@@ -40,8 +45,8 @@
             const reqs = await res.json();
             document.getElementById('requests').innerHTML = reqs.length === 0 ? '<p>Henüz talebiniz yok.</p>' : reqs.map(r => `
                 <div style="padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; margin:5px 0; display:flex; justify-content:space-between;">
-                    <div><b>${r.item}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div>
-                    <span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}">${r.status}</span>
+                    <div><b>${escHtml(r.item)}</b> (${escHtml(r.price)} puan)<br><small>${escHtml(new Date(r.date).toLocaleString())}</small></div>
+                    <span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}">${escHtml(r.status)}</span>
                 </div>
             `).join('');
         }

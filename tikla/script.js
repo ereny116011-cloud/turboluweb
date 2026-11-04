@@ -193,8 +193,7 @@ function animateSteam(now) {
 var galleryImages = [];
 var currentImageIndex = 0;
 var galleryLoaded = false;
-var EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp'];
-var TOTAL_IMAGES = 8;
+var TOTAL_IMAGES = 9;
 var IMAGE_PATH = 'sss/'; // <-- buraya dikkat: resimlerin bulunduğu klasör
 
 function loadGallery() {
@@ -204,36 +203,18 @@ function loadGallery() {
 
   galleryImages = [];
   for (var n = 1; n <= TOTAL_IMAGES; n++) {
-    galleryImages.push({ name: IMAGE_PATH + String(n), src: null });
+    // Tam boy PNG yalnızca seçilen görsel için yüklenir.
+    // Şerit ise sss/thumbs/ altındaki ~20 KB'lık JPEG kopyaları kullanır.
+    galleryImages.push({
+      name: IMAGE_PATH + n,
+      src: IMAGE_PATH + n + '.png',
+      thumb: IMAGE_PATH + 'thumbs/' + n + '.jpg'
+    });
   }
 
-  probeImages().then(function() {
-    renderGalleryThumbs();
-    updateGalleryImage();
-    galleryLoaded = true;
-  });
-}
-
-function probeImages() {
-  var promises = galleryImages.map(function(img) {
-    return new Promise(function(resolve) {
-      var extIndex = 0;
-      function tryNext() {
-        if (extIndex >= EXTENSIONS.length) {
-          img.src = null;
-          resolve();
-          return;
-        }
-        var testSrc = img.name + '.' + EXTENSIONS[extIndex];
-        var probe = new Image();
-        probe.onload = function() { img.src = testSrc; resolve(); };
-        probe.onerror = function() { extIndex++; tryNext(); };
-        probe.src = testSrc;
-      }
-      tryNext();
-    });
-  });
-  return Promise.all(promises);
+  renderGalleryThumbs();
+  updateGalleryImage();
+  galleryLoaded = true;
 }
 
 function renderGalleryThumbs() {
@@ -248,7 +229,10 @@ function renderGalleryThumbs() {
   galleryImages.forEach(function(img, i) {
     if (!img.src) return;
     var thumb = document.createElement('img');
-    thumb.src = img.src;
+    thumb.src = img.thumb || img.src;
+    thumb.onerror = function () {
+      if (this.src !== img.src) this.src = img.src;
+    };
     thumb.alt = 'Ekran ' + (i + 1);
     thumb.loading = 'lazy';
     thumb.decoding = 'async';

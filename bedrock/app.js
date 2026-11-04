@@ -17,6 +17,19 @@ function esc(value) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+// HTML niteliği içinde onclick="fn('...')" yazarken kullanılır. Kaçış tek
+// başına yetmez: tarayıcı &#39; gibi varlıkları JS çalışmadan önce çözer.
+// Bu yüzden id'yi yalnızca güvenli karakterlere indirgiyoruz.
+function safeId(value) {
+  return String(value === null || value === undefined ? '' : value).replace(/[^a-zA-Z0-9_-]/g, '');
+}
+function safeImageSrc(value) {
+  const v = String(value || '').trim();
+  if (!v) return DEFAULT_AVATAR;
+  if (/^data:image\/(png|jpe?g|webp|gif);base64,/i.test(v)) return v;
+  if (/^(https?:\/\/|\/|\.{0,2}\/)/i.test(v)) return v;
+  return DEFAULT_AVATAR;
+}
 const VAPID_PUBLIC_KEY = 'BD3kAyCW2OpZmM7SzNSEeANMtFNDXUiFP3ZDpgOfeRv78S3Igz4qOxZZubXBo1kXaj_9Q53lwKghx0PIIsRsaXk';
 const DEFAULT_AVATAR = '../mc/crpr.png';
 const PLATFORM = 'bedrock';
@@ -48,7 +61,16 @@ let currentLang = localStorage.getItem('lang') || 'tr';
 let currentUser = null;
 let token = localStorage.getItem('token') || null;
 let statusInterval = null;
-let notificationPreferences = JSON.parse(localStorage.getItem('notifyPrefs') || '{"announcements":true,"news":true,"campaigns":true,"items":true}');
+let notificationPreferences;
+try {
+  const kayitliTercihler = JSON.parse(localStorage.getItem('notifyPrefs') || 'null');
+  notificationPreferences = Object.assign(
+    { announcements: true, news: true, campaigns: true, items: true },
+    kayitliTercihler && typeof kayitliTercihler === 'object' ? kayitliTercihler : {}
+  );
+} catch (e) {
+  notificationPreferences = { announcements: true, news: true, campaigns: true, items: true };
+}
 
 function t(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
 
@@ -452,25 +474,26 @@ function renderUI() {
         <button onclick="showContent('news')"><i class="fa-solid fa-newspaper"></i> Haberler</button>
       `;
     }
-    navLinks.innerHTML = buttons;
-    userArea.innerHTML = `
+    if (navLinks) navLinks.innerHTML = buttons;
+    if (userArea) userArea.innerHTML = `
       <button onclick="requestNotificationPermission()" title="Bildirim"><i class="fa-solid fa-bell"></i></button>
-      <img src="${esc(currentUser.icon || DEFAULT_AVATAR)}" class="profile-icon" onclick="showContent('profile')" title="Profil" loading="lazy">
+      <img src="${esc(safeImageSrc(currentUser.icon))}" class="profile-icon" onclick="showContent('profile')" title="Profil" loading="lazy" alt="">
       <span class="username-label">${esc(currentUser.username)}</span>
       <button class="logout-btn" onclick="logout()">Çıkış</button>
     `;
   } else {
-    navLinks.innerHTML = '';
-    userArea.innerHTML = `
+    if (navLinks) navLinks.innerHTML = '';
+    if (userArea) userArea.innerHTML = `
       <button class="btn-green" onclick="openAuthModal('register')">Kaydol</button>
       <button onclick="openAuthModal('login')">Giriş Yap</button>
     `;
   }
-  if (!content.innerHTML.trim()) showContent('status');
+  if (content && !content.innerHTML.trim()) showContent('status');
 }
 
 function showContent(section) {
   const content = document.getElementById('content');
+  if (!content) return;
   content.classList.remove('page-enter');
   void content.offsetWidth;
   content.classList.add('page-enter');
@@ -559,7 +582,7 @@ async function renderStatus() {
 async function renderShop() {
   const content = document.getElementById('content');
   const items = await fetch(`${API}/api/items?platform=${PLATFORM}`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-cart-shopping"></i> Market</h2>${currentUser ? `<p>Bakiye: <strong>${currentUser.balance}</strong> puan</p>` : ''}${items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-soft); border-radius:10px; margin:8px 0; border:1px solid var(--glass-border);"><div><b>${esc(i.name)}</b><p style="font-size:0.85rem; opacity:0.7;">${i.price} puan</p></div><button onclick="buy('${i.id}')">Satın Al</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-cart-shopping"></i> Market</h2>${currentUser ? `<p>Bakiye: <strong>${esc(currentUser.balance)}</strong> puan</p>` : ''}${items.map(i => `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--surface-soft); border-radius:10px; margin:8px 0; border:1px solid var(--glass-border);"><div><b>${esc(i.name)}</b><p style="font-size:0.85rem; opacity:0.7;">${esc(i.price)} puan</p></div><button onclick="buy('${safeId(i.id)}')">Satın Al</button></div>`).join('')}</div>`;
 }
 async function buy(itemId) {
   if (!token) return alert('Lütfen giriş yapın.');
@@ -573,14 +596,14 @@ async function renderInventory() {
   const content = document.getElementById('content');
   if (!currentUser) return;
   const requests = await fetch(`${API}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-box"></i> Taleplerim</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; border:1px solid var(--glass-border);"><div><b>${r.item_name}</b> (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}; color:white;">${r.status}</span></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-box"></i> Taleplerim</h2>${requests.length === 0 ? '<p>Henüz talebiniz yok.</p>' : requests.map(r => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; border:1px solid var(--glass-border);"><div><b>${esc(r.item_name)}</b> (${esc(r.price)} puan)<br><small>${esc(new Date(r.date).toLocaleString())}</small></div><span style="padding:4px 12px; border-radius:20px; font-size:0.85rem; background:${r.status==='completed'?'#22c55e':r.status==='rejected'?'#ef4444':'#eab308'}; color:white;">${esc(r.status)}</span></div>`).join('')}</div>`;
 }
 
 async function renderRequests() {
   if (!currentUser?.isAdmin) return;
   const requests = await fetch(`${API}/api/admin/requests`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
   const content = document.getElementById('content');
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Talepler</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;"><div><b>${r.user_name}</b> <i class="fa-solid fa-arrow-right"></i> ${r.item_name} (${r.price} puan)<br><small>${new Date(r.date).toLocaleString()} • ${r.platform || 'all'}</small></div><div style="display:flex; gap:6px;">${r.status==='pending'?`<button onclick="completeRequest('${r.id}')"><i class="fa-solid fa-circle-check"></i></button><button class="logout-btn" onclick="rejectRequest('${r.id}')"><i class="fa-solid fa-xmark"></i></button>`:`<span>${r.status}</span>`}</div></div></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Talepler</h2>${requests.length===0?'<p>Talep yok.</p>':requests.map(r=>`<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; border:1px solid var(--glass-border);"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;"><div><b>${esc(r.user_name)}</b> <i class="fa-solid fa-arrow-right"></i> ${esc(r.item_name)} (${esc(r.price)} puan)<br><small>${esc(new Date(r.date).toLocaleString())} • ${esc(r.platform || 'all')}</small></div><div style="display:flex; gap:6px;">${r.status==='pending'?`<button onclick="completeRequest('${safeId(r.id)}')"><i class="fa-solid fa-circle-check"></i></button><button class="logout-btn" onclick="rejectRequest('${safeId(r.id)}')"><i class="fa-solid fa-xmark"></i></button>`:`<span>${esc(r.status)}</span>`}</div></div></div>`).join('')}</div>`;
 }
 async function completeRequest(id) {
   await fetch(`${API}/api/admin/complete-request`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: id }) });
@@ -608,7 +631,7 @@ async function renderManageAnnouncements() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
   const announcements = await fetch(`${API}/api/announcements`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Duyuru Yönet</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${esc(a.title)}</b> <small style="opacity:0.6;">[${a.platform||'all'}]</small><br><small>${new Date(a.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteAnnouncement('${a.id}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Duyuru Yönet</h2>${announcements.length === 0 ? '<p>Henüz duyuru yok.</p>' : announcements.map(a => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${esc(a.title)}</b> <small style="opacity:0.6;">[${esc(a.platform||'all')}]</small><br><small>${esc(new Date(a.date).toLocaleString())}</small></div><button class="logout-btn" onclick="deleteAnnouncement('${safeId(a.id)}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`).join('')}</div>`;
 }
 async function deleteAnnouncement(id) {
   if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
@@ -620,7 +643,7 @@ async function renderManageNews() {
   if (!currentUser?.isAdmin) return;
   const content = document.getElementById('content');
   const news = await fetch(`${API}/api/news`).then(r => r.json());
-  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Haber Yönet</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${esc(n.title)}</b> <small style="opacity:0.6;">[${n.platform||'all'}]</small><br><small>${new Date(n.date).toLocaleString()}</small></div><button class="logout-btn" onclick="deleteNews('${n.id}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`).join('')}</div>`;
+  content.innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-clipboard-list"></i> Haber Yönet</h2>${news.length === 0 ? '<p>Henüz haber yok.</p>' : news.map(n => `<div style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--glass-border);"><div><b>${esc(n.title)}</b> <small style="opacity:0.6;">[${esc(n.platform||'all')}]</small><br><small>${esc(new Date(n.date).toLocaleString())}</small></div><button class="logout-btn" onclick="deleteNews('${safeId(n.id)}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`).join('')}</div>`;
 }
 async function deleteNews(id) {
   if (!confirm('Bu haberi silmek istediğinize emin misiniz?')) return;
@@ -638,7 +661,7 @@ async function renderManageCampaigns() {
   if (!currentUser?.isAdmin) return;
   const campaigns = await fetch(`${API}/api/campaigns`).then(r => r.json());
   const now = Date.now();
-  document.getElementById('content').innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-chart-simple"></i> Kampanya Yönet</h2>${campaigns.map(c=>{const expired=c.end_date&&new Date(c.end_date).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border:1px solid var(--glass-border);"><div><b>${esc(c.title)}</b> <small style="opacity:0.6;">[${c.platform||'all'}]</small><br><small>${esc(c.description)} | <i class="fa-solid fa-gift"></i> ${esc(c.reward)}</small><br><small><i class="fa-solid fa-calendar"></i> ${c.end_date?new Date(c.end_date).toLocaleString():'Süresiz'} ${expired?'<i class="fa-solid fa-triangle-exclamation"></i> Süresi Doldu':''}</small></div><button class="logout-btn" onclick="deleteCampaign('${c.id}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`}).join('')}</div>`;
+  document.getElementById('content').innerHTML = `<div class="glass-card"><h2><i class="fa-solid fa-chart-simple"></i> Kampanya Yönet</h2>${campaigns.map(c=>{const expired=c.end_date&&new Date(c.end_date).getTime()<now;return`<div class="${expired?'campaign-expired':'campaign-active'}" style="padding:12px; background:var(--surface-soft); border-radius:10px; margin:6px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border:1px solid var(--glass-border);"><div><b>${esc(c.title)}</b> <small style="opacity:0.6;">[${esc(c.platform||'all')}]</small><br><small>${esc(c.description)} | <i class="fa-solid fa-gift"></i> ${esc(c.reward)}</small><br><small><i class="fa-solid fa-calendar"></i> ${esc(c.end_date?new Date(c.end_date).toLocaleString():'Süresiz')} ${expired?'<i class="fa-solid fa-triangle-exclamation"></i> Süresi Doldu':''}</small></div><button class="logout-btn" onclick="deleteCampaign('${safeId(c.id)}')"><i class="fa-solid fa-trash"></i> Sil</button></div>`}).join('')}</div>`;
 }
 async function deleteCampaign(id) {
   if (!confirm('Emin misiniz?')) return;
@@ -653,7 +676,7 @@ function renderAdminForm(type) {
     <select id="platform">
       <option value="all">Her İkisi (MC + Bedrock)</option>
       <option value="bedrock" selected>Sadece Bedrock</option>
-      <option value="mc">Sadece MC (Java)</option>
+      <option value="java">Sadece MC (Java)</option>
     </select>`;
 
   if (type === 'announcement') html = `<h2><i class="fa-solid fa-bullhorn"></i> Duyuru Ekle</h2><input id="title" placeholder="Başlık">${platformOptions}<textarea id="content" placeholder="İçerik"></textarea><button onclick="submitAdmin('announcement')">Ekle</button>`;
@@ -747,7 +770,7 @@ async function renderProfile() {
     <div class="glass-card profile-card">
       <h2><i class="fa-solid fa-user"></i> Profil</h2>
       <div class="profile-avatar-section">
-        <img src="${esc(currentUser.icon || DEFAULT_AVATAR)}" class="profile-avatar" id="profileAvatar" loading="lazy">
+        <img src="${esc(safeImageSrc(currentUser.icon))}" class="profile-avatar" id="profileAvatar" loading="lazy" alt="Profil fotoğrafı">
         <button id="changeAvatarBtn" class="small-btn"><i class="fa-solid fa-folder"></i> Avatar Değiştir</button>
         <input type="file" id="avatarUpload" accept="image/*" style="display:none">
       </div>
@@ -781,6 +804,12 @@ async function renderProfile() {
 async function uploadAvatar(event) {
   const file = event.target.files[0];
   if (!file) return;
+  const izinli = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+  if (!izinli.includes(file.type)) {
+    alert('Sadece PNG, JPEG, WEBP veya GIF yükleyebilirsin.');
+    event.target.value = '';
+    return;
+  }
   if (file.size > 2 * 1024 * 1024) return alert('Dosya çok büyük (max 2MB)');
   const reader = new FileReader();
   reader.onload = async (e) => {

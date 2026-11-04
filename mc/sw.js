@@ -1,3 +1,15 @@
+// Bildirimden açılacak adres yalnızca site içinde olabilir.
+// Aksi hâlde sunucudan gelen bir URL kullanıcıyı başka bir siteye yönlendirebilir.
+function safeUrl(raw) {
+  try {
+    const url = new URL(String(raw || '/'), self.location.origin);
+    if (url.origin !== self.location.origin) return '/';
+    return url.pathname + url.search + url.hash;
+  } catch (e) {
+    return '/';
+  }
+}
+
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const options = {
@@ -5,7 +17,7 @@ self.addEventListener('push', (event) => {
     icon: data.icon || '/icon.png',
     badge: data.badge || '/badge.png',
     tag: data.tag || 'default',
-    data: { url: data.url || '/' },
+    data: { url: safeUrl(data.url) },
     vibrate: [200, 100, 200],
     actions: data.actions || []
   };
@@ -14,6 +26,6 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = event.notification.data?.url || '/';
+  const url = safeUrl(event.notification.data?.url || '/');
   event.waitUntil(clients.openWindow(url));
 });
