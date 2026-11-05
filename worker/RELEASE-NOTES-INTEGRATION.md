@@ -35,9 +35,11 @@ altına ve diğer `/api/admin/...` kontrollerinden önce şu iki route'u ekleyin
 ```
 
 `panel/index.html` içindeki Tıkla Sürümü sekmesi bu uçlarla sürüm notunu
-yayımlar. `site-account.js`, tüm sayfalarda `/api/releases/latest` adresini
-kontrol eder; her tarayıcıda her sürüm için ilk gösterimde ortalanmış, kapatılabilir
-bir pencere açar. Kapatılan sürüm `localStorage` içinde hatırlanır.
+yayımlar. Uçları Worker'a ekleyip deploy ettikten sonra `site-account.js`
+dosyasındaki `window.TURBOLU_RELEASES_ENABLED` ayarını `true` olarak tanımlayın.
+Böylece tüm sayfalar `/api/releases/latest` verisini kontrol eder; yeni sürüm
+ortalanmış, kapatılabilir pencerede gösterilir. Kapatılan sürüm `localStorage`
+içinde hatırlanır. API aktif edilmeden sayfalar 404 istekleri üretmez.
 
 Mevcut API adresi site kodunda sabittir. Worker'ı aynı adreste güncelledikten
 sonra yeni bir API URL tanımlaması gerekmez. Henüz bu snippet'i ana Worker'a

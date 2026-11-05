@@ -3,6 +3,7 @@
 
   const API = 'https://shrill-salad-a498.ereny116011.workers.dev';
   const GATEWAY = window.TURBOLU_GATEWAY_URL || API;
+  const RELEASES_ENABLED = window.TURBOLU_RELEASES_ENABLED === true;
   const token = () => localStorage.getItem('token') || '';
   const style = document.createElement('link');
   style.rel = 'stylesheet';
@@ -130,7 +131,7 @@
   });
 
   async function showReleaseNotes() {
-    if (!GATEWAY) return;
+    if (!GATEWAY || !RELEASES_ENABLED) return;
     try {
       const response = await fetch(`${GATEWAY}/api/releases/latest`);
       if (!response.ok) return;

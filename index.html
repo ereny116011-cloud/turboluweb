@@ -390,10 +390,13 @@
                 clearTimeout(zamanlayici);
 
                 if (!d || typeof d.online === 'undefined') {
+                    var fallbackController = new AbortController();
+                    var fallbackTimer = setTimeout(function () { fallbackController.abort(); }, 5000);
                     try {
-                        var r2 = await fetch(API + '/api/status');
+                        var r2 = await fetch(API + '/api/status', { signal: fallbackController.signal });
                         if (r2.ok) d = await r2.json();
                     } catch (e) { /* yok say */ }
+                    finally { clearTimeout(fallbackTimer); }
                 }
 
                 if (d && d.online) {
@@ -506,6 +509,6 @@
             guncelleIkon();
         })();
     </script>
-    <script src="/site-account.js?v=4"></script>
+    <script src="/site-account.js?v=5"></script>
 </body>
 </html>

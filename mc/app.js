@@ -548,18 +548,33 @@ async function renderStatus() {
     </div>
   `;
   async function updateStatus() {
+    const durumEl = document.getElementById('online-durum');
+    const oyuncuEl = document.getElementById('oyuncu-sayisi');
+    const surumEl = document.getElementById('sunucu-surum');
+    if (!durumEl) return;
+
+    let timeoutId;
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      timeoutId = setTimeout(() => controller.abort(), 5000);
       const res = await fetch('https://api.mcsrvstat.us/2/turbolumc.aternos.me', { signal: controller.signal });
-      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('Sunucu durumu alınamadı');
       const data = await res.json();
-      const durumEl = document.getElementById('online-durum');
-      if (!durumEl) return;
-      durumEl.innerHTML = data.online ? '<span style="color:#22c55e"><i class="fa-solid fa-circle" style="color:#22c55e"></i> Çevrimiçi</span>' : '<span style="color:#ef4444"><i class="fa-solid fa-circle" style="color:#ef4444"></i> Çevrimdışı</span>';
-      document.getElementById('oyuncu-sayisi').textContent = `${data.players?.online ?? 0} / ${data.players?.max ?? 0}`;
-      document.getElementById('sunucu-surum').textContent = data.version || '-';
-    } catch (e) {}
+      if (typeof data.online !== 'boolean') throw new Error('Sunucu durumu geçersiz');
+      durumEl.innerHTML = data.online
+        ? '<span style="color:#22c55e"><i class="fa-solid fa-circle" aria-hidden="true"></i> Çevrimiçi</span>'
+        : '<span style="color:#ef4444"><i class="fa-solid fa-circle" aria-hidden="true"></i> Çevrimdışı</span>';
+      if (oyuncuEl) oyuncuEl.textContent = data.online
+        ? `${data.players?.online ?? 0} / ${data.players?.max ?? '—'}`
+        : '— / —';
+      if (surumEl) surumEl.textContent = data.online ? (data.version || '—') : '—';
+    } catch (e) {
+      durumEl.textContent = 'Durum bilgisi şu an alınamıyor';
+      if (oyuncuEl) oyuncuEl.textContent = '— / —';
+      if (surumEl) surumEl.textContent = '—';
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
   updateStatus();
   if (statusInterval) clearInterval(statusInterval);

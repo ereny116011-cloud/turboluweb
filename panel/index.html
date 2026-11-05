@@ -380,10 +380,13 @@
 
         async function tiklaCiz() {
             let surum = null;
-            try {
-                const yanit = await fetch(API + '/api/releases/latest');
-                if (yanit.ok) surum = await yanit.json();
-            } catch (_) { /* Sürüm bilgisi alınamazsa form yine kullanılabilir. */ }
+            const surumNotuEtkin = window.TURBOLU_RELEASES_ENABLED === true;
+            if (surumNotuEtkin) {
+                try {
+                    const yanit = await fetch(API + '/api/releases/latest');
+                    if (yanit.ok) surum = await yanit.json();
+                } catch (_) { /* Sürüm bilgisi alınamazsa form yine kullanılabilir. */ }
+            }
 
             $('#icerik').innerHTML = `
                 <div class="bolum">
@@ -398,7 +401,7 @@
                             <textarea id="notMetni" maxlength="12000" required placeholder="Yenilikleri ve düzeltmeleri yazın..."></textarea>
                             <button class="btn btn-primary" type="submit"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Sürüm notunu yayınla</button>
                         </form>
-                        <p id="notDurum" class="yardim" role="status" aria-live="polite"></p>
+                        <p id="notDurum" class="yardim" role="status" aria-live="polite">${surumNotuEtkin ? '' : 'Yayınlama için Worker sürüm notu uçlarını ekleyip site-account.js içinde TURBOLU_RELEASES_ENABLED ayarını açın.'}</p>
                         <div class="yardim">${surum ? `Yayındaki sürüm: <strong>${esc(surum.version)}</strong> — ${esc(surum.title)}` : 'Henüz yayınlanmış sürüm notu yok.'}</div>
                     </section>
                 </div>`;
@@ -406,6 +409,10 @@
             $('#surumForm').addEventListener('submit', async (event) => {
                 event.preventDefault();
                 const status = $('#notDurum');
+                if (window.TURBOLU_RELEASES_ENABLED !== true) {
+                    status.textContent = 'Sürüm notu API’si Worker’da henüz etkinleştirilmedi. worker/RELEASE-NOTES-INTEGRATION.md adımlarını tamamlayın.';
+                    return;
+                }
                 status.textContent = 'Yayınlanıyor…';
                 try {
                     const result = await api('/api/admin/releases', {
@@ -700,6 +707,6 @@
             }
         })();
     </script>
-    <script src="/site-account.js?v=4"></script>
+    <script src="/site-account.js?v=5"></script>
 </body>
 </html>
