@@ -6,13 +6,18 @@
   const token = () => localStorage.getItem('token') || '';
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = '/site-account.css?v=2';
+  style.href = '/site-account.css?v=3';
   document.head.appendChild(style);
 
   const widget = document.createElement('aside');
   widget.className = 'site-account';
   widget.setAttribute('aria-label', 'Hesap');
-  document.body.appendChild(widget);
+  const accountHost = document.querySelector('.site-header .header-inner') ||
+    document.querySelector('.navbar') || document.querySelector('.app-header .header-inner');
+  (accountHost || document.body).appendChild(widget);
+  if (document.querySelector('#userArea') || location.pathname.startsWith('/panel/')) {
+    widget.hidden = true;
+  }
 
   const dialog = document.createElement('dialog');
   dialog.className = 'site-account-dialog';
