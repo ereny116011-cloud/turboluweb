@@ -7,7 +7,7 @@ html {
 
 body {
   isolation: isolate;
-  animation: bigSurWallpaperFlow 6s ease-in-out infinite alternate;
+  animation: bigSurWallpaperFlow 10s ease-in-out infinite alternate;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   background-color: #0b1018;
@@ -33,7 +33,7 @@ body {
   position: fixed;
   inset: 0;
   height: auto;
-  animation: bigSurSceneFlow 6s ease-in-out infinite alternate;
+  animation: bigSurSceneFlow 10s ease-in-out infinite alternate;
   background-color: #111;
   background-image: url('/img/bigsur-wallpaper.webp');
   background-size: cover;
@@ -50,35 +50,34 @@ body::after {
   z-index: -1;
   inset: -10%;
   pointer-events: none;
-  opacity: 0.62;
+  opacity: 0.38;
   background:
     radial-gradient(ellipse 48% 22% at 24% 36%, rgba(255, 195, 190, 0.26), transparent 74%),
     radial-gradient(ellipse 58% 24% at 76% 55%, rgba(94, 218, 255, 0.22), transparent 73%),
     radial-gradient(ellipse 48% 20% at 44% 86%, rgba(255, 175, 89, 0.18), transparent 75%);
-  filter: blur(16px);
+  filter: blur(24px);
   mix-blend-mode: soft-light;
   transform: translate3d(-4%, -2%, 0) scale(1);
-  animation: bigSurWave 6s ease-in-out infinite;
+  animation: bigSurWave 10s ease-in-out infinite;
   will-change: transform;
 }
 
-.light body::after { opacity: 0.42; }
+.light body::after { opacity: 0.24; }
 
 @keyframes bigSurWave {
-  0% { transform: translate3d(-4%, -2%, 0) scale(1); }
-  35% { transform: translate3d(4%, 1%, 0) scale(1.07); }
-  70% { transform: translate3d(1%, 4%, 0) scale(1.1); }
-  100% { transform: translate3d(-3%, 2%, 0) scale(1.03); }
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 1%, 0) scale(1.03); }
+  100% { transform: translate3d(-1%, 1%, 0) scale(1.015); }
 }
 
 @keyframes bigSurWallpaperFlow {
   from { background-position: 50% 0%, 50% 0%; }
-  to { background-position: calc(50% + 26px) 14px, calc(50% - 22px) -12px; }
+  to { background-position: calc(50% + 10px) 8px, calc(50% - 8px) -6px; }
 }
 
 @keyframes bigSurSceneFlow {
   from { background-position: 50% 0%; }
-  to { background-position: calc(50% + 30px) 24px; }
+  to { background-position: calc(50% + 12px) 12px; }
 }
 
 .bigsur-art { display: none; }
