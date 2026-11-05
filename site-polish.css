@@ -16,7 +16,7 @@ body {
     url('/img/bigsur-wallpaper.webp');
   background-size: 100% 100%, cover;
   background-position: center;
-  background-attachment: scroll;
+  background-attachment: fixed;
   background-repeat: no-repeat;
 }
 
@@ -30,9 +30,9 @@ body {
 /* The portal uses its own scene layer; swap the old illustration for the
    downloaded Big Sur wallpaper while keeping the text-friendly overlay. */
 .bigsur {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  height: 100%;
+  height: auto;
   animation: bigSurSceneFlow 6s ease-in-out infinite alternate;
   background-color: #111;
   background-image: url('/img/bigsur-wallpaper.webp');
