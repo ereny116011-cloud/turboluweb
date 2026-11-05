@@ -65,15 +65,23 @@
     const username = profile && profile.username;
     widget.innerHTML = username
       ? `<span class="site-account-name">${esc(username)}</span>${profile.isAdmin ? '<a class="site-account-admin" href="/panel/">Yönetim</a>' : ''}<button class="site-account-logout" type="button">Çıkış</button>`
-      : '<button class="site-account-open" type="button">Giriş yap</button>';
+      : '<button class="site-account-open" type="button" data-account-mode="login">Giriş yap</button><button class="site-account-open" type="button" data-account-mode="register">Kaydol</button>';
     const logout = widget.querySelector('.site-account-logout');
     if (logout) logout.addEventListener('click', () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       location.reload();
     });
-    const open = widget.querySelector('.site-account-open');
-    if (open) open.addEventListener('click', () => dialog.showModal());
+    widget.querySelectorAll('.site-account-open').forEach(open => open.addEventListener('click', () => {
+      registerMode = open.dataset.accountMode === 'register';
+      dialog.querySelector('#site-account-title').textContent = registerMode ? 'Turbolu hesabı oluştur' : 'Turbolu hesabına giriş yap';
+      dialog.querySelector('.site-account-submit').textContent = registerMode ? 'Kaydol' : 'Giriş yap';
+      dialog.querySelector('.site-account-switch').textContent = registerMode ? 'Zaten hesabın var mı? Giriş yap' : 'Hesabın yok mu? Kaydol';
+      dialog.querySelector('.site-account-email-label').hidden = !registerMode;
+      dialog.querySelector('#site-account-email').hidden = !registerMode;
+      dialog.querySelector('#site-account-email').required = registerMode;
+      dialog.showModal();
+    }));
   }
 
   dialog.querySelector('.site-account-switch').addEventListener('click', event => {
