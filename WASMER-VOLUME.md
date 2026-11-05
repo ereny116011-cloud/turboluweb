@@ -12,21 +12,20 @@ Dosyalar şu anda `tikla/apk/` klasöründe ve siteyle birlikte yayınlanıyor.
 Wasmer volume'ları tek bir bölgeye sabitlenmiş uygulamalarda çalışır. Canlı site
 `fr-roub1` bölgesinden sunulduğu için uygulamayı bu bölgeye sabitleyin:
 
-1. Wasmer panelinde uygulamayı açın.
-2. Settings / Regions bölümünde bölgeyi `fr-roub1` olarak seçip kaydedin.
-3. Storage → Add volume ekranında:
+1. `app.yaml` dosyasını kökte tutup değişikliği `main` dalına gönderin.
+2. Wasmer deployment tamamlandığında uygulama `fr-roub1` bölgesine sabitlenir.
+3. Storage → Add volume ekranında şu değerlerle volume oluşturun:
    - Ad: `tikla-apk`
-   - Mount path: `/public/tikla/apk`
+   - Mount path: `/opt/static_app/tikla/apk`
    - Boyut: `2 GB`
-4. Volume oluştuktan sonra dosya gezgininden `turbolutikla.apk` ve
-   `virus_test_sonucu.png` dosyalarını yükleyin. S3 erişimini açarsanız rclone ile
-   de yükleyebilirsiniz.
-5. Uygulamayı yeniden deploy edin.
+4. Volume'a `turbolutikla.apk` ve `virus_test_sonucu.png` dosyalarını yükleyin.
+   S3 erişimini açarsanız rclone ile de yükleyebilirsiniz.
+5. Volume'u uygulamaya bağlayın ve yeniden deploy edin.
 
-Önemli: Volume boşken `/public/tikla/apk` dizinini gölgeler. Bu yüzden dosyaları
-volume'a yüklemeden volume'u bağlamayın; aksi halde indirme bağlantıları geçici
-olarak 404 döner.
+Önemli: Volume bağlandığında mevcut `tikla/apk` dizinini gölgeler. Dosyaları
+volume'a yüklemeden bağlamayın; aksi halde indirme bağlantıları geçici olarak
+404 döner.
 
-Uygulamanın kök dizini `/public` değil de doğrudan depo kökü ise mount path'i
-`/tikla/apk` yapın. Wasmer panelindeki dosya gezgininde site dosyalarının hangi
-dizinde göründüğüne bakarak bunu doğrulayabilirsiniz.
+Wasmer Support, bu uygulamanın site dosyalarının `/opt/static_app` altında
+sunulduğunu doğruladı. Bu uygulamada mount path kesin olarak
+`/opt/static_app/tikla/apk` olmalıdır.

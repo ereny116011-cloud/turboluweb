@@ -264,7 +264,8 @@ Görsel değişikliklerde koyu ve açık temada ekran görüntüsü al.
 ### Wasmer volume notu
 
 - Wasmer volume kullanılacaksa bölge `fr-roub1` olmalıdır.
-- Mount path `/public/tikla/apk` (veya kök dizin farklıysa `/tikla/apk`) olur.
+- Kök `app.yaml` uygulamayı `fr-roub1` bölgesine sabitler. Support'ın doğruladığı
+  volume mount path `/opt/static_app/tikla/apk` olmalıdır.
 - **Volume boşken bağlanmamalıdır**, aksi halde indirme bağlantıları 404 döner.
 - Ayrıntılar için `WASMER-VOLUME.md` dosyasına bak.
 
