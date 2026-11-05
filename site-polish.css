@@ -6,6 +6,7 @@ html {
 }
 
 body {
+  isolation: isolate;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   background-color: #0b1018;
@@ -39,6 +40,33 @@ body {
 }
 
 body:has(> .bigsur) { position: relative; }
+
+/* Slowly moving soft-light bands echo Big Sur's flowing color contours. */
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: -10%;
+  pointer-events: none;
+  opacity: 0.38;
+  background:
+    radial-gradient(ellipse 48% 22% at 24% 36%, rgba(255, 195, 190, 0.26), transparent 74%),
+    radial-gradient(ellipse 58% 24% at 76% 55%, rgba(94, 218, 255, 0.22), transparent 73%),
+    radial-gradient(ellipse 48% 20% at 44% 86%, rgba(255, 175, 89, 0.18), transparent 75%);
+  filter: blur(24px);
+  mix-blend-mode: soft-light;
+  transform: translate3d(-1.2%, 0, 0) scale(1);
+  animation: bigSurWave 16s ease-in-out infinite;
+  will-change: transform;
+}
+
+.light body::after { opacity: 0.24; }
+
+@keyframes bigSurWave {
+  0%, 100% { transform: translate3d(-1.2%, 0, 0) scale(1); }
+  34% { transform: translate3d(0.8%, -0.6%, 0) scale(1.035); }
+  68% { transform: translate3d(0.2%, 0.7%, 0) scale(1.02); }
+}
 
 .bigsur-art { display: none; }
 
