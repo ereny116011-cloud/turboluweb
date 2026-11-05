@@ -6,7 +6,7 @@
   const token = () => localStorage.getItem('token') || '';
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = '/site-account.css?v=1';
+  style.href = '/site-account.css?v=2';
   document.head.appendChild(style);
 
   const widget = document.createElement('aside');

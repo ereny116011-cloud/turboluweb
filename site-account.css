@@ -20,4 +20,68 @@
 .site-release-kicker { margin: 0 35px 10px 0; font-size: .75rem; font-weight: 700; letter-spacing: .12em; }
 .site-release-version { margin: 0 0 8px; font-size: .9rem; }
 .site-release-notes { margin-top: 18px; white-space: pre-wrap; line-height: 1.7; }
-@media (max-width: 520px) { .site-account { top: 8px; right: 8px; gap: 5px; font-size: 12px; } .site-account button, .site-account a { padding: 8px 10px; } .site-account-name { display: none; } .site-account-dialog, .site-release-dialog { padding: 26px 22px; } }
+
+/* Phone layout: keep navigation and account actions reachable without overlap. */
+@media (max-width: 640px) {
+  html, body { max-width: 100%; overflow-x: clip; }
+  img, video, iframe { max-width: 100%; }
+  :where(button, a, input, select, textarea) { scroll-margin-block: 5rem; }
+  input, select, textarea { font-size: 16px !important; }
+
+  .site-account {
+    top: auto;
+    right: auto;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    left: max(12px, env(safe-area-inset-left));
+    gap: 7px;
+    font-size: 13px;
+  }
+  .site-account button, .site-account a {
+    min-height: 44px;
+    padding: 10px 14px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.25);
+  }
+  .site-account-name { display: none; }
+  .site-account-dialog, .site-release-dialog {
+    width: calc(100vw - 28px);
+    max-height: calc(100dvh - 32px);
+    padding: 26px 22px;
+    border-radius: 18px;
+  }
+  .site-account-dialog input { min-height: 46px; }
+  .site-account-submit, .site-release-confirm { min-height: 46px; }
+
+  /* The portal's desktop pill nav becomes a horizontally scrollable second row. */
+  .site-header { height: auto; }
+  .site-header .header-inner { min-height: var(--header-h); height: auto; flex-wrap: wrap; gap: 8px 12px; padding-block: 8px; }
+  .site-header .site-nav {
+    display: flex;
+    order: 3;
+    flex: 1 0 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+  .site-header .site-nav::-webkit-scrollbar { display: none; }
+  .site-header .site-nav a { flex: 0 0 auto; min-height: 40px; display: inline-flex; align-items: center; }
+
+  /* Keep MC/Bedrock navigation horizontally usable on narrow screens. */
+  .navbar { max-width: 100%; }
+  .nav-links { min-width: 0; -webkit-overflow-scrolling: touch; }
+  .nav-links button { min-height: 40px; }
+  .user-area button, .back-btn { min-height: 40px; }
+  #content { min-width: 0; }
+
+  /* Prevent fixed controls from covering the final line of page content. */
+  body { padding-bottom: max(68px, calc(58px + env(safe-area-inset-bottom))); }
+  .theme-toggle { bottom: max(14px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 380px) {
+  .site-account { left: max(8px, env(safe-area-inset-left)); gap: 5px; }
+  .site-account button, .site-account a { padding-inline: 11px; font-size: 12px; }
+  .site-account-dialog, .site-release-dialog { width: calc(100vw - 20px); padding: 22px 18px; }
+  .site-header .site-nav a { padding-inline: 10px; font-size: .78rem; }
+}
