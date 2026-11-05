@@ -12,7 +12,7 @@ body {
   background-color: #0b1018;
   background-image:
     linear-gradient(180deg, rgba(7, 12, 20, 0.42), rgba(7, 12, 20, 0.68)),
-    url('/img/site-background.webp');
+    url('/img/bigsur-wallpaper.webp');
   background-size: 100% 100%, cover;
   background-position: center;
   background-attachment: fixed;
@@ -23,7 +23,7 @@ body {
   background-color: #e7edf2;
   background-image:
     linear-gradient(180deg, rgba(242, 246, 249, 0.44), rgba(242, 246, 249, 0.62)),
-    url('/img/site-background.webp');
+    url('/img/bigsur-wallpaper.webp');
 }
 
 /* The portal uses its own scene layer; swap the old illustration for the
@@ -32,49 +32,63 @@ body {
   position: fixed;
   inset: 0;
   height: auto;
+  overflow: hidden;
   background-color: #111;
+}
+
+/* The wallpaper drifts behind the vignette, so the dark contrast layer
+   stays still while the Big Sur colour bands slowly flow. */
+.bigsur::before {
+  content: "";
+  position: absolute;
+  inset: -8%;
   background-image: url('/img/bigsur-wallpaper.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  animation: bigSurWallpaperDrift 12s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes bigSurWallpaperDrift {
+  0%   { transform: translate3d(-2.5%, -1.5%, 0) scale(1.06); }
+  50%  { transform: translate3d(2.5%, 1.5%, 0) scale(1.12); }
+  100% { transform: translate3d(1.2%, -2%, 0) scale(1.08); }
 }
 
 body:has(> .bigsur) { position: relative; }
 
-/* Slowly moving soft-light bands echo Big Sur's flowing color contours. */
+/* Moving light bands echo Big Sur's flowing colour contours. Only the
+   transform is animated so the fixed wallpaper is never repainted. */
 body::after {
   content: "";
   position: fixed;
   z-index: -1;
-  inset: -10%;
+  inset: -15%;
   pointer-events: none;
-  opacity: 0.38;
+  opacity: 0.60;
   background:
-    radial-gradient(ellipse 48% 22% at 24% 36%, rgba(255, 195, 190, 0.26), transparent 74%),
-    radial-gradient(ellipse 58% 24% at 76% 55%, rgba(94, 218, 255, 0.22), transparent 73%),
-    radial-gradient(ellipse 48% 20% at 44% 86%, rgba(255, 175, 89, 0.18), transparent 75%);
-  filter: blur(24px);
-  mix-blend-mode: soft-light;
-  transform: translate3d(-4%, -2%, 0) scale(1);
+    radial-gradient(ellipse 42% 24% at 22% 32%, rgba(255, 124, 170, 0.62), transparent 70%),
+    radial-gradient(ellipse 52% 26% at 78% 44%, rgba(92, 216, 255, 0.52), transparent 72%),
+    radial-gradient(ellipse 46% 22% at 38% 78%, rgba(255, 184, 96, 0.46), transparent 72%),
+    radial-gradient(ellipse 38% 20% at 68% 84%, rgba(178, 138, 255, 0.40), transparent 74%),
+    linear-gradient(112deg, transparent 12%, rgba(255, 140, 190, 0.14) 28%, transparent 44%, rgba(100, 220, 255, 0.12) 60%, transparent 76%);
+  mix-blend-mode: screen;
+  transform: translate3d(-3%, 2%, 0) rotate(-1deg) scale(1.02);
+  animation: bigSurWave 9s ease-in-out infinite alternate;
   will-change: transform;
 }
 
-.light body::after { opacity: 0.24; }
+.light body::after {
+  opacity: 0.30;
+  mix-blend-mode: normal;
+}
 
 @keyframes bigSurWave {
-  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
-  50% { transform: translate3d(2%, 1%, 0) scale(1.03); }
-  100% { transform: translate3d(-1%, 1%, 0) scale(1.015); }
-}
-
-@keyframes bigSurWallpaperFlow {
-  from { background-position: 50% 0%, 50% 0%; }
-  to { background-position: calc(50% + 10px) 8px, calc(50% - 8px) -6px; }
-}
-
-@keyframes bigSurSceneFlow {
-  from { background-position: 50% 0%; }
-  to { background-position: calc(50% + 12px) 12px; }
+  0%   { transform: translate3d(-3%, 2%, 0) rotate(-1deg) scale(1.02); }
+  33%  { transform: translate3d(2.5%, -2%, 0) rotate(0.8deg) scale(1.06); }
+  66%  { transform: translate3d(3.5%, 2.5%, 0) rotate(1.4deg) scale(1.04); }
+  100% { transform: translate3d(-2%, -1.5%, 0) rotate(-0.6deg) scale(1.07); }
 }
 
 .bigsur-art { display: none; }
