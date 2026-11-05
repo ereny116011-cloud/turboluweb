@@ -357,7 +357,8 @@
             { id: 'haberler',    ad: 'Haberler',    ikon: 'fa-newspaper' },
             { id: 'kampanyalar', ad: 'Kampanyalar', ikon: 'fa-tags' },
             { id: 'market',      ad: 'Market',      ikon: 'fa-cart-shopping' },
-            { id: 'talepler',    ad: 'Talepler',    ikon: 'fa-clipboard-list' }
+            { id: 'talepler',    ad: 'Talepler',    ikon: 'fa-clipboard-list' },
+            { id: 'tikla',       ad: 'Tıkla Sürümü', ikon: 'fa-mobile-screen-button' }
         ];
         let aktifSekme = 'duyurular';
 
@@ -374,7 +375,52 @@
             sekmeCiz();
             $('#icerik').innerHTML = '<div class="bos">Yükleniyor...</div>';
             ({ duyurular: duyurularCiz, haberler: haberlerCiz, kampanyalar: kampanyalarCiz,
-               market: marketCiz, talepler: taleplerCiz })[id]();
+               market: marketCiz, talepler: taleplerCiz, tikla: tiklaCiz })[id]();
+        }
+
+        async function tiklaCiz() {
+            let surum = null;
+            try {
+                const yanit = await fetch(API + '/api/releases/latest');
+                if (yanit.ok) surum = await yanit.json();
+            } catch (_) { /* Sürüm bilgisi alınamazsa form yine kullanılabilir. */ }
+
+            $('#icerik').innerHTML = `
+                <div class="bolum">
+                    <section class="card">
+                        <h2 class="bolum-baslik">Sürüm notu yayınla</h2>
+                        <form id="surumForm">
+                            <label for="notSurum">Sürüm</label>
+                            <input id="notSurum" type="text" maxlength="40" required placeholder="Örn. 1.2.0">
+                            <label for="notBaslik">Başlık</label>
+                            <input id="notBaslik" type="text" maxlength="120" required placeholder="Yeni sürüm yayınlandı">
+                            <label for="notMetni">Sürüm notları</label>
+                            <textarea id="notMetni" maxlength="12000" required placeholder="Yenilikleri ve düzeltmeleri yazın..."></textarea>
+                            <button class="btn btn-primary" type="submit"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Sürüm notunu yayınla</button>
+                        </form>
+                        <p id="notDurum" class="yardim" role="status" aria-live="polite"></p>
+                        <div class="yardim">${surum ? `Yayındaki sürüm: <strong>${esc(surum.version)}</strong> — ${esc(surum.title)}` : 'Henüz yayınlanmış sürüm notu yok.'}</div>
+                    </section>
+                </div>`;
+
+            $('#surumForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const status = $('#notDurum');
+                status.textContent = 'Yayınlanıyor…';
+                try {
+                    const result = await api('/api/admin/releases', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            version: $('#notSurum').value.trim(),
+                            title: $('#notBaslik').value.trim(),
+                            notes: $('#notMetni').value.trim()
+                        })
+                    });
+                    status.textContent = result.error || (result.success ? 'Sürüm notu yayınlandı.' : 'Yayınlama başarısız oldu.');
+                } catch (_) {
+                    status.textContent = 'Sunucuya ulaşılamadı; sürüm notu yayınlanamadı.';
+                }
+            });
         }
 
         const PLATFORM_SEC = `
@@ -654,5 +700,6 @@
             }
         })();
     </script>
+    <script src="/site-account.js?v=1"></script>
 </body>
 </html>

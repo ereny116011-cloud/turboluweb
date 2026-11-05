@@ -1,0 +1,23 @@
+.site-account { position: fixed; z-index: 1000; top: 14px; right: 18px; display: flex; align-items: center; gap: 8px; font: 500 13px/1.3 Inter, system-ui, sans-serif; }
+[hidden] { display: none !important; }
+.site-account button, .site-account a { border: 1px solid rgba(255,255,255,.2); border-radius: 999px; padding: 9px 14px; color: #f4f7ff; background: rgba(12,16,30,.82); text-decoration: none; cursor: pointer; backdrop-filter: blur(12px); }
+.site-account button:hover, .site-account a:hover { border-color: #4ade80; }
+.site-account-name { color: #f4f7ff; text-shadow: 0 1px 5px #000; }
+.site-account-dialog, .site-release-dialog { width: min(92vw, 440px); max-height: min(85vh, 760px); overflow: auto; margin: auto; padding: 30px; border: 1px solid var(--accent-border, rgba(74,222,128,.3)); border-radius: 20px; color: var(--text, #eef2ff); background: var(--surface-solid, #141a2d); box-shadow: 0 24px 90px rgba(0,0,0,.45); font-family: Inter, system-ui, sans-serif; }
+.site-account-dialog::backdrop, .site-release-dialog::backdrop { background: rgba(3,6,14,.68); backdrop-filter: blur(6px); }
+.site-account-dialog h2, .site-release-dialog h2 { margin: 0 30px 8px 0; font-size: 1.35rem; }
+.site-account-dialog label { display: block; margin: 15px 0 6px; color: var(--text-muted, #aab5d0); font-size: .85rem; }
+.site-account-dialog input { display: block; width: 100%; padding: 11px 13px; border: 1px solid var(--border, #444); border-radius: 10px; color: var(--text, #fff); background: var(--bg, #101522); font: inherit; }
+.site-account-hint, .site-release-kicker, .site-release-version { color: var(--text-muted, #aab5d0); }
+.site-account-submit, .site-release-confirm { width: 100%; margin-top: 17px; padding: 12px; border: 0; border-radius: 10px; background: var(--accent, #4ade80); color: #07130b; font: 700 14px Inter, sans-serif; cursor: pointer; }
+.site-account-switch, .site-account-forgot { display: block; margin: 15px auto 0; border: 0; color: var(--text-muted, #aab5d0); background: none; text-align: center; font: inherit; cursor: pointer; }
+.site-account-forgot { font-size: .85rem; }
+.site-account-error { min-height: 1.4em; margin: 8px 0 0; color: #ff8585; font-size: .85rem; }
+.site-account-close-form { position: absolute; top: 12px; right: 12px; }
+.site-account-close, .site-release-close { border: 0; color: var(--text-muted, #aab5d0); background: transparent; font-size: 28px; line-height: 1; cursor: pointer; }
+.site-release-dialog { width: min(92vw, 560px); padding: 36px; }
+.site-release-close { position: absolute; top: 14px; right: 18px; }
+.site-release-kicker { margin: 0 35px 10px 0; font-size: .75rem; font-weight: 700; letter-spacing: .12em; }
+.site-release-version { margin: 0 0 8px; font-size: .9rem; }
+.site-release-notes { margin-top: 18px; white-space: pre-wrap; line-height: 1.7; }
+@media (max-width: 520px) { .site-account { top: 8px; right: 8px; gap: 5px; font-size: 12px; } .site-account button, .site-account a { padding: 8px 10px; } .site-account-name { display: none; } .site-account-dialog, .site-release-dialog { padding: 26px 22px; } }
