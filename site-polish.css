@@ -7,17 +7,17 @@ html {
 
 body {
   isolation: isolate;
-  animation: bigSurWallpaperFlow 9s ease-in-out infinite alternate;
+  animation: bigSurWallpaperFlow 6s ease-in-out infinite alternate;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   background-color: #0b1018;
   background-image:
     linear-gradient(180deg, rgba(7, 12, 20, 0.54), rgba(7, 12, 20, 0.76)),
     url('/img/bigsur-wallpaper.webp');
-  background-size: 100% 100vh, auto 100vh;
-  background-position: center top;
+  background-size: 100% 100%, cover;
+  background-position: center;
   background-attachment: scroll;
-  background-repeat: repeat-y;
+  background-repeat: no-repeat;
 }
 
 .light body {
@@ -33,12 +33,12 @@ body {
   position: absolute;
   inset: 0;
   height: 100%;
-  animation: bigSurSceneFlow 9s ease-in-out infinite alternate;
+  animation: bigSurSceneFlow 6s ease-in-out infinite alternate;
   background-color: #111;
   background-image: url('/img/bigsur-wallpaper.webp');
-  background-size: auto 100vh;
-  background-position: center top;
-  background-repeat: repeat-y;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 body:has(> .bigsur) { position: relative; }
@@ -58,7 +58,7 @@ body::after {
   filter: blur(16px);
   mix-blend-mode: soft-light;
   transform: translate3d(-4%, -2%, 0) scale(1);
-  animation: bigSurWave 9s ease-in-out infinite;
+  animation: bigSurWave 6s ease-in-out infinite;
   will-change: transform;
 }
 
