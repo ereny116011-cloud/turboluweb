@@ -38,8 +38,8 @@ const PLATFORM = 'bedrock';
 // BEDROCK SUNUCU IP AYARLARI
 // ============================================
 const SERVER_HOST = 'turbolubedrock.mcsh.io';
-const SERVER_ALT = '163.5.201.11:13317';
-const SERVER_STATUS_QUERY = '163.5.201.11:13317';
+const SERVER_ALT = '57.128.140.147:19132';
+const SERVER_STATUS_QUERY = SERVER_HOST;
 const SERVER_IP_DISPLAY = SERVER_HOST;
 
 const translations = {
@@ -77,6 +77,8 @@ function t(key) { return (translations[currentLang] && translations[currentLang]
 // Global fonksiyonlar
 window.showContent = showContent;
 window.kopyalaIP = kopyalaIP;
+window.kopyalaAltIP = kopyalaAltIP;
+window.refreshStatus = refreshStatus;
 window.buy = buy;
 window.completeRequest = completeRequest;
 window.rejectRequest = rejectRequest;
@@ -362,27 +364,73 @@ function animateBgSteam(now) {
   bgRAF = requestAnimationFrame(animateBgSteam);
 }
 
-// ========== IP ==========
-async function kopyalaIP() {
+// ========== IP KOPYALAMA ==========
+async function copyText(text) {
   try {
-    await navigator.clipboard.writeText(SERVER_IP_DISPLAY);
+    await navigator.clipboard.writeText(text);
   } catch (e) {
     const ta = document.createElement('textarea');
-    ta.value = SERVER_IP_DISPLAY;
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
     document.body.appendChild(ta);
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
   }
+}
+
+let toastTimer = null;
+function showToast(message) {
+  let toast = document.getElementById('site-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'site-toast';
+    toast.className = 'site-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i><span></span>';
+  toast.querySelector('span').textContent = message;
+  toast.classList.add('is-visible');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2400);
+}
+
+async function kopyalaIP() {
+  await copyText(SERVER_IP_DISPLAY);
+  const box = document.querySelector('.hero-card .ip-box');
+  if (box) {
+    box.classList.add('is-copied');
+    const btn = box.querySelector('.copy-btn');
+    if (btn) {
+      const original = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Kopyalandı';
+      setTimeout(() => {
+        box.classList.remove('is-copied');
+        btn.innerHTML = original;
+      }, 1800);
+    }
+  }
   const altInfo = document.getElementById('alt-ip-info');
   if (altInfo) {
     altInfo.innerHTML = `
-      <p style="margin-top: 12px; font-size: 0.9rem; opacity: 0.9; line-height: 1.6;">
-        <i class="fa-solid fa-circle-check"></i> Adres kopyalandı!<br>
-        <i class="fa-solid fa-triangle-exclamation"></i> Giremediyseniz alternatif IP: <strong style="color: var(--accent);">${SERVER_ALT}</strong><br>
-        <i class="fa-solid fa-circle-question"></i> Bağlantı sorunu yaşarsanız admin ile iletişime geçiniz.
-      </p>`;
+      <div class="copy-result">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        <div>
+          <strong>Adres kopyalandı.</strong>
+          <span>Bağlanamazsan doğrudan IP'yi dene: <button type="button" class="inline-copy" onclick="kopyalaAltIP()">${SERVER_ALT}</button></span>
+        </div>
+      </div>`;
   }
+  showToast('Sunucu adresi kopyalandı');
+}
+
+async function kopyalaAltIP() {
+  await copyText(SERVER_ALT);
+  showToast('Alternatif IP kopyalandı');
 }
 
 // ========== BİLDİRİM ==========
@@ -520,66 +568,350 @@ function showContent(section) {
   }
 }
 
+// ========== SUNUCU DURUMU ==========
+async function fetchServerStatus() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
+  try {
+    const res = await fetch(
+      `https://api.mcsrvstat.us/bedrock/2/${SERVER_STATUS_QUERY}`,
+      { signal: controller.signal, cache: 'no-store' }
+    );
+    if (!res.ok) throw new Error('Sunucu durumu alınamadı');
+    return await res.json();
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function setStatusText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function applyServerStatus(data) {
+  const online = Boolean(data && data.online);
+  const players = data && data.players ? data.players : {};
+  const onlineCount = Number.isFinite(players.online) ? players.online : 0;
+  const maxCount = Number.isFinite(players.max) ? players.max : 0;
+  const version = data && (data.version || data.protocol_name)
+    ? (data.version || data.protocol_name)
+    : '—';
+  const rawMode = data && data.gamemode ? String(data.gamemode) : '';
+  const gamemode = rawMode ? rawMode.charAt(0).toUpperCase() + rawMode.slice(1) : '—';
+  const playerText = online ? `${onlineCount} / ${maxCount || '?'}` : '— / —';
+
+  const pill = document.getElementById('hero-live-pill');
+  if (pill) {
+    pill.classList.remove('is-loading', 'is-online', 'is-offline');
+    pill.classList.add(online ? 'is-online' : 'is-offline');
+  }
+  setStatusText('hero-live-text', online ? 'Çevrimiçi' : 'Çevrimdışı');
+  setStatusText('hero-player-count', playerText);
+  setStatusText('hero-version', online ? version : '—');
+  setStatusText('hero-gamemode', online ? gamemode : '—');
+
+  const bar = document.getElementById('hero-player-bar');
+  if (bar) {
+    const pct = online && maxCount > 0 ? Math.min(100, Math.round((onlineCount / maxCount) * 100)) : 0;
+    bar.style.width = `${pct}%`;
+    if (bar.parentElement) {
+      bar.parentElement.setAttribute('aria-label', online ? `Oyuncu doluluk oranı: yüzde ${pct}` : 'Sunucu çevrimdışı');
+    }
+  }
+  setStatusText('hero-panel-note', online
+    ? (onlineCount === 0 ? 'Şu an kimse yok; ilk gelen sen ol!' : `Sunucuda şu an ${onlineCount} oyuncu var.`)
+    : 'Sunucu şu an yanıt vermiyor. Bakımda olabilir; birazdan tekrar dene.');
+
+  const statusEl = document.getElementById('online-durum');
+  if (statusEl) {
+    statusEl.innerHTML = online
+      ? '<span class="status-online"><i class="fa-solid fa-circle" aria-hidden="true"></i> Çevrimiçi</span>'
+      : '<span class="status-offline"><i class="fa-solid fa-circle" aria-hidden="true"></i> Çevrimdışı</span>';
+  }
+  setStatusText('oyuncu-sayisi', playerText);
+  setStatusText('sunucu-surum', online ? version : '—');
+  setStatusText('sunucu-mod', online ? gamemode : '—');
+  setStatusText('status-note', online
+    ? (onlineCount === 0 ? 'Sunucu açık ama şu an boş. İlk oyuncu sen ol!' : `Sunucuda şu an ${onlineCount} oyuncu var.`)
+    : 'Sunucu şu an çevrimdışı görünüyor. Yeniden açıldığında bilgiler otomatik güncellenecek.');
+  setStatusText('status-time', new Date().toLocaleTimeString('tr-TR', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  }));
+}
+
+function applyStatusError() {
+  const pill = document.getElementById('hero-live-pill');
+  if (pill) {
+    pill.classList.remove('is-loading', 'is-online');
+    pill.classList.add('is-offline');
+  }
+  setStatusText('hero-live-text', 'Bilinmiyor');
+  setStatusText('hero-player-count', '— / —');
+  setStatusText('hero-version', '—');
+  setStatusText('hero-gamemode', '—');
+  setStatusText('hero-panel-note', 'Canlı durum şu an alınamıyor. Bağlantını kontrol edip yeniden dene.');
+  const statusEl = document.getElementById('online-durum');
+  if (statusEl) {
+    statusEl.innerHTML = '<span class="status-offline"><i class="fa-solid fa-circle" aria-hidden="true"></i> Bilinmiyor</span>';
+  }
+  setStatusText('oyuncu-sayisi', '— / —');
+  setStatusText('sunucu-surum', '—');
+  setStatusText('sunucu-mod', '—');
+  setStatusText('status-note', 'Durum bilgisi şu an alınamıyor. İnternet bağlantını kontrol edip yeniden dene.');
+  setStatusText('status-time', new Date().toLocaleTimeString('tr-TR', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  }));
+}
+
+async function updateStatus() {
+  const refreshBtn = document.getElementById('refresh-status');
+  if (refreshBtn) refreshBtn.classList.add('is-spinning');
+  try {
+    const data = await fetchServerStatus();
+    applyServerStatus(data);
+  } catch (e) {
+    applyStatusError();
+  } finally {
+    if (refreshBtn) refreshBtn.classList.remove('is-spinning');
+  }
+}
+
+function refreshStatus() {
+  updateStatus();
+}
+
+let revealObserver = null;
+function setupReveals() {
+  if (revealObserver) {
+    revealObserver.disconnect();
+    revealObserver = null;
+  }
+  const targets = document.querySelectorAll('[data-reveal]');
+  if (!targets.length) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    targets.forEach((el) => el.classList.add('is-visible'));
+    return;
+  }
+  targets.forEach((el) => el.classList.add('reveal'));
+  revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
+  targets.forEach((el) => revealObserver.observe(el));
+}
+
 // ========== SAYFALAR ==========
 async function renderStatus() {
   const content = document.getElementById('content');
   content.innerHTML = `
     <div class="glass-card hero-card">
-      <p class="hero-kicker"><i class="fa-solid fa-leaf" aria-hidden="true"></i> Birlikte oynayacak yerin hazır</p>
-      <h1><i class="fa-solid fa-cube"></i> Turbolu Bedrock'a Hoş Geldiniz! <i class="fa-solid fa-cube"></i></h1>
-      <p>Telefondan, tabletten ya da konsoldan katıl; arkadaşlarınla aynı dünyada buluş.</p>
-      <div class="ip-box" onclick="kopyalaIP()">
-        <span>${SERVER_IP_DISPLAY}</span>
-        <button class="copy-btn"><i class="fa-regular fa-copy"></i> Kopyala</button>
+      <div class="hero-copy">
+        <p class="hero-kicker"><i class="fa-solid fa-leaf" aria-hidden="true"></i> Birlikte oynayacak yerin hazır</p>
+        <h1><i class="fa-solid fa-cube" aria-hidden="true"></i> Turbolu <span class="hero-title-accent">Bedrock</span>'a Hoş Geldiniz!</h1>
+        <p class="hero-lead">Telefondan, tabletten ya da konsoldan katıl; arkadaşlarınla aynı dünyada buluş. Cross-play destekli, 7/24 açık bir Bedrock sunucusu.</p>
+
+        <div class="hero-join">
+          <span class="field-label">Sunucu adresi</span>
+          <button class="ip-box" type="button" onclick="kopyalaIP()" title="Kopyalamak için tıkla" aria-label="Sunucu adresini kopyala: ${SERVER_IP_DISPLAY}">
+            <span class="ip-text">${SERVER_IP_DISPLAY}</span>
+            <span class="copy-btn" aria-hidden="true"><i class="fa-regular fa-copy"></i> Kopyala</span>
+          </button>
+          <p class="click-info">Adrese tıklayarak kopyalayabilirsin.</p>
+          <div id="alt-ip-info" class="alt-ip-info" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="hero-chips" aria-label="Sunucu özellikleri">
+          <span><i class="fa-solid fa-globe" aria-hidden="true"></i> Cross-play</span>
+          <span><i class="fa-solid fa-clock" aria-hidden="true"></i> 7/24 açık</span>
+          <span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Adil oyun</span>
+        </div>
       </div>
-      <p class="click-info">Adrese tıklayarak kopyalayabilirsin!</p>
-      <div id="alt-ip-info"></div>
+
+      <aside class="hero-panel" aria-label="Canlı sunucu özeti">
+        <div class="hero-panel-head">
+          <div class="hero-panel-brand">
+            <img src="../mc/crpr.webp" alt="" width="44" height="44" loading="eager" decoding="async">
+            <div><span>Turbolu Bedrock</span><strong>Sunucu özeti</strong></div>
+          </div>
+          <span class="live-pill is-loading" id="hero-live-pill">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span id="hero-live-text" aria-live="polite">Kontrol ediliyor</span>
+          </span>
+        </div>
+
+        <div class="hero-stat-grid">
+          <div class="hero-stat"><span>Oyuncu</span><strong id="hero-player-count">- / -</strong></div>
+          <div class="hero-stat"><span>Sürüm</span><strong id="hero-version">-</strong></div>
+          <div class="hero-stat"><span>Mod</span><strong id="hero-gamemode">Survival</strong></div>
+          <div class="hero-stat"><span>Platform</span><strong>Bedrock</strong></div>
+        </div>
+
+        <div class="player-meter" role="img" aria-label="Oyuncu doluluk oranı">
+          <span id="hero-player-bar"></span>
+        </div>
+        <p class="hero-panel-note" id="hero-panel-note">Canlı bilgiler birkaç saniye içinde yüklenir.</p>
+        <a class="panel-link" href="#nasil-katilirim">Nasıl katılırım? <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </aside>
     </div>
-    <div class="glass-card" id="features">
-      <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Neden Bedrock?</h2>
-      <p class="section-note">Cihazın ne olursa olsun, maceraya beraber başlayabilirsiniz.</p>
+
+    <div class="glass-card" id="nasil-katilirim" data-reveal>
+      <div class="section-head">
+        <div>
+          <p class="section-eyebrow"><i class="fa-solid fa-compass" aria-hidden="true"></i> Yeni başlayanlar için</p>
+          <h2>3 adımda sunucuya katıl</h2>
+          <p class="section-note">Hesap açmadan oynayabilirsin; site hesabı yalnızca market ve talepler için gerekir.</p>
+        </div>
+        <span class="section-badge"><i class="fa-solid fa-clock" aria-hidden="true"></i> ~2 dakika</span>
+      </div>
+      <div class="steps-grid">
+        <article class="step-card">
+          <span class="step-num" aria-hidden="true">01</span>
+          <span class="step-icon"><i class="fa-solid fa-gamepad" aria-hidden="true"></i></span>
+          <h3>Bedrock'u aç</h3>
+          <p>Minecraft Bedrock Edition'ı telefon, tablet, bilgisayar veya konsolunda başlat.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-num" aria-hidden="true">02</span>
+          <span class="step-icon"><i class="fa-solid fa-server" aria-hidden="true"></i></span>
+          <h3>Sunucuyu ekle</h3>
+          <p><strong>Play → Servers → Add Server</strong> yolunu izle ve sunucu adresini yapıştır.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-num" aria-hidden="true">03</span>
+          <span class="step-icon"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          <h3>Katıl ve keşfet</h3>
+          <p>Sunucuyu kaydet, listeden seç ve arkadaşlarınla aynı dünyaya adım at.</p>
+        </article>
+      </div>
+      <div class="platform-row" aria-label="Desteklenen platformlar">
+        <span><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Android</span>
+        <span><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> iOS</span>
+        <span><i class="fa-solid fa-desktop" aria-hidden="true"></i> Windows</span>
+        <span><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Xbox</span>
+        <span><i class="fa-solid fa-gamepad" aria-hidden="true"></i> PlayStation</span>
+        <span><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Switch</span>
+      </div>
+    </div>
+
+    <div class="glass-card" id="features" data-reveal>
+      <div class="section-head">
+        <div>
+          <p class="section-eyebrow"><i class="fa-solid fa-cubes" aria-hidden="true"></i> Neden Turbolu?</p>
+          <h2>Her cihazdan aynı macera</h2>
+          <p class="section-note">Tek bir dünya, farklı cihazlar ve herkes için eşit bir başlangıç.</p>
+        </div>
+      </div>
       <div class="features-grid">
-        <div class="feature-item"><i class="fa-solid fa-mobile-screen"></i><h3>Cross-Play</h3><p>Telefon, konsol, PC fark etmez — herkes oynar.</p></div>
-        <div class="feature-item"><i class="fa-solid fa-shield-halved"></i><h3>Adil Oyun</h3><p>Hileye sıfır tolerans, güvenli ortam.</p></div>
-        <div class="feature-item"><i class="fa-solid fa-users"></i><h3>Aktif Topluluk</h3><p>7/24 oyuncu ve etkinlikler.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-globe" aria-hidden="true"></i><h3>Cross-Play</h3><p>Telefon, konsol, PC fark etmez — herkes aynı dünyada oynar.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><h3>Adil Oyun</h3><p>Hileye sıfır tolerans, güvenli ve dengeli bir ortam.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-users" aria-hidden="true"></i><h3>Aktif Topluluk</h3><p>7/24 oyuncu, sohbet ve birlikte keşfedilecek yeni yerler.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-bolt" aria-hidden="true"></i><h3>Akıcı Bağlantı</h3><p>Kararlı sunucu kaynakları ve düşük gecikme için optimize edildi.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i><h3>Etkinlikler</h3><p>Build yarışmaları, mini oyunlar ve haftalık buluşmalar.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-gift" aria-hidden="true"></i><h3>Güvenli Market</h3><p>Puanla destek al, talebini oluştur ve süreci buradan takip et.</p></div>
       </div>
     </div>
-    <div class="glass-card" id="durum">
-      <h2 style="text-align:center; color: var(--accent); margin-bottom:1.5rem;">Anlık Sunucu Durumu</h2>
-      <p class="section-note">Durum bilgisi yaklaşık 15 saniyede bir yenilenir.</p>
-      <div class="status-info" style="text-align:center;">
-        <p><strong>Durum:</strong> <span id="online-durum"><i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...</span></p>
-        <p><strong>Çevrimiçi Oyuncular:</strong> <span id="oyuncu-sayisi">- / -</span></p>
-        <p><strong>Sürüm:</strong> <span id="sunucu-surum">-</span></p>
+
+    <div class="glass-card" id="durum" data-reveal>
+      <div class="section-head">
+        <div>
+          <p class="section-eyebrow"><i class="fa-solid fa-signal" aria-hidden="true"></i> Canlı durum</p>
+          <h2>Sunucu durumu</h2>
+          <p class="section-note">Bilgiler yaklaşık 30 saniyede bir yenilenir.</p>
+        </div>
+        <button class="refresh-btn" id="refresh-status" type="button" onclick="refreshStatus()">
+          <i class="fa-solid fa-rotate" aria-hidden="true"></i> Yenile
+        </button>
+      </div>
+      <div class="status-grid">
+        <div class="status-tile">
+          <span class="status-icon"><i class="fa-solid fa-signal" aria-hidden="true"></i></span>
+          <div><span>Durum</span><strong id="online-durum">Kontrol ediliyor...</strong></div>
+        </div>
+        <div class="status-tile">
+          <span class="status-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+          <div><span>Oyuncular</span><strong id="oyuncu-sayisi">- / -</strong></div>
+        </div>
+        <div class="status-tile">
+          <span class="status-icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></span>
+          <div><span>Sürüm</span><strong id="sunucu-surum">-</strong></div>
+        </div>
+        <div class="status-tile">
+          <span class="status-icon"><i class="fa-solid fa-map" aria-hidden="true"></i></span>
+          <div><span>Mod</span><strong id="sunucu-mod">-</strong></div>
+        </div>
+      </div>
+      <div class="status-foot">
+        <p id="status-note" aria-live="polite">Sunucuya bağlanılıyor...</p>
+        <p class="status-time">Son kontrol: <span id="status-time">-</span></p>
+      </div>
+      <details class="connection-help">
+        <summary><span><i class="fa-solid fa-plug" aria-hidden="true"></i> Bağlantı sorunu mu yaşıyorsun?</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        <div class="connection-body">
+          <p>Sunucu adresi yerine doğrudan IP kullanmayı dene: <button type="button" class="inline-copy" onclick="kopyalaAltIP()">${SERVER_ALT}</button></p>
+          <p>Bedrock sürümünün güncel olduğundan ve sunucu eklerken port alanını boş bıraktığından emin ol.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="glass-card" id="sss" data-reveal>
+      <div class="section-head">
+        <div>
+          <p class="section-eyebrow"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Aklında kalanlar</p>
+          <h2>Sık sorulan sorular</h2>
+        </div>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Bedrock Edition nedir, Java ile aynı mı?<span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span></summary>
+          <div class="faq-body"><p>Bedrock Edition; telefon, tablet, konsol ve Windows'ta oynanan Minecraft sürümüdür. Java Edition ile aynı dünyayı paylaşmaz, ancak kendi içinde cross-play destekler.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Telefonumdan nasıl bağlanırım?<span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span></summary>
+          <div class="faq-body"><p>Minecraft'ı aç, <strong>Play → Servers → Add Server</strong> ekranına git. Sunucu adresi alanına <strong>${SERVER_IP_DISPLAY}</strong> yaz, port alanını boş bırak ve kaydet.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Oynamak için site hesabı açmam gerekiyor mu?<span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span></summary>
+          <div class="faq-body"><p>Hayır. Sunucuya katılmak için site hesabı gerekmez. Hesap; market, puan ve talep takibi gibi site özellikleri için kullanılır.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Market nasıl çalışıyor?<span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span></summary>
+          <div class="faq-body"><p>Marketten bir ürün seçtiğinde talebin oluşturulur. Yetkili ekip talebi oyun içinde tamamladığında durumunu <strong>Taleplerim</strong> sayfasından takip edebilirsin.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Bağlantı sorunu yaşıyorum, ne yapmalıyım?<span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span></summary>
+          <div class="faq-body"><p>Önce sunucu adresini tekrar kopyala; olmazsa doğrudan IP'yi dene: <strong>${SERVER_ALT}</strong>. Bedrock sürümünü güncelle ve farklı bir ağda tekrar bağlanmayı dene.</p></div>
+        </details>
       </div>
     </div>
-    <div class="footer">
-      <p>&copy; 2026 Eren Yılmaz - Turbolu Bedrock. Tüm Hakları Saklıdır.</p>
-      <p class="license-text">Bu proje GNU General Public License v3.0 ile korunmaktadır.</p>
-    </div>
+
+    <footer class="footer">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../mc/crpr.webp" alt="" width="34" height="34" loading="lazy" decoding="async">
+          <div><strong>Turbolu Bedrock</strong><span>Cross-play Minecraft sunucusu</span></div>
+        </div>
+        <nav class="footer-links" aria-label="Alt bağlantılar">
+          <a href="/">Ana Sayfa</a>
+          <a href="/mc/">Java Sunucusu</a>
+          <a href="/tikla/">Tıkla</a>
+          <a href="#nasil-katilirim">Nasıl Katılırım?</a>
+        </nav>
+      </div>
+      <div class="footer-meta">
+        <p>&copy; 2026 Eren Yılmaz — Turbolu Bedrock. Tüm hakları saklıdır.</p>
+        <p class="license-text">GNU General Public License v3.0</p>
+      </div>
+    </footer>
   `;
-  async function updateStatus() {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      const res = await fetch(
-        `https://api.mcsrvstat.us/bedrock/2/${SERVER_STATUS_QUERY}`,
-        { signal: controller.signal }
-      );
-      clearTimeout(timeoutId);
-      const data = await res.json();
-      const durumEl = document.getElementById('online-durum');
-      if (!durumEl) return;
-      durumEl.innerHTML = data.online
-        ? '<span style="color:#22c55e"><i class="fa-solid fa-circle" style="color:#22c55e"></i> Çevrimiçi</span>'
-        : '<span style="color:#ef4444"><i class="fa-solid fa-circle" style="color:#ef4444"></i> Çevrimdışı</span>';
-      document.getElementById('oyuncu-sayisi').textContent = `${data.players?.online ?? 0} / ${data.players?.max ?? 0}`;
-      document.getElementById('sunucu-surum').textContent = data.version || '-';
-    } catch (e) {}
-  }
   updateStatus();
   if (statusInterval) clearInterval(statusInterval);
-  statusInterval = setInterval(updateStatus, 15000);
+  statusInterval = setInterval(updateStatus, 30000);
+  setupReveals();
 }
 
 async function renderShop() {

@@ -19,15 +19,28 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.mcsrvstat.us">
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="preload" as="font" type="font/woff2" href="../fa/webfonts/fa-solid-900.woff2" crossorigin>
     
     <link rel="stylesheet" href="../fa/css/fontawesome.min.css">
     <link rel="stylesheet" href="../fa/css/solid.min.css">
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#22c55e">
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "VideoGame",
+            "name": "Turbolu Bedrock",
+            "url": "https://turboluweb.wasmer.app/bedrock/",
+            "description": "Cross-play destekli Turbolu Bedrock Minecraft sunucusu. Telefon, tablet, bilgisayar ve konsoldan katılın.",
+            "genre": "Minecraft Bedrock sunucusu",
+            "playMode": "MultiPlayer",
+            "operatingSystem": "Android, iOS, Windows, Xbox, PlayStation, Nintendo Switch"
+        }
+    </script>
     <script>
         (function() {
             const saved = localStorage.getItem('theme');
@@ -39,6 +52,12 @@
     <link rel="stylesheet" href="../site-polish.css?v=12">
 </head>
 <body>
+    <noscript>
+        <div class="noscript-note">
+            <strong>Turbolu Bedrock</strong> sunucusuna <strong>turbolubedrock.mcsh.io</strong> adresinden katılabilirsiniz.
+            Site özellikleri için JavaScript gerekir.
+        </div>
+    </noscript>
     <canvas id="bgSteamCanvas" class="bg-steam-canvas" aria-hidden="true"></canvas>
     <div class="steam-container" aria-hidden="true">
         <div class="steam-blob blob-1"></div>
@@ -77,6 +96,6 @@
 
     <canvas id="steamCanvas" class="steam-canvas" aria-hidden="true"></canvas>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
