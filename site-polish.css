@@ -7,7 +7,6 @@ html {
 
 body {
   isolation: isolate;
-  animation: bigSurWallpaperFlow 10s ease-in-out infinite alternate;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   background-color: #0b1018;
@@ -33,7 +32,6 @@ body {
   position: fixed;
   inset: 0;
   height: auto;
-  animation: bigSurSceneFlow 10s ease-in-out infinite alternate;
   background-color: #111;
   background-image: url('/img/bigsur-wallpaper.webp');
   background-size: cover;
@@ -58,7 +56,6 @@ body::after {
   filter: blur(24px);
   mix-blend-mode: soft-light;
   transform: translate3d(-4%, -2%, 0) scale(1);
-  animation: bigSurWave 10s ease-in-out infinite;
   will-change: transform;
 }
 
