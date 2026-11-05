@@ -7,6 +7,7 @@ html {
 
 body {
   isolation: isolate;
+  animation: bigSurWallpaperFlow 9s ease-in-out infinite alternate;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   background-color: #0b1018;
@@ -32,6 +33,7 @@ body {
   position: absolute;
   inset: 0;
   height: 100%;
+  animation: bigSurSceneFlow 9s ease-in-out infinite alternate;
   background-color: #111;
   background-image: url('/img/bigsur-wallpaper.webp');
   background-size: auto 100vh;
@@ -48,24 +50,35 @@ body::after {
   z-index: -1;
   inset: -10%;
   pointer-events: none;
-  opacity: 0.38;
+  opacity: 0.62;
   background:
     radial-gradient(ellipse 48% 22% at 24% 36%, rgba(255, 195, 190, 0.26), transparent 74%),
     radial-gradient(ellipse 58% 24% at 76% 55%, rgba(94, 218, 255, 0.22), transparent 73%),
     radial-gradient(ellipse 48% 20% at 44% 86%, rgba(255, 175, 89, 0.18), transparent 75%);
-  filter: blur(24px);
+  filter: blur(16px);
   mix-blend-mode: soft-light;
-  transform: translate3d(-1.2%, 0, 0) scale(1);
-  animation: bigSurWave 16s ease-in-out infinite;
+  transform: translate3d(-4%, -2%, 0) scale(1);
+  animation: bigSurWave 9s ease-in-out infinite;
   will-change: transform;
 }
 
-.light body::after { opacity: 0.24; }
+.light body::after { opacity: 0.42; }
 
 @keyframes bigSurWave {
-  0%, 100% { transform: translate3d(-1.2%, 0, 0) scale(1); }
-  34% { transform: translate3d(0.8%, -0.6%, 0) scale(1.035); }
-  68% { transform: translate3d(0.2%, 0.7%, 0) scale(1.02); }
+  0% { transform: translate3d(-4%, -2%, 0) scale(1); }
+  35% { transform: translate3d(4%, 1%, 0) scale(1.07); }
+  70% { transform: translate3d(1%, 4%, 0) scale(1.1); }
+  100% { transform: translate3d(-3%, 2%, 0) scale(1.03); }
+}
+
+@keyframes bigSurWallpaperFlow {
+  from { background-position: 50% 0%, 50% 0%; }
+  to { background-position: calc(50% + 26px) 14px, calc(50% - 22px) -12px; }
+}
+
+@keyframes bigSurSceneFlow {
+  from { background-position: 50% 0%; }
+  to { background-position: calc(50% + 30px) 24px; }
 }
 
 .bigsur-art { display: none; }
