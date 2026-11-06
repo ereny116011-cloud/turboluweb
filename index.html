@@ -27,7 +27,7 @@
     <link rel="preload" as="font" type="font/woff2" href="fa/webfonts/fa-solid-900.woff2" crossorigin>
     <link rel="stylesheet" href="fa/css/fontawesome.min.css">
     <link rel="stylesheet" href="fa/css/solid.min.css">
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=11">
 
     <script type="application/ld+json">
     {
@@ -211,12 +211,12 @@
         <section id="projeler" class="wrap section">
             <div class="section-head">
                 <h2>Projeler</h2>
-                <p>Şu an üzerinde çalıştığımız ürünler</p>
+                <p>Sunucularımız ve oyunlarımız için geliştirdiğimiz projeler</p>
             </div>
 
             <div class="grid">
                 <a class="card" href="/mc/">
-                    <img src="mc/crpr.webp" alt="TurboluMC" width="56" height="56" loading="eager" decoding="async">
+                    <span class="card-block-icon grass-block-icon" role="img" aria-label="Minecraft çimen bloğu"></span>
                     <div class="card-body">
                         <h3>TurboluMC</h3>
                         <p>Java Edition sunucumuz. Market, duyurular, kampanyalar ve oyuncu paneli.</p>
@@ -229,7 +229,7 @@
                 </a>
 
                 <a class="card" href="/bedrock/">
-                    <img src="mc/crpr.webp" alt="Turbolu Bedrock" width="56" height="56" loading="eager" decoding="async">
+                    <span class="card-block-icon bedrock-block-icon" role="img" aria-label="Minecraft katman kayası bloğu"></span>
                     <div class="card-body">
                         <h3>Turbolu Bedrock</h3>
                         <p>Telefon, tablet ve konsoldan katılabilen cross-play destekli Bedrock sunucumuz.</p>
@@ -254,6 +254,19 @@
                     <i class="fa-solid fa-arrow-right card-arrow" aria-hidden="true"></i>
                 </a>
 
+                <a class="card" href="/turboluapp/">
+                    <img class="card-creeper-icon" src="mc/crpr.webp" alt="TurboluApp creeper logosu" width="56" height="56" loading="eager" decoding="async">
+                    <div class="card-body">
+                        <h3>TurboluApp</h3>
+                        <p>Turbolu Studios web deneyimini Android uygulamasından kullan.</p>
+                        <div class="tags">
+                            <span class="tag">Android</span>
+                            <span class="tag">Yakında</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right card-arrow" aria-hidden="true"></i>
+                </a>
+
                 <div class="card card-muted">
                     <span class="card-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                     <div class="card-body">
@@ -268,7 +281,7 @@
         <section id="duyurular" class="wrap section">
             <div class="section-head">
                 <h2>Duyurular</h2>
-                <p>Sunucularımızdan son haberler</p>
+                <p>Turbolu projelerinden ve topluluğumuzdan haberler</p>
             </div>
             <div class="duyuru-listesi" id="duyuruListesi" aria-live="polite">
                 <div class="duyuru"><p>Yükleniyor…</p></div>
@@ -451,7 +464,7 @@
                 var kap = $('duyuruListesi');
                 if (!kap) return;
                 try {
-                    var r = await fetch(API + '/api/announcements');
+                    var r = await fetch(API + '/api/announcements?platform=portal');
                     if (!r.ok) throw new Error('HTTP ' + r.status);
                     var liste = await r.json();
                     if (!Array.isArray(liste) || liste.length === 0) {

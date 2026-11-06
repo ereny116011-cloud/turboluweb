@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurboluApp — Turbolu Studios Android uygulaması</title>
+    <meta name="description" content="Turbolu Studios web deneyimini Android uygulamasından kullan. TurboluApp APK'sı hazır olduğunda bu sayfada paylaşılacak.">
+    <meta name="theme-color" content="#080b18">
+    <link rel="canonical" href="https://turboluweb.wasmer.app/turboluapp/">
+    <meta property="og:site_name" content="Turbolu Studios">
+    <meta property="og:title" content="TurboluApp — Turbolu Studios Android uygulaması">
+    <meta property="og:description" content="Turbolu Studios web deneyimi Android uygulamasıyla cebinde. APK yakında.">
+    <meta property="og:url" content="https://turboluweb.wasmer.app/turboluapp/">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://turboluweb.wasmer.app/mc/crpr.webp">
+    <link rel="icon" href="../mc/crpr.webp" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="font" type="font/woff2" href="../fa/webfonts/fa-solid-900.woff2" crossorigin>
+    <link rel="stylesheet" href="../fa/css/fontawesome.min.css">
+    <link rel="stylesheet" href="../fa/css/solid.min.css">
+    <link rel="stylesheet" href="../style.css?v=11">
+    <link rel="stylesheet" href="../site-polish.css?v=12">
+    <link rel="stylesheet" href="style.css?v=1">
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                var light = saved === 'light' || (saved !== 'dark' && window.matchMedia('(prefers-color-scheme: light)').matches);
+                if (light) document.documentElement.classList.add('light');
+                document.documentElement.style.colorScheme = light ? 'light' : 'dark';
+            } catch (_) { /* Varsayılan koyu tema ile devam et. */ }
+        })();
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="wrap header-inner">
+            <a class="brand" href="/" aria-label="Turbolu Studios ana sayfa">
+                <img src="../mc/crpr.webp" alt="" width="36" height="36">
+                <span>TurboluApp</span>
+            </a>
+            <nav class="site-nav" aria-label="TurboluApp sayfası">
+                <a href="#uygulama">Uygulama</a>
+                <a href="#ozellikler">Neler sunacak?</a>
+                <a href="#sss">SSS</a>
+            </nav>
+            <button class="icon-btn" id="themeToggle" type="button" aria-label="Temayı değiştir" title="Temayı değiştir">
+                <i class="fa-solid fa-moon" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="app-hero wrap" id="uygulama">
+            <div class="app-hero-copy">
+                <p class="app-eyebrow"><span class="app-status-dot" aria-hidden="true"></span> Turbolu Studios · Android uygulaması</p>
+                <h1>Turbolu dünyası, telefonunda.</h1>
+                <p class="app-lead">TurboluApp, Turbolu Studios web deneyimini Android telefonundan kolayca açman için hazırladığımız uygulama. Uygulama içeriği web sitemiz üzerinden sunulur.</p>
+                <div class="app-actions">
+                    <span class="app-soon" aria-live="polite"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> APK yakında</span>
+                    <a class="btn btn-ghost" href="/#projeler">Projeleri keşfet <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <p class="app-note">APK hazır olduğunda indirme bağlantısını burada paylaşacağız.</p>
+            </div>
+
+            <aside class="app-info-card" aria-label="TurboluApp yayın bilgisi">
+                <div class="app-icon"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></div>
+                <p class="app-info-label">Yayın durumu</p>
+                <h2>Hazırlanıyor</h2>
+                <p>Şu an için indirilebilir bir APK yok. Yayına çıktığında bu sayfa güncellenecek.</p>
+                <div class="app-platform"><i class="fa-brands fa-android" aria-hidden="true"></i> Android</div>
+            </aside>
+        </section>
+
+        <section class="wrap app-section" id="ozellikler">
+            <div class="section-head">
+                <h2>Neler sunacak?</h2>
+                <p>Tanıdığın site, uygulama görünümünde.</p>
+            </div>
+            <div class="app-feature-grid">
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-globe" aria-hidden="true"></i></span>
+                    <h3>Siteye kolay erişim</h3>
+                    <p>Turbolu Studios projelerine uygulama içinden ulaş.</p>
+                </article>
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span>
+                    <h3>Duyuruları takip et</h3>
+                    <p>Yeni gelişmeleri ana sayfadan ve ilgili proje bölümlerinden gör.</p>
+                </article>
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-user-shield" aria-hidden="true"></i></span>
+                    <h3>Mevcut hesabınla devam et</h3>
+                    <p>Web sitesindeki hesap ve giriş sistemi uygulama içinden de kullanılabilir.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="wrap app-faq" id="sss">
+            <div class="section-head">
+                <h2>Merak edilenler</h2>
+                <p>Uygulama yayınlanmadan önce bilmen gerekenler.</p>
+            </div>
+            <details>
+                <summary>APK'yı nereden indirebilirim?</summary>
+                <p>APK henüz yayımlanmadı. Hazır olduğunda indirme bağlantısı bu sayfaya eklenecek.</p>
+            </details>
+            <details>
+                <summary>Uygulama çevrimdışı çalışır mı?</summary>
+                <p>TurboluApp web sitesini uygulama görünümünde açar; içeriklere erişmek için internet bağlantısı gerekir.</p>
+            </details>
+            <details>
+                <summary>Giriş bilgilerim uygulamada da geçerli mi?</summary>
+                <p>Evet. Uygulama siteyi açtığı için mevcut Turbolu hesabınla giriş yapabilirsin.</p>
+            </details>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <a href="/">Turbolu Studios</a>
+        <span>© 2026 Turbolu Studios</span>
+    </footer>
+
+    <script>
+        (function () {
+            var button = document.getElementById('themeToggle');
+            if (!button) return;
+            function updateTheme() {
+                var light = document.documentElement.classList.contains('light');
+                button.innerHTML = '<i class="fa-solid ' + (light ? 'fa-sun' : 'fa-moon') + '" aria-hidden="true"></i>';
+                button.setAttribute('aria-label', light ? 'Koyu temaya geç' : 'Açık temaya geç');
+                button.title = button.getAttribute('aria-label');
+                document.documentElement.style.colorScheme = light ? 'light' : 'dark';
+            }
+            button.addEventListener('click', function () {
+                var light = !document.documentElement.classList.contains('light');
+                document.documentElement.classList.toggle('light', light);
+                try { localStorage.setItem('theme', light ? 'light' : 'dark'); } catch (_) { /* Gizli mod */ }
+                updateTheme();
+            });
+            updateTheme();
+        })();
+    </script>
+    <script src="/site-account.js?v=5"></script>
+</body>
+</html>

@@ -433,12 +433,21 @@
         const PLATFORM_SEC = `
             <label>Platform</label>
             <select data-alan="platform">
-                <option value="all">İkisi de (Java + Bedrock)</option>
+                <option value="all">Tüm platformlar</option>
                 <option value="java">Sadece Java</option>
                 <option value="bedrock">Sadece Bedrock</option>
             </select>`;
 
-        const PLATFORM_AD = { all: 'İkisi de', java: 'Java', bedrock: 'Bedrock' };
+        const ANNOUNCEMENT_PLATFORM_SEC = `
+            <label>Duyurunun gösterileceği yer</label>
+            <select data-alan="platform">
+                <option value="all">Tüm platformlar</option>
+                <option value="portal">Ana sayfa</option>
+                <option value="java">Sadece Java</option>
+                <option value="bedrock">Sadece Bedrock</option>
+            </select>`;
+
+        const PLATFORM_AD = { all: 'Tüm platformlar', portal: 'Ana sayfa', java: 'Java', bedrock: 'Bedrock' };
 
         function tarih(deger) {
             if (!deger) return '—';
@@ -458,7 +467,7 @@
                         <input type="text" data-alan="title" placeholder="Sunucu güncellemesi">
                         <label>İçerik</label>
                         <textarea data-alan="content" placeholder="Duyuru metni..."></textarea>
-                        ${PLATFORM_SEC}
+                        ${ANNOUNCEMENT_PLATFORM_SEC}
                         <button class="btn btn-primary" style="width:100%; justify-content:center;" data-ekle="announcement">
                             <i class="fa-solid fa-plus"></i> Duyuru ekle
                         </button>
