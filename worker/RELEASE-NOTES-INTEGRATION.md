@@ -1,8 +1,9 @@
 # Sürüm notu API entegrasyonu
 
-APK/volume yükleme kapsam dışı bırakıldı. Sürüm notları, mevcut Worker'ın
-Cloudflare KV binding'i `MC_DB` içinde saklanır; yeni secret veya GitHub Actions
-gerekmez.
+APK/volume yükleme kapsam dışı bırakıldı. Sürüm notları, mevcut Worker'ın veri
+katmanında saklanır: kalıcı veri **Cloudflare D1** veritabanı (`MC_DB` bağlantısı)
+içinde tutulur; **R2 (ya da yeni bir ikili dosya depolaması) kullanma** — projede
+R2 bağlantısı yoktur ve eklenmez. Yeni secret veya GitHub Actions gerekmez.
 
 Verdiğiniz mevcut Worker kodunda `requireAdmin(request)` fonksiyonunun hemen
 altına ve diğer `/api/admin/...` kontrollerinden önce şu iki route'u ekleyin:

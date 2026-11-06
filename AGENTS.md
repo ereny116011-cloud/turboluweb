@@ -62,6 +62,18 @@ Sayfaları doğrudan `file://` ile açma; `fetch`, Clipboard API, service worker
 - `panel/` ayrı bir yönetici arayüzüdür; token ile korunur.
 - Ortak backend bu depoda değildir. İçerik ve kullanıcı verileri Cloudflare Worker API'sinden gelir. Tüm istekler `fetch(`${API}/api/...`)` biçimindedir.
 
+### Veri saklama: D1 kullan, R2'ye hiç girme
+
+Worker tarafındaki tüm kalıcı veri **Cloudflare D1** içinde saklanır (`MC_DB` bağlantısı):
+sürüm notları, duyurular, haberler, kampanyalar, ürünler ve kullanıcılar.
+
+- Yeni bir yükleme veya saklama gereksinimi için mevcut D1 tablolarını ya da yeni bir
+  D1 tablosu kullan; veriyi **R2'ye, KV'ye veya herhangi bir ikili depoya taşıma**.
+- Projenin **R2 bağlantısı (binding) yoktur ve eklenmemelidir**. APK, görsel veya
+  başka bir dosyayı R2'ye yükleyen uç yazma; isteyen değişiklikleri reddet.
+- APK'yı dosya düzeyinde değiştirmek backend değil repodur: dosyayı `tikla/apk/`
+  altındaki yolundan güncelle ve commit et (aşağıdaki içerik kurallarına bak).
+
 ### Kimlik doğrulama
 
 - Giriş/kayıt sonrası token `localStorage` içinde `token` anahtarında tutulur.
@@ -281,3 +293,8 @@ Görsel değişikliklerde koyu ve açık temada ekran görüntüsü al.
 - **`WASMER-VOLUME.md`:** İsteğe bağlı volume notlarını silme; APK'yı site üzerinden sunma kararı bu dosyada açıklanır.
 - **Eski/bağımsız MC sayfaları:** `mc/giris.html`, `mc/reset.html`, `mc/profile.html`, `mc/shop.html` ve `mc/admin.html` SPA yönlendirmesi tarafından kullanılmaz. Değişiklik yapmadan önce hangi sayfanın gerçekten kullanıldığını doğrula.
 - **Font Awesome:** Dosyalar yerel `fa/` klasöründen yüklenir; CDN'e geri dönme.
+- **R2 ve KV kullanma:** Kalıcı veri yalnızca D1'de (`MC_DB`) saklanır. R2 bağlantısı
+  projede bilinçli olarak yoktur; KV/R2 öneren uç veya binding değişikliği kabul etme.
+  APK gibi ikili dosyalar repodan (`tikla/apk/`) sunulur; R2'ye taşınmaz.
+- **D1'e ikili veri yazma:** D1 yalnızca metin ve JSON veri için kullanılır;
+  megabaytlarca ikili dosya D1'e de yazma, APK repodan sunulmaya devam eder.
