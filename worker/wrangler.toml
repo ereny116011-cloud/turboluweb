@@ -1,0 +1,27 @@
+# Cloudflare Worker — TurboluMC API
+# Canlı Worker adı: shrill-salad-a498
+#
+# Sırlar (ADMIN_PASSWORD, AGENTMAIL_*, MAIL_WEBHOOK_*, RESEND_API_KEY,
+# OAuth client ID/secret) burada tutulmaz. Wrangler deploy mevcut sırları
+# silmez; panelden veya `wrangler secret put` ile yönetilir.
+
+name = "shrill-salad-a498"
+account_id = "0280e2748c8ba03638896e72227c2ae9"
+main = "src/index.js"
+compatibility_date = "2026-06-22"
+preview_urls = false
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+
+[observability.issues]
+enabled = true
+
+[[kv_namespaces]]
+binding = "MC_DB"
+id = "d185bc4e6d904fb0b6c516a729ac4417"

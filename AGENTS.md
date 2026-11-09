@@ -49,6 +49,7 @@ Sayfaları doğrudan `file://` ile açma; `fetch`, Clipboard API, service worker
 | `tikla/` | Turbolu Tıkla mobil oyun tanıtım sitesi; çok sayfalı yapı. |
 | `tikla/apk/` | `turbolutikla.apk` ve virüs tarama görseli. |
 | `panel/index.html` | İçerik yönetim paneli: duyuru, haber, kampanya, ürün ve talepler. |
+| `worker/` | Worker entegrasyon belgeleri. `worker/OAUTH-INTEGRATION.md` sosyal giriş sözleşmesini anlatır. Worker kaynak kodu eklenirse `worker/src/` altında tutulur; sırlar ve gerçek client secret değerleri commit edilmez. |
 | `fa/` | Font Awesome 6 vendor dosyaları. Mümkünse düzenleme; CDN'e geri dönme. |
 | `img/` | Ortak görseller. Big Sur duvar kağıdı `bigsur-wallpaper.webp`; eski SVG dosyaları tarihseldir. |
 | `kayit.html`, `sifremi-unuttum.html` | Kayıt ve şifre sıfırlama sayfaları. |
@@ -60,12 +61,16 @@ Sayfaları doğrudan `file://` ile açma; `fetch`, Clipboard API, service worker
 - Portal (`/`) ve Tıkla sayfaları statik HTML'dir; etkileşimler sayfa içi script veya `tikla/script.js` içindedir.
 - `mc/` ve `bedrock/` tek sayfalık uygulama gibi davranır. Navigasyon `showContent(section)` ile yapılır ve ilgili `render*()` fonksiyonu `#content` alanına HTML üretir. URL yönlendirmesi yoktur; sayfa durumu JavaScript'tedir.
 - `panel/` ayrı bir yönetici arayüzüdür; token ile korunur.
-- Ortak backend bu depoda değildir. İçerik ve kullanıcı verileri Cloudflare Worker API'sinden gelir. Tüm istekler `fetch(`${API}/api/...`)` biçimindedir.
+- Ortak backend Cloudflare Worker'dır. İçerik ve kullanıcı verileri Worker API'sinden gelir. Tüm istekler `fetch(`${API}/api/...`)` biçimindedir. Worker kaynak kodu bu depoda tutuluyorsa `worker/src/` altındadır; tutulmuyorsa uçlar Cloudflare panelinden veya ayrı Worker deposundan yönetilir.
 
 ### Veri saklama: D1 kullan, R2'ye hiç girme
 
 Worker tarafındaki tüm kalıcı veri **Cloudflare D1** içinde saklanır (`MC_DB` bağlantısı):
 sürüm notları, duyurular, haberler, kampanyalar, ürünler ve kullanıcılar.
+
+> **Mevcut durum:** Çalışan Worker kodu `env.MC_DB` üzerinden KV tarzı
+> `get`/`put`/`list` çağrıları kullanıyor. Bu bölümdeki D1 hedefi henüz
+> uygulanmadı; OAuth kodu mevcut yapıya uyum sağlar. D1'e geçiş ayrı bir iştir.
 
 - Yeni bir yükleme veya saklama gereksinimi için mevcut D1 tablolarını ya da yeni bir
   D1 tablosu kullan; veriyi **R2'ye, KV'ye veya herhangi bir ikili depoya taşıma**.
@@ -82,6 +87,31 @@ sürüm notları, duyurular, haberler, kampanyalar, ürünler ve kullanıcılar.
 - Yönetici kontrolü profil yanıtındaki `isAdmin` alanıyla yapılır.
 - Çıkışta `token` ve kullanıcı bilgileri temizlenir.
 
+### Sosyal giriş (OAuth)
+
+Desteklenen sağlayıcılar: **GitHub, Google, Microsoft ve Xbox**. Xbox ayrı bir kimlik
+sistemi değildir; Microsoft hesabı ve Xbox Live kapsamlarıyla çalışır.
+
+- Arayüz `oauth.js` ve `oauth.css` içindedir. Worker tarafı
+  `worker/src/oauth.js` dosyasındadır; mevcut `fetch` akışına iki satırla
+  bağlanır. Giriş noktalarına `<div data-oauth-mount></div>` konur; site
+  genelinde `site-account.js` bu dosyayı dinamik olarak yükler. MC ve Bedrock
+  sayfalarında `oauth.js` doğrudan da çağrılır.
+- Sağlayıcı listesi `GET /api/auth/oauth/providers` ile alınır. Dönen liste yalnızca
+  düğme etkinleştirme kontrolünde kullanılır, doğrudan `innerHTML` içine basılmaz.
+- Akış: `start` → sağlayıcı ekranı → `callback` → `?oauth=success&code=...` →
+  `POST /api/auth/oauth/exchange` → token'ın `localStorage.token` içine yazılması.
+- Hata `?oauth=error&message=...` ile döner; mesaj `textContent` ile gösterilir.
+- `redirect_uri` yalnızca izin listesindeki origin'lerden biri olabilir. `state` tek
+  kullanımlıktır; takas kodu en fazla 2 dakika geçerlidir.
+- Worker uçları hazır değilse düğmeler kullanıcıya "Sosyal giriş şu an
+  kullanılamıyor" mesajı gösterir. Backend hatası gizlenmez.
+- Sosyal hesaplar mevcut `MC_DB` deposunda `oauth:{provider}:{providerId}` anahtarıyla
+  kullanıcı hesabına bağlanır; e-posta ile otomatik birleştirme yalnızca sağlayıcı
+  e-postayı doğrulanmış döndürdüyse yapılır. R2 kullanılmaz.
+- Ayrıntılı uç sözleşmesi, depolama anahtarları ve sağlayıcı konsolu adımları:
+  `worker/OAUTH-INTEGRATION.md`.
+
 ### Platform ayrımı
 
 İçerikler `platform` alanı ile ayrılır: `java`, `bedrock` veya `all`.
@@ -96,6 +126,10 @@ sürüm notları, duyurular, haberler, kampanyalar, ürünler ve kullanıcılar.
 | --- | --- | --- |
 | `/api/login`, `/api/register` | POST | Giriş / kayıt |
 | `/api/forgot-password` | POST | Şifre sıfırlama isteği |
+| `/api/auth/oauth/providers` | GET | Etkin sosyal giriş sağlayıcıları (`github`, `google`, `microsoft`, `xbox`) |
+| `/api/auth/oauth/{provider}/start` | GET | Sağlayıcı yönlendirmesi (`?redirect_uri=`) |
+| `/api/auth/oauth/{provider}/callback` | GET | Sağlayıcı geri dönüşü (`?oauth=success&code=` veya `?oauth=error&message=`) |
+| `/api/auth/oauth/exchange` | POST | Tek kullanımlık kodu site token'ına çevirir |
 | `/api/profile` | GET / PUT | Profil okuma / güncelleme |
 | `/api/password` | POST / PUT | Şifre değiştirme |
 | `/api/items` | GET | Market ürünleri (`?platform=`) |
@@ -109,7 +143,7 @@ sürüm notları, duyurular, haberler, kampanyalar, ürünler ve kullanıcılar.
 | `/api/country` | GET | Ülke bilgisi |
 | `/api/status` | GET | Portal için yedek sunucu durumu |
 
-- API kodu bu depoda olmadığı için backend hatasını frontend'de kalıcı olarak gizleme; kullanıcıya anlaşılır durum mesajı göster.
+- Worker kaynak kodu bu depoda olsa da olmasa da backend hatasını frontend'de kalıcı olarak gizleme; kullanıcıya anlaşılır durum mesajı göster.
 
 ### Sunucu durumu kaynakları
 
@@ -198,6 +232,10 @@ API'den gelen içerik **asla** doğrudan `innerHTML` içine basılmamalıdır. `
 Diğer notlar:
 
 - `VAPID_PUBLIC_KEY` herkese açıktır; gizli anahtar/parola commit etme.
+- OAuth client secret'ları yalnızca Worker ortamında tutulur; `oauth.js` içine
+  veya repoya yazılmaz.
+- OAuth `redirect_uri` değeri Worker tarafında izin listesine karşı doğrulanır;
+  `state` tek kullanımlık, takas kodu kısa ömürlüdür.
 - Token'ları `console.log` ile yazdırma.
 - Yeni bir API alanını ekrana basmadan önce mutlaka `esc()` kullan.
 - `target="_blank"` bağlantılarına `rel="noopener"` ekle.
@@ -226,6 +264,8 @@ Otomatik test, lint veya CI yoktur. Değişiklikten sonra en azından:
 node --check mc\app.js
 node --check bedrock\app.js
 node --check tikla\script.js
+node --check oauth.js
+node --check site-account.js
 git diff --check
 ```
 
@@ -254,6 +294,11 @@ chromium.launch({ channel: 'msedge', headless: true })
 - SSS açılması ve ikon dönüşü
 - Mobilde yatay taşma olmaması
 - 320/360/390 px'te tam sunucu adresi
+- Sosyal giriş düğmelerinin hesap penceresinde, `kayit.html`, `mc/giris.html`,
+  MC ve Bedrock modallarında görünmesi
+- Worker uçları yokken "Sosyal giriş şu an kullanılamıyor" mesajının çıkması
+- OAuth dönüşünde `?oauth=success&code=` sonrası token'ın yazılması ve
+  `?oauth=error&message=` sonrası mesajın gösterilmesi
 
 Görsel değişikliklerde koyu ve açık temada ekran görüntüsü al.
 
@@ -291,7 +336,8 @@ Görsel değişikliklerde koyu ve açık temada ekran görüntüsü al.
 - **Göreli ve kök mutlak yollar:** Paylaşılan görsellerde `/img/...`, `/mc/...` gibi kök mutlak yollar kullanılır. Alt sayfalarda `../` ile karıştırma.
 - **Build sistemi ekleme:** Proje bilinçli olarak build'sizdir. Zorunlu olmadıkça araç zinciri ekleme.
 - **`WASMER-VOLUME.md`:** İsteğe bağlı volume notlarını silme; APK'yı site üzerinden sunma kararı bu dosyada açıklanır.
-- **Eski/bağımsız MC sayfaları:** `mc/giris.html`, `mc/reset.html`, `mc/profile.html`, `mc/shop.html` ve `mc/admin.html` SPA yönlendirmesi tarafından kullanılmaz. Değişiklik yapmadan önce hangi sayfanın gerçekten kullanıldığını doğrula.
+- **Eski/bağımsız MC sayfaları:** `mc/giris.html`, `mc/reset.html`, `mc/profile.html`, `mc/shop.html` ve `mc/admin.html` SPA yönlendirmesi tarafından kullanılmaz. Ancak `mc/giris.html`, `kayit.html`, `sifremi-unuttum.html`, market, taleplerim ve profil sayfalarından giriş için gerçek bir yönlendirme hedefidir; değiştirmeden önce hangi sayfanın gerçekten kullanıldığını doğrula.
+- **OAuth geri dönüşü:** Worker'da `/api/auth/oauth/*` uçları yoksa düğmeler yalnızca "kullanılamıyor" mesajı gösterir. Sağlayıcı konsolundaki callback adresi `.../api/auth/oauth/{provider}/callback` ile birebir aynı olmalıdır. Dönüşte `?oauth=`, `code`, `token` ve `message` parametreleri adres çubuğundan temizlenir.
 - **Font Awesome:** Dosyalar yerel `fa/` klasöründen yüklenir; CDN'e geri dönme.
 - **R2 ve KV kullanma:** Kalıcı veri yalnızca D1'de (`MC_DB`) saklanır. R2 bağlantısı
   projede bilinçli olarak yoktur; KV/R2 öneren uç veya binding değişikliği kabul etme.

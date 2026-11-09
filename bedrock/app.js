@@ -1045,11 +1045,13 @@ function openAuthModal(mode) {
     ${isRegister ? `<input id="authEmail" type="email" placeholder="E-posta" autocomplete="email">` : ''}
     <input id="authPassword" type="password" placeholder="Parola" autocomplete="${isRegister ? 'new-password' : 'current-password'}">
     <button class="btn-green" id="authSubmit" style="width:100%; padding:12px;">${isRegister ? 'Kaydol' : 'Giriş'}</button>
+    <div data-oauth-mount></div>
     <button id="cancelModal" style="width:100%; margin-top:8px; padding:10px;">Vazgeç</button>
     ${!isRegister ? `<p style="margin-top:12px; text-align:center;"><a href="#" style="color:var(--accent);" onclick="openForgotPasswordModal(); return false;">Şifremi unuttum</a></p>` : ''}
   `;
   document.getElementById('authSubmit').addEventListener('click', () => handleAuth(mode));
   document.getElementById('cancelModal').addEventListener('click', closeModal);
+  if (window.TurboluOAuth) window.TurboluOAuth.mountAll(body);
   modal.classList.remove('hidden');
   body.querySelectorAll('input').forEach(inp => {
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuth(mode); });

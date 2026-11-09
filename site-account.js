@@ -38,8 +38,21 @@
       <button class="site-account-submit" type="submit">Giriş yap</button>
     </form>
     <button type="button" class="site-account-switch">Hesabın yok mu? Kaydol</button>
+    <div data-oauth-mount></div>
     <a class="site-account-forgot" href="/sifremi-unuttum.html">Parolamı unuttum</a>`;
   document.body.appendChild(dialog);
+
+  function loadOAuth() {
+    if (window.TurboluOAuth) { window.TurboluOAuth.mountAll(dialog); return; }
+    const existing = document.querySelector('script[data-turbolu-oauth]');
+    if (existing) return;
+    const script = document.createElement('script');
+    script.src = '/oauth.js?v=1';
+    script.dataset.turboluOauth = '1';
+    script.onload = () => { if (window.TurboluOAuth) window.TurboluOAuth.mountAll(dialog); };
+    document.head.appendChild(script);
+  }
+  loadOAuth();
 
   const releaseDialog = document.createElement('dialog');
   releaseDialog.className = 'site-release-dialog';
