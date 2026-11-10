@@ -1,0 +1,76 @@
+# TurboluApp PC
+
+Turbolu Studios'un masaüstü uygulaması. Tarayıcıda site açmaz; kendi arayüzüyle
+doğrudan Worker API'sini kullanır.
+
+- **Teknoloji:** Electron + vanilla HTML/CSS/JS (framework yok)
+- **Platformlar:** Windows (NSIS kurulum + portable), Linux (AppImage + deb),
+  macOS (Intel `x64` ve Apple Silicon `arm64` ayrı)
+- **API:** `https://shrill-salad-a498.ereny116011.workers.dev`
+- **Lisans:** GPL-3.0-only
+
+## Özellikler
+
+| Bölüm | İçerik |
+| --- | --- |
+| Genel Bakış | Java ve Bedrock sunucu durumu, oyuncu sayısı, son duyurular |
+| Duyurular / Haberler / Kampanyalar | Platform filtreli içerik akışları |
+| Market | Ürün listesi, bakiye kontrolü, onaylı satın alma |
+| Hesabım | Giriş/kayıt, profil, bakiye, talepler (envanter) |
+| Ayarlar | Tema (sistem/koyu/açık), platform filtresi, uygulama bilgisi |
+
+## Güvenlik modeli
+
+- `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`
+- Renderer'ın ağ erişimi yoktur (`connect-src 'none'`); tüm istekler main süreçte
+  yapılır ve yalnızca izin listesindeki API yollarına (`API_ROUTES`) çıkılır.
+- Dış bağlantılar yalnızca site, GitHub ve Worker origin'lerine açılabilir.
+- Oturum token'ı `userData/session.json` içinde `safeStorage` ile şifrelenir.
+  Şifreleme kullanılamıyorsa (anahtar zinciri olmayan Linux) düz metin saklanır.
+
+## Geliştirme
+
+```powershell
+cd desktop
+npm install
+npm start
+```
+
+## Derleme
+
+```powershell
+# Windows: NSIS kurulum + portable
+npm run dist:win
+
+# Linux: AppImage + deb (Linux makine veya CI gerekir)
+npm run dist:linux
+
+# macOS: x64 + arm64 dmg/zip (macOS makine veya CI gerekir)
+npm run dist:mac
+```
+
+Çıktılar `desktop/dist/` altına yazılır:
+
+| Platform | Dosya |
+| --- | --- |
+| Windows | `TurboluApp-Setup-<sürüm>.exe`, `TurboluApp-Portable-<sürüm>.exe` |
+| Linux | `TurboluApp-<sürüm>-x64.AppImage`, `TurboluApp-<sürüm>-amd64.deb` |
+| macOS | `TurboluApp-<sürüm>-x64.dmg/.zip`, `TurboluApp-<sürüm>-arm64.dmg/.zip` |
+
+macOS paketleri imzasız üretilir; dağıtımdan önce Apple Developer sertifikasıyla
+imzalanmalı ve noter onayından geçirilmelidir (`CSC_LINK`, `CSC_KEY_PASSWORD`).
+Windows'ta kod imzalama sertifikası yoksa SmartScreen uyarısı çıkabilir.
+
+Linux ve macOS çıktıları bu depodaki GitHub Actions iş akışıyla üretilir:
+`.github/workflows/desktop.yml`.
+
+## API uçları
+
+Uygulama yalnızca şu uçları kullanır:
+
+- `POST /api/login`, `POST /api/register`
+- `GET /api/profile`
+- `GET /api/items`, `POST /api/buy`, `GET /api/inventory`
+- `GET /api/announcements`, `GET /api/news`, `GET /api/campaigns`
+
+Sunucu durumu doğrudan `api.mcsrvstat.us` üzerinden alınır.

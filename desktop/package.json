@@ -1,0 +1,85 @@
+{
+  "name": "turboluapp-desktop",
+  "productName": "TurboluApp",
+  "version": "1.0.0",
+  "description": "Turbolu Studios masaüstü uygulaması — sunucu durumu, duyurular, market ve hesap yönetimi.",
+  "author": "Turbolu Studios <ereny116011@gmail.com>",
+  "license": "GPL-3.0-only",
+  "homepage": "https://turboluweb.wasmer.app/",
+  "private": true,
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux",
+    "dist:mac": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "app.turbolu.desktop",
+    "productName": "TurboluApp",
+    "copyright": "© 2026 Turbolu Studios",
+    "asar": true,
+    "compression": "maximum",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TurboluApp",
+      "artifactName": "TurboluApp-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "TurboluApp-Portable-${version}.${ext}"
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "category": "Network",
+      "icon": "build/icon.png",
+      "maintainer": "Turbolu Studios <ereny116011@gmail.com>",
+      "synopsis": "Turbolu Studios masaüstü uygulaması",
+      "description": "TurboluMC ve Turbolu Bedrock sunucularının durumu, duyurular, haberler, kampanyalar, market ve hesap yönetimi tek uygulamada.",
+      "artifactName": "TurboluApp-${version}-${arch}.${ext}"
+    },
+    "deb": {
+      "depends": ["libgtk-3-0", "libnotify4", "libnss3", "libxss1", "libxtst6", "xdg-utils", "libatspi2.0-0", "libsecret-1-0"]
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "category": "public.app-category.entertainment",
+      "icon": "build/icon.png",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "artifactName": "TurboluApp-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "TurboluApp ${version}"
+    }
+  }
+}

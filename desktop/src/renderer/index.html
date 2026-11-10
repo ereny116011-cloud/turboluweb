@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'; font-src 'self' data:; object-src 'none'; base-uri 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TurboluApp</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="titlebar" id="titlebar">
+      <div class="titlebar-brand">
+        <img src="asset/logo.png" alt="" width="22" height="22">
+        <span>TurboluApp</span>
+        <span class="titlebar-badge">PC</span>
+      </div>
+      <div class="titlebar-drag" aria-hidden="true"></div>
+      <div class="titlebar-status" id="netStatus">
+        <span class="dot" id="netDot" aria-hidden="true"></span>
+        <span id="netLabel">Bağlanıyor…</span>
+      </div>
+      <div class="window-controls" id="windowControls">
+        <button class="win-btn" id="btnMin" type="button" aria-label="Küçült" title="Küçült">
+          <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8" /></svg>
+        </button>
+        <button class="win-btn" id="btnMax" type="button" aria-label="Büyüt" title="Büyüt">
+          <svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" rx="1" /></svg>
+        </button>
+        <button class="win-btn win-btn-close" id="btnClose" type="button" aria-label="Kapat" title="Kapat">
+          <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <nav class="nav" aria-label="Ana menü">
+          <button class="nav-item is-active" type="button" data-page="overview">
+            <span class="nav-icon" data-icon="home"></span><span>Genel Bakış</span>
+          </button>
+          <button class="nav-item" type="button" data-page="announcements">
+            <span class="nav-icon" data-icon="megaphone"></span><span>Duyurular</span>
+          </button>
+          <button class="nav-item" type="button" data-page="news">
+            <span class="nav-icon" data-icon="news"></span><span>Haberler</span>
+          </button>
+          <button class="nav-item" type="button" data-page="campaigns">
+            <span class="nav-icon" data-icon="tag"></span><span>Kampanyalar</span>
+          </button>
+          <button class="nav-item" type="button" data-page="market">
+            <span class="nav-icon" data-icon="cart"></span><span>Market</span>
+          </button>
+          <div class="nav-separator" role="separator"></div>
+          <button class="nav-item" type="button" data-page="account">
+            <span class="nav-icon" data-icon="user"></span><span>Hesabım</span>
+          </button>
+          <button class="nav-item" type="button" data-page="settings">
+            <span class="nav-icon" data-icon="settings"></span><span>Ayarlar</span>
+          </button>
+        </nav>
+
+        <div class="server-mini" id="serverMini">
+          <p class="server-mini-title">Sunucular</p>
+          <div class="server-mini-row" data-mini="java">
+            <span class="dot dot-idle" aria-hidden="true"></span>
+            <span class="server-mini-name">Java</span>
+            <span class="server-mini-meta" data-mini-meta="java">—</span>
+          </div>
+          <div class="server-mini-row" data-mini="bedrock">
+            <span class="dot dot-idle" aria-hidden="true"></span>
+            <span class="server-mini-name">Bedrock</span>
+            <span class="server-mini-meta" data-mini-meta="bedrock">—</span>
+          </div>
+        </div>
+
+        <div class="account-chip" id="accountChip">
+          <div class="account-chip-avatar" id="accountChipAvatar">?</div>
+          <div class="account-chip-text">
+            <strong id="accountChipName">Misafir</strong>
+            <small id="accountChipMeta">Giriş yapılmadı</small>
+          </div>
+          <button class="icon-ghost" id="accountChipAction" type="button" aria-label="Hesap">Giriş</button>
+        </div>
+      </aside>
+
+      <main class="main" id="main">
+        <div class="view" id="view" aria-live="polite"></div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="assertive" aria-atomic="false"></div>
+  <div class="modal-root" id="modalRoot"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

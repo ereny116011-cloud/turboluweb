@@ -49,6 +49,7 @@ Sayfaları doğrudan `file://` ile açma; `fetch`, Clipboard API, service worker
 | `tikla/` | Turbolu Tıkla mobil oyun tanıtım sitesi; çok sayfalı yapı. |
 | `tikla/apk/` | `turbolutikla.apk` ve virüs tarama görseli. |
 | `panel/index.html` | İçerik yönetim paneli: duyuru, haber, kampanya, ürün ve talepler. |
+| `desktop/` | TurboluApp PC: Electron tabanlı masaüstü uygulaması (Windows, Linux, macOS). Kendi arayüzüyle Worker API'sini kullanır; siteyi gömmez. |
 | `worker/` | Worker entegrasyon belgeleri. `worker/OAUTH-INTEGRATION.md` sosyal giriş sözleşmesini anlatır. Worker kaynak kodu eklenirse `worker/src/` altında tutulur; sırlar ve gerçek client secret değerleri commit edilmez. |
 | `fa/` | Font Awesome 6 vendor dosyaları. Mümkünse düzenleme; CDN'e geri dönme. |
 | `img/` | Ortak görseller. Big Sur duvar kağıdı `bigsur-wallpaper.webp`; eski SVG dosyaları tarihseldir. |
@@ -119,6 +120,21 @@ sistemi değildir; Microsoft hesabı ve Xbox Live kapsamlarıyla çalışır.
 - Java tarafı isteklerde platform parametresi çoğunlukla gönderilmez.
 - Bedrock tarafı `?platform=bedrock` kullanır (`bedrock/app.js` içinde `PLATFORM = 'bedrock'`).
 - Panelde `all` seçeneği "İkisi de" olarak gösterilir.
+
+### TurboluApp PC (`desktop/`)
+
+- Electron tabanlı, kendi arayüzüne sahip masaüstü uygulamasıdır; siteyi yüklemez
+  veya gömmez. Veriyi doğrudan mevcut Worker API'sinden alır.
+- `desktop/src/main.js` pencere, IPC, oturum ve ağ isteklerini yönetir. Renderer'ın
+  doğrudan ağ erişimi yoktur; istekler yalnızca `API_ROUTES` izin listesindeki
+  yollar için yapılır.
+- `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true` korunmalı;
+  yeni API ucu gerekiyorsa önce `API_ROUTES` listesine ekle.
+- Oturum token'ı `userData/session.json` içinde `safeStorage` ile saklanır.
+- Derleme: `cd desktop && npm install`, ardından `npm run dist:win`,
+  `npm run dist:linux` veya `npm run dist:mac`. Linux ve macOS çıktıları
+  `.github/workflows/desktop.yml` üzerinden üretilir.
+- Ayrıntılar: `desktop/README.md`.
 
 ### Sık kullanılan API uçları
 
@@ -270,6 +286,9 @@ node --check bedrock\app.js
 node --check tikla\script.js
 node --check oauth.js
 node --check site-account.js
+node --check desktop\src\main.js
+node --check desktop\src\preload.js
+node --check desktop\src\renderer\app.js
 git diff --check
 ```
 
