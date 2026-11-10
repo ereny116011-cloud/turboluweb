@@ -34,7 +34,7 @@
     const link = document.createElement('link');
     link.id = 'turbolu-oauth-css';
     link.rel = 'stylesheet';
-    link.href = '/oauth.css?v=1';
+    link.href = '/oauth.css?v=2';
     document.head.appendChild(link);
   }
 
@@ -44,9 +44,13 @@
     if (cached) {
       try {
         const list = JSON.parse(cached);
-        providersPromise = Promise.resolve(Array.isArray(list) ? list : null);
-        return providersPromise;
-      } catch (_) { sessionStorage.removeItem(SESSION_KEY); }
+        // Boş liste önbelleğe alınmaz; sağlayıcılar sonradan açılınca düğmeler çalışsın.
+        if (Array.isArray(list) && list.length) {
+          providersPromise = Promise.resolve(list);
+          return providersPromise;
+        }
+      } catch (_) { /* bozuk önbellek aşağıda temizlenir */ }
+      sessionStorage.removeItem(SESSION_KEY);
     }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 5000);
@@ -54,7 +58,8 @@
       .then(response => response.ok ? response.json() : null)
       .then(data => {
         const list = data && Array.isArray(data.providers) ? data.providers : null;
-        if (list) sessionStorage.setItem(SESSION_KEY, JSON.stringify(list));
+        if (list && list.length) sessionStorage.setItem(SESSION_KEY, JSON.stringify(list));
+        else sessionStorage.removeItem(SESSION_KEY);
         return list;
       })
       .catch(() => null)

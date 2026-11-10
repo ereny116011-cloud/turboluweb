@@ -81,3 +81,8 @@
 @media (max-width: 380px) {
   .oauth-buttons { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 640px) {
+  .oauth-btn { min-height: 46px; }
+  .oauth-notice { bottom: max(16px, env(safe-area-inset-bottom)); }
+}

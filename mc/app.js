@@ -697,21 +697,33 @@ function openAuthModal(mode) {
   const isRegister = mode === 'register';
   body.innerHTML = `
     <h3 style="text-align:center; margin-bottom:1rem;">${isRegister ? 'Kaydol' : 'Giriş Yap'}</h3>
-    <input id="authUsername" placeholder="Kullanıcı adı" autocomplete="username">
-    ${isRegister ? `<input id="authEmail" type="email" placeholder="E-posta" autocomplete="email">` : ''}
-    <input id="authPassword" type="password" placeholder="Parola" autocomplete="${isRegister ? 'new-password' : 'current-password'}">
-    <button class="btn-green" id="authSubmit" style="width:100%; padding:12px;">${isRegister ? 'Kaydol' : 'Giriş'}</button>
+    <input id="authUsername" placeholder="Kullanıcı adı" autocomplete="username"
+           maxlength="20" minlength="3" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next">
+    ${isRegister ? `<input id="authEmail" type="email" placeholder="E-posta" autocomplete="email"
+           inputmode="email" autocapitalize="none" spellcheck="false" enterkeyhint="next">` : ''}
+    <input id="authPassword" type="password" placeholder="Parola"
+           autocomplete="${isRegister ? 'new-password' : 'current-password'}" enterkeyhint="done">
+    <p id="authError" class="auth-error" role="alert" aria-live="polite"></p>
+    <button class="btn-green" id="authSubmit" type="button" style="width:100%; padding:12px;">${isRegister ? 'Kaydol' : 'Giriş'}</button>
     <div data-oauth-mount></div>
-    <button id="cancelModal" style="width:100%; margin-top:8px; padding:10px;">Vazgeç</button>
+    <button id="cancelModal" type="button" style="width:100%; margin-top:8px; padding:10px;">Vazgeç</button>
     ${!isRegister ? `<p style="margin-top:12px; text-align:center;"><a href="#" style="color:var(--accent);" onclick="openForgotPasswordModal(); return false;">Şifremi unuttum</a></p>` : ''}
   `;
   document.getElementById('authSubmit').addEventListener('click', () => handleAuth(mode));
   document.getElementById('cancelModal').addEventListener('click', closeModal);
   if (window.TurboluOAuth) window.TurboluOAuth.mountAll(body);
   modal.classList.remove('hidden');
+  modal.scrollTop = 0;
+  body.scrollTop = 0;
   body.querySelectorAll('input').forEach(inp => {
-    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuth(mode); });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.isComposing) {
+        e.preventDefault();
+        handleAuth(mode);
+      }
+    });
   });
+  setTimeout(() => document.getElementById('authUsername')?.focus(), 60);
 }
 
 function openForgotPasswordModal() {
@@ -724,37 +736,106 @@ function openForgotPasswordModal() {
     <button id="cancelForgot" style="width:100%; margin-top:8px; padding:10px;">Vazgeç</button>
   `;
   document.getElementById('forgotSubmit').addEventListener('click', async () => {
-    const email = document.getElementById('forgotEmail').value;
-    const res = await fetch(`${API}/api/forgot-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-    const data = await res.json();
-    alert(data.message || data.error);
-    closeModal();
+    const emailEl = document.getElementById('forgotEmail');
+    const btn = document.getElementById('forgotSubmit');
+    const email = emailEl.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('Geçerli bir e-posta adresi gir.');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Gönderiliyor…';
+    try {
+      const res = await fetch(`${API}/api/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json().catch(() => ({}));
+      alert(data.message || data.error || 'İstek gönderilemedi.');
+      closeModal();
+    } catch (_) {
+      alert('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.');
+      btn.disabled = false;
+      btn.textContent = 'Gönder';
+    }
+  });
+  document.getElementById('forgotEmail').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.isComposing) {
+      e.preventDefault();
+      document.getElementById('forgotSubmit').click();
+    }
   });
   document.getElementById('cancelForgot').addEventListener('click', closeModal);
   modal.classList.remove('hidden');
+  setTimeout(() => document.getElementById('forgotEmail')?.focus(), 60);
 }
 
+let authBusy = false;
+
 async function handleAuth(mode) {
-  const username = document.getElementById('authUsername').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const email = document.getElementById('authEmail')?.value || '';
-  const res = await fetch(`${API}/api/${mode}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, email })
-  });
-  const data = await res.json();
-  if (data.error) return alert(data.error);
-  localStorage.setItem('token', data.token);
-  token = data.token;
-  currentUser = { username: data.username, balance: data.balance, isAdmin: data.isAdmin };
-  closeModal();
-  renderUI();
-  showContent('status');
+  if (authBusy) return;
+
+  const usernameEl = document.getElementById('authUsername');
+  const passwordEl = document.getElementById('authPassword');
+  const emailEl = document.getElementById('authEmail');
+  const submit = document.getElementById('authSubmit');
+  const errorEl = document.getElementById('authError');
+  if (!usernameEl || !passwordEl) return;
+
+  const username = usernameEl.value.trim().replace(/\s+/g, ' ');
+  const password = passwordEl.value;
+  const email = emailEl ? emailEl.value.trim() : '';
+  const hata = (mesaj) => {
+    if (errorEl) errorEl.textContent = mesaj;
+    else alert(mesaj);
+  };
+
+  if (!username) return hata('Kullanıcı adı gerekli.');
+  if ([...username].length < 3) return hata('Kullanıcı adı en az 3 karakter olmalı.');
+  if (!password) return hata('Parola gerekli.');
+  if (mode === 'register') {
+    if (!email) return hata('E-posta gerekli.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return hata('Geçerli bir e-posta adresi gir.');
+  }
+
+  authBusy = true;
+  if (errorEl) errorEl.textContent = '';
+  if (submit) {
+    submit.disabled = true;
+    submit.textContent = mode === 'register' ? 'Kaydediliyor…' : 'Giriş yapılıyor…';
+  }
+
+  try {
+    const res = await fetch(`${API}/api/${mode}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mode === 'register'
+        ? { username, password, email }
+        : { username, password })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || data.error) {
+      hata(data.error || 'İşlem tamamlanamadı. Lütfen tekrar dene.');
+      return;
+    }
+
+    localStorage.setItem('token', data.token);
+    token = data.token;
+    currentUser = { username: data.username, balance: data.balance, isAdmin: data.isAdmin };
+    closeModal();
+    renderUI();
+    showContent('status');
+  } catch (_) {
+    hata('Sunucuya ulaşılamadı. İnternet bağlantını kontrol edip tekrar dene.');
+  } finally {
+    authBusy = false;
+    if (submit && document.body.contains(submit)) {
+      submit.disabled = false;
+      submit.textContent = mode === 'register' ? 'Kaydol' : 'Giriş';
+    }
+  }
 }
 
 async function renderProfile() {

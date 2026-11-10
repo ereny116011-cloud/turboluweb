@@ -14,8 +14,10 @@
 .site-account-switch, .site-account-forgot { display: block; margin: 15px auto 0; border: 0; color: var(--text-muted, #aab5d0); background: none; text-align: center; font: inherit; cursor: pointer; }
 .site-account-forgot { font-size: .85rem; }
 .site-account-error { min-height: 1.4em; margin: 8px 0 0; color: #ff8585; font-size: .85rem; }
-.site-account-close-form { position: absolute; top: 12px; right: 12px; }
+.site-account-close-form { position: absolute; top: 12px; right: 12px; z-index: 2; }
 .site-account-close, .site-release-close { border: 0; color: var(--text-muted, #aab5d0); background: transparent; font-size: 28px; line-height: 1; cursor: pointer; }
+.site-account-close { display: grid; place-items: center; min-width: 44px; min-height: 44px; }
+.site-account-dialog { overscroll-behavior: contain; }
 .site-release-dialog { width: min(92vw, 560px); padding: 36px; }
 .site-release-close { position: absolute; top: 14px; right: 18px; }
 .site-release-kicker { margin: 0 35px 10px 0; font-size: .75rem; font-weight: 700; letter-spacing: .12em; }
@@ -41,10 +43,12 @@
   .site-account-name { display: none; }
   .site-account-dialog, .site-release-dialog {
     width: calc(100vw - 28px);
-    max-height: calc(100dvh - 32px);
+    max-height: calc(100dvh - 24px);
     padding: 26px 22px;
     border-radius: 18px;
+    overscroll-behavior: contain;
   }
+  .site-account-close-form { top: 6px; right: 6px; }
   .site-account-dialog input { min-height: 46px; }
   .site-account-submit, .site-release-confirm { min-height: 46px; }
 

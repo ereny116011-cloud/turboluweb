@@ -142,11 +142,16 @@ export async function oauthIsle(request, env, url, yardimcilar) {
   };
 
   const sanitizeUsername = (value) => {
+    // Türkçe karakterler (ı, ö, ş, ğ, ü, ç) ve diğer alfabeler korunur.
     const cleaned = String(value || '')
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^A-Za-z0-9_.-]/g, '')
-      .slice(0, 20);
+      .normalize('NFC')
+      .replace(/[\u0000-\u001F\u007F]/g, '')
+      .replace(/[^\p{L}\p{N}_. -]+/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 20)
+      .replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+
     return cleaned || 'oyuncu';
   };
 

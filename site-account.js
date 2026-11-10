@@ -29,9 +29,11 @@
     <p class="site-account-hint">MC, Bedrock ve Turbolu Studios hesabınla devam et.</p>
     <form id="site-account-form">
       <label for="site-account-username">Kullanıcı adı</label>
-      <input id="site-account-username" name="username" autocomplete="username" required>
+      <input id="site-account-username" name="username" autocomplete="username"
+             maxlength="20" minlength="3" autocapitalize="none" autocorrect="off" spellcheck="false" required>
       <label for="site-account-email" class="site-account-email-label" hidden>E-posta</label>
-      <input id="site-account-email" name="email" type="email" autocomplete="email" hidden>
+      <input id="site-account-email" name="email" type="email" autocomplete="email"
+             inputmode="email" autocapitalize="none" spellcheck="false" hidden>
       <label for="site-account-password">Parola</label>
       <input id="site-account-password" name="password" type="password" autocomplete="current-password" required>
       <p class="site-account-error" role="status" aria-live="polite"></p>
@@ -75,9 +77,36 @@
     if (!token()) return null;
     try {
       const response = await fetch(`${API}/api/profile`, { headers: { Authorization: `Bearer ${token()}` } });
+      if (response.status === 401 || response.status === 403) {
+        // Geçersiz/eski oturum: kullanıcıyı temizle ki giriş düğmeleri görünsün.
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return null;
+      }
       if (!response.ok) return null;
       return await response.json();
     } catch (_) { return null; }
+  }
+
+  function updateDialogMode() {
+    dialog.querySelector('#site-account-title').textContent = registerMode ? 'Turbolu hesabı oluştur' : 'Turbolu hesabına giriş yap';
+    dialog.querySelector('.site-account-submit').textContent = registerMode ? 'Kaydol' : 'Giriş yap';
+    dialog.querySelector('.site-account-switch').textContent = registerMode ? 'Zaten hesabın var mı? Giriş yap' : 'Hesabın yok mu? Kaydol';
+    dialog.querySelector('.site-account-email-label').hidden = !registerMode;
+    dialog.querySelector('#site-account-email').hidden = !registerMode;
+    dialog.querySelector('#site-account-email').required = registerMode;
+    dialog.querySelector('#site-account-password').autocomplete = registerMode ? 'new-password' : 'current-password';
+  }
+
+  function openDialog(mode) {
+    registerMode = mode === 'register';
+    const form = dialog.querySelector('#site-account-form');
+    form.reset();
+    dialog.querySelector('.site-account-error').textContent = '';
+    dialog.querySelector('.site-account-submit').disabled = false;
+    updateDialogMode();
+    if (!dialog.open) dialog.showModal();
+    setTimeout(() => dialog.querySelector('#site-account-username').focus(), 60);
   }
 
   function renderAccount(profile) {
@@ -92,26 +121,15 @@
       location.reload();
     });
     widget.querySelectorAll('.site-account-open').forEach(open => open.addEventListener('click', () => {
-      registerMode = open.dataset.accountMode === 'register';
-      dialog.querySelector('#site-account-title').textContent = registerMode ? 'Turbolu hesabı oluştur' : 'Turbolu hesabına giriş yap';
-      dialog.querySelector('.site-account-submit').textContent = registerMode ? 'Kaydol' : 'Giriş yap';
-      dialog.querySelector('.site-account-switch').textContent = registerMode ? 'Zaten hesabın var mı? Giriş yap' : 'Hesabın yok mu? Kaydol';
-      dialog.querySelector('.site-account-email-label').hidden = !registerMode;
-      dialog.querySelector('#site-account-email').hidden = !registerMode;
-      dialog.querySelector('#site-account-email').required = registerMode;
-      dialog.showModal();
+      openDialog(open.dataset.accountMode);
     }));
   }
 
   dialog.querySelector('.site-account-switch').addEventListener('click', event => {
     registerMode = !registerMode;
-    dialog.querySelector('#site-account-title').textContent = registerMode ? 'Turbolu hesabı oluştur' : 'Turbolu hesabına giriş yap';
-    dialog.querySelector('.site-account-submit').textContent = registerMode ? 'Kaydol' : 'Giriş yap';
-    dialog.querySelector('.site-account-switch').textContent = registerMode ? 'Zaten hesabın var mı? Giriş yap' : 'Hesabın yok mu? Kaydol';
-    dialog.querySelector('.site-account-email-label').hidden = !registerMode;
-    dialog.querySelector('#site-account-email').hidden = !registerMode;
-    dialog.querySelector('#site-account-email').required = registerMode;
-    dialog.querySelector('#site-account-password').autocomplete = registerMode ? 'new-password' : 'current-password';
+    dialog.querySelector('.site-account-error').textContent = '';
+    dialog.querySelector('#site-account-email').value = '';
+    updateDialogMode();
     event.currentTarget.blur();
   });
 
@@ -120,19 +138,29 @@
     const form = new FormData(event.currentTarget);
     const error = dialog.querySelector('.site-account-error');
     const submit = dialog.querySelector('.site-account-submit');
+    if (submit.disabled) return;
+
+    const username = String(form.get('username') || '').trim().replace(/\s+/g, ' ');
+    const password = String(form.get('password') || '');
+    const email = String(form.get('email') || '').trim();
+
     error.textContent = '';
+    if (!username) { error.textContent = 'Kullanıcı adı gerekli.'; return; }
+    if ([...username].length < 3) { error.textContent = 'Kullanıcı adı en az 3 karakter olmalı.'; return; }
+    if (!password) { error.textContent = 'Parola gerekli.'; return; }
+
     submit.disabled = true;
+    const eskiEtiket = submit.textContent;
+    submit.textContent = registerMode ? 'Kaydediliyor…' : 'Giriş yapılıyor…';
     try {
       const mode = registerMode ? 'register' : 'login';
       const response = await fetch(`${API}/api/${mode}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: String(form.get('username') || '').trim(),
-          password: String(form.get('password') || ''),
-          ...(registerMode ? { email: String(form.get('email') || '').trim(), platform: 'all' } : {})
-        })
+        body: JSON.stringify(registerMode
+          ? { username, password, email, platform: 'all' }
+          : { username, password })
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok || data.error) throw new Error(data.error || 'İşlem tamamlanamadı.');
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data));
@@ -140,7 +168,9 @@
       location.reload();
     } catch (err) {
       error.textContent = err.message || 'Sunucuya ulaşılamadı.';
-    } finally { submit.disabled = false; }
+      submit.disabled = false;
+      submit.textContent = eskiEtiket;
+    }
   });
 
   async function showReleaseNotes() {

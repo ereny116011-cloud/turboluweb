@@ -364,6 +364,24 @@ export default {
       return p === 'all' || p === platform;
     }
 
+    /* Kullanıcı adı: Türkçe karakterler (ı, ö, ş, ğ, ü, ç) korunur. */
+    function normalizeUsername(value) {
+      return String(value == null ? '' : value)
+        .normalize('NFC')
+        .trim()
+        .replace(/\s+/g, ' ');
+    }
+
+    function usernameError(username) {
+      const uzunluk = [...username].length;
+      if (uzunluk < 3) return 'Kullanıcı adı en az 3 karakter olmalı.';
+      if (uzunluk > 20) return 'Kullanıcı adı en fazla 20 karakter olabilir.';
+      if (!/^[\p{L}\p{N}](?:[\p{L}\p{N} ._-]*[\p{L}\p{N}])?$/u.test(username)) {
+        return 'Kullanıcı adı yalnızca harf, rakam, boşluk, nokta, tire ve alt çizgi içerebilir.';
+      }
+      return null;
+    }
+
     // Admin hesabı (otomatik oluştur)
     // ÖNEMLİ: Parola artık KODDA DEĞİL — Cloudflare'deki gizli değişkenden okunur.
     //   Cloudflare paneli -> Worker -> Settings -> Variables and Secrets
@@ -412,8 +430,15 @@ export default {
 
       // === Kayıt ===
       if (path === '/api/register' && method === 'POST') {
-        const { username, password, email, platform } = await request.json();
+        const body = await request.json();
+        const username = normalizeUsername(body.username);
+        const password = String(body.password || '');
+        const email = String(body.email || '').trim().toLowerCase();
+        const platform = body.platform;
         if (!username || !password || !email) return json({ error: 'Kullanıcı adı, parola ve e-posta gerekli' }, 400);
+        const adHatasi = usernameError(username);
+        if (adHatasi) return json({ error: adHatasi }, 400);
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'Geçerli bir e-posta adresi gir.' }, 400);
         if (await env.MC_DB.get(`user:${username}`)) return json({ error: 'Bu kullanıcı adı alınmış' }, 409);
         const hash = await hashPassword(password);
         const token = crypto.randomUUID();
@@ -421,7 +446,8 @@ export default {
           username, password: hash, token, balance: 0,
           icon: '', status: 'Online', theme: 'dark', language: 'tr', isAdmin: false,
           email: email,
-          platform: platform || 'all'
+          platform: platform || 'all',
+          createdAt: new Date().toISOString()
         };
         await putJSON(`user:${username}`, user);
         return json({ token, username, balance: 0, isAdmin: false });
@@ -429,7 +455,10 @@ export default {
 
       // === Giriş ===
       if (path === '/api/login' && method === 'POST') {
-        const { username, password } = await request.json();
+        const body = await request.json();
+        const username = normalizeUsername(body.username);
+        const password = String(body.password || '');
+        if (!username || !password) return json({ error: 'Kullanıcı adı ve parola gerekli' }, 400);
         const user = await getJSON(`user:${username}`);
         if (!user) return json({ error: 'Kullanıcı bulunamadı' }, 404);
         if (!(await verifyPassword(password, user.password))) return json({ error: 'Parola yanlış' }, 401);
@@ -482,12 +511,13 @@ export default {
 
       // === Şifremi unuttum ===
       if (path === '/api/forgot-password' && method === 'POST') {
-        const { email } = await request.json();
+        const body = await request.json();
+        const email = String(body.email || '').trim().toLowerCase();
         const list = await env.MC_DB.list({ prefix: 'user:' });
         let user = null;
         for (const k of list.keys) {
           const u = await getJSON(k.name);
-          if (u && u.email === email) { user = u; break; }
+          if (u && u.email && String(u.email).toLowerCase() === email) { user = u; break; }
         }
 
         // Hesap yoksa da AYNI cevabı dön. Aksi hâlde biri tek tek e-posta
