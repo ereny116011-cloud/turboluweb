@@ -7,7 +7,7 @@
   const token = () => localStorage.getItem('token') || '';
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = '/site-account.css?v=3';
+  style.href = '/site-account.css?v=4';
   document.head.appendChild(style);
 
   const widget = document.createElement('aside');
@@ -49,7 +49,7 @@
     const existing = document.querySelector('script[data-turbolu-oauth]');
     if (existing) return;
     const script = document.createElement('script');
-    script.src = '/oauth.js?v=1';
+    script.src = '/oauth.js?v=3';
     script.dataset.turboluOauth = '1';
     script.onload = () => { if (window.TurboluOAuth) window.TurboluOAuth.mountAll(dialog); };
     document.head.appendChild(script);

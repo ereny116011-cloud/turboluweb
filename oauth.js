@@ -6,6 +6,9 @@
 
   const API = window.TURBOLU_API_URL || 'https://shrill-salad-a498.ereny116011.workers.dev';
   const SESSION_KEY = 'turboluOAuthProviders';
+  // Sağlayıcı listesi 10 dakika önbellekte tutulur. Sonsuz önbellek, sonradan
+  // açılan bir sağlayıcının (ör. Google) düğmesini kalıcı olarak kilitliyordu.
+  const PROVIDER_CACHE_MS = 10 * 60 * 1000;
   const MESSAGES = {
     unavailable: 'Sosyal giriş şu an kullanılamıyor. Kullanıcı adı ve parolayla devam edebilirsin.',
     notReady: 'Bu giriş yöntemi henüz etkin değil.',
@@ -40,26 +43,34 @@
 
   function loadProviders() {
     if (providersPromise) return providersPromise;
-    const cached = sessionStorage.getItem(SESSION_KEY);
-    if (cached) {
-      try {
-        const list = JSON.parse(cached);
-        // Boş liste önbelleğe alınmaz; sağlayıcılar sonradan açılınca düğmeler çalışsın.
-        if (Array.isArray(list) && list.length) {
-          providersPromise = Promise.resolve(list);
-          return providersPromise;
-        }
-      } catch (_) { /* bozuk önbellek aşağıda temizlenir */ }
-      sessionStorage.removeItem(SESSION_KEY);
+
+    let cached = null;
+    try {
+      cached = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+    } catch (_) { cached = null; }
+
+    // Boş liste önbelleğe alınmaz; sağlayıcılar sonradan açılınca düğmeler çalışsın.
+    if (cached && Array.isArray(cached.list) && cached.list.length &&
+        Number(cached.ts) > 0 && Date.now() - Number(cached.ts) < PROVIDER_CACHE_MS) {
+      providersPromise = Promise.resolve(cached.list);
+      return providersPromise;
     }
+    sessionStorage.removeItem(SESSION_KEY);
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 5000);
-    providersPromise = fetch(`${API}/api/auth/oauth/providers`, { signal: controller.signal })
+    providersPromise = fetch(`${API}/api/auth/oauth/providers`, {
+      cache: 'no-store',
+      signal: controller.signal
+    })
       .then(response => response.ok ? response.json() : null)
       .then(data => {
         const list = data && Array.isArray(data.providers) ? data.providers : null;
-        if (list && list.length) sessionStorage.setItem(SESSION_KEY, JSON.stringify(list));
-        else sessionStorage.removeItem(SESSION_KEY);
+        if (list && list.length) {
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify({ list, ts: Date.now() }));
+        } else {
+          sessionStorage.removeItem(SESSION_KEY);
+        }
         return list;
       })
       .catch(() => null)
