@@ -233,9 +233,33 @@ export default {
       const list = await env.MC_DB.list({ prefix: 'user:' });
       for (const k of list.keys) {
         const user = await getJSON(k.name);
-        if (user && user.token === token) return user;
+        if (user && user.token === token) {
+          // Süresi dolmuş geçici yasakları burada temizle.
+          await clearExpiredBan(user);
+          if (banActive(user)) return null;
+          return user;
+        }
       }
       return null;
+    }
+
+    /* Yasak (ban) yardımcıları */
+    function banActive(user) {
+      if (!user || !user.banned) return false;
+      if (user.banType === 'permanent') return true;
+      return (Number(user.banUntil) || 0) > Date.now();
+    }
+
+    async function clearExpiredBan(user) {
+      if (!user || !user.banned || user.banType === 'permanent') return;
+      if ((Number(user.banUntil) || 0) > Date.now()) return;
+      delete user.banned;
+      delete user.banType;
+      delete user.banUntil;
+      delete user.banReason;
+      delete user.bannedAt;
+      delete user.bannedBy;
+      await putJSON(`user:${user.username}`, user);
     }
 
     async function hashPassword(password) {
@@ -409,6 +433,20 @@ export default {
         const user = await getJSON(`user:${username}`);
         if (!user) return json({ error: 'Kullanıcı bulunamadı' }, 404);
         if (!(await verifyPassword(password, user.password))) return json({ error: 'Parola yanlış' }, 401);
+        await clearExpiredBan(user);
+        if (banActive(user)) {
+          return json({
+            error: user.banType === 'permanent'
+              ? 'Bu hesap kalıcı olarak yasaklandı.'
+              : `Bu hesap ${new Date(Number(user.banUntil)).toLocaleString('tr-TR')} tarihine kadar yasaklı.`,
+            banned: true,
+            banType: user.banType,
+            banUntil: user.banUntil || null,
+            reason: user.banReason || ''
+          }, 403);
+        }
+        user.lastLogin = new Date().toISOString();
+        await putJSON(`user:${user.username}`, user);
         return json({ token: user.token, username: user.username, balance: user.balance, isAdmin: user.isAdmin });
       }
 
@@ -628,6 +666,131 @@ export default {
         const user = await getUser(request.headers.get('Authorization'));
         if (!user || !user.isAdmin) return null;
         return user;
+      }
+
+      // === KAYITLI HESAPLARI YÖNETME (yönetici) ===
+
+      if (path === '/api/admin/users' && method === 'GET') {
+        if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
+        const keys = await env.MC_DB.list({ prefix: 'user:' });
+        const list = [];
+        for (const k of keys.keys) {
+          const user = await getJSON(k.name);
+          if (!user) continue;
+          await clearExpiredBan(user);
+          list.push({
+            username: user.username,
+            email: user.email || '',
+            balance: Number(user.balance) || 0,
+            isAdmin: Boolean(user.isAdmin),
+            platform: user.platform || 'all',
+            icon: user.icon || '',
+            banned: banActive(user),
+            banType: banActive(user) ? user.banType : null,
+            banUntil: banActive(user) ? (user.banUntil || null) : null,
+            banReason: user.banReason || '',
+            bannedAt: user.bannedAt || null,
+            bannedBy: user.bannedBy || null,
+            lastLogin: user.lastLogin || null
+          });
+        }
+        list.sort((a, b) => {
+          if (a.isAdmin !== b.isAdmin) return a.isAdmin ? -1 : 1;
+          return String(a.username).localeCompare(String(b.username), 'tr');
+        });
+        return json(list);
+      }
+
+      if (path === '/api/admin/ban-user' && method === 'POST') {
+        const admin = await requireAdmin(request);
+        if (!admin) return json({ error: 'Yetkisiz' }, 403);
+
+        const { username, type, durationHours, reason } = await request.json();
+        if (!username) return json({ error: 'Kullanıcı adı gerekli' }, 400);
+        if (username === admin.username) return json({ error: 'Kendi hesabını yasaklayamazsın.' }, 400);
+
+        const user = await getJSON(`user:${username}`);
+        if (!user) return json({ error: 'Kullanıcı bulunamadı' }, 404);
+        if (user.isAdmin) return json({ error: 'Yönetici hesapları yasaklanamaz.' }, 400);
+
+        const banType = type === 'permanent' ? 'permanent' : 'temporary';
+        let banUntil = null;
+        if (banType === 'temporary') {
+          const saat = Number(durationHours);
+          if (!Number.isFinite(saat) || saat <= 0) {
+            return json({ error: 'Geçerli bir süre (saat) gir.' }, 400);
+          }
+          if (saat > 87600) return json({ error: 'Süre en fazla 10 yıl (87600 saat) olabilir.' }, 400);
+          banUntil = Date.now() + Math.round(saat * 60 * 60 * 1000);
+        }
+
+        user.banned = true;
+        user.banType = banType;
+        user.banUntil = banUntil;
+        user.banReason = String(reason || '').slice(0, 300);
+        user.bannedAt = new Date().toISOString();
+        user.bannedBy = admin.username;
+        await putJSON(`user:${user.username}`, user);
+
+        return json({
+          success: true,
+          message: banType === 'permanent'
+            ? `${user.username} kalıcı olarak yasaklandı.`
+            : `${user.username} ${new Date(banUntil).toLocaleString('tr-TR')} tarihine kadar yasaklandı.`
+        });
+      }
+
+      if (path === '/api/admin/unban-user' && method === 'POST') {
+        if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
+
+        const { username } = await request.json();
+        if (!username) return json({ error: 'Kullanıcı adı gerekli' }, 400);
+        const user = await getJSON(`user:${username}`);
+        if (!user) return json({ error: 'Kullanıcı bulunamadı' }, 404);
+
+        delete user.banned;
+        delete user.banType;
+        delete user.banUntil;
+        delete user.banReason;
+        delete user.bannedAt;
+        delete user.bannedBy;
+        await putJSON(`user:${user.username}`, user);
+
+        return json({ success: true, message: `${user.username} yasağı kaldırıldı.` });
+      }
+
+      if (path === '/api/admin/delete-user' && method === 'POST') {
+        const admin = await requireAdmin(request);
+        if (!admin) return json({ error: 'Yetkisiz' }, 403);
+
+        const { username } = await request.json();
+        if (!username) return json({ error: 'Kullanıcı adı gerekli' }, 400);
+        if (username === admin.username) return json({ error: 'Kendi hesabını silemezsin.' }, 400);
+
+        const user = await getJSON(`user:${username}`);
+        if (!user) return json({ error: 'Kullanıcı bulunamadı' }, 404);
+        if (user.isAdmin) return json({ error: 'Yönetici hesapları silinemez.' }, 400);
+
+        await deleteKey(`user:${username}`);
+
+        // Sosyal giriş bağlantılarını da temizle.
+        const oauthKeys = await env.MC_DB.list({ prefix: 'oauth:' });
+        for (const k of oauthKeys.keys) {
+          const linked = await env.MC_DB.get(k.name);
+          if (linked === username) await deleteKey(k.name);
+        }
+
+        // Bildirim aboneliğini sil.
+        await deleteKey(`notification_sub:${username}`);
+
+        // Kullanıcıya ait şifre sıfırlama kodlarını sil.
+        const resetKeys = await env.MC_DB.list({ prefix: 'pwd_reset:' });
+        for (const k of resetKeys.keys) {
+          const reset = await getJSON(k.name);
+          if (reset && reset.userId === username) await deleteKey(k.name);
+        }
+
+        return json({ success: true, message: `${username} hesabı silindi.` });
       }
 
       if (path === '/api/admin/requests' && method === 'GET') {

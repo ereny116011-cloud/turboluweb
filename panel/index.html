@@ -214,6 +214,34 @@
             border-radius: var(--radius);
         }
 
+        /* ---- Üyeler ---- */
+        .uyeler-arac {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            align-items: center; margin-bottom: 16px;
+        }
+        .uyeler-arac input { margin-bottom: 0; flex: 1; min-width: 220px; }
+        .oge-aksiyon { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .oge-yasakli { border-color: rgba(239,68,68,0.4); }
+        .ban-neden { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
+
+        .modal-arka {
+            position: fixed; inset: 0; z-index: 80;
+            background: rgba(0,0,0,0.55);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal {
+            width: 100%; max-width: 440px;
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+        }
+        .modal h2 { font-size: 1.05rem; margin-bottom: 4px; }
+        .modal .yardim { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px; }
+        .modal-alt { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
         /* ---- Bildirim ---- */
         #toast {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
@@ -358,6 +386,7 @@
             { id: 'kampanyalar', ad: 'Kampanyalar', ikon: 'fa-tags' },
             { id: 'market',      ad: 'Market',      ikon: 'fa-cart-shopping' },
             { id: 'talepler',    ad: 'Talepler',    ikon: 'fa-clipboard-list' },
+            { id: 'uyeler',      ad: 'Üyeler',      ikon: 'fa-users' },
             { id: 'tikla',       ad: 'Tıkla Sürümü', ikon: 'fa-mobile-screen-button' }
         ];
         let aktifSekme = 'duyurular';
@@ -375,7 +404,7 @@
             sekmeCiz();
             $('#icerik').innerHTML = '<div class="bos">Yükleniyor...</div>';
             ({ duyurular: duyurularCiz, haberler: haberlerCiz, kampanyalar: kampanyalarCiz,
-               market: marketCiz, talepler: taleplerCiz, tikla: tiklaCiz })[id]();
+               market: marketCiz, talepler: taleplerCiz, uyeler: uyelerCiz, tikla: tiklaCiz })[id]();
         }
 
         async function tiklaCiz() {
@@ -634,15 +663,172 @@
                     </div>`).join('') : '<div class="bos">Henüz talep yok.</div>'}</div>`;
         }
 
+        /* ---------- Üyeler ---------- */
+        async function uyelerCiz() {
+            let liste;
+            try {
+                liste = await api('/api/admin/users');
+            } catch (_) {
+                liste = null;
+            }
+
+            if (!Array.isArray(liste)) {
+                $('#icerik').innerHTML = '<div class="bos">Üye listesi alınamadı. Yetkin olduğundan emin ol.</div>';
+                return;
+            }
+
+            const yasakliSayisi = liste.filter(u => u.banned).length;
+
+            $('#icerik').innerHTML = `
+                <h2 class="bolum-baslik">Kayıtlı hesaplar (${liste.length})</h2>
+                <div class="uyeler-arac">
+                    <input type="text" id="uyeAra" placeholder="Kullanıcı adı veya e-posta ara..." autocomplete="off">
+                    <span class="rozet">${liste.length} hesap</span>
+                    <span class="rozet ${yasakliSayisi ? 'rozet-kirmizi' : 'rozet-yesil'}">${yasakliSayisi} yasaklı</span>
+                </div>
+                <div class="liste" id="uyeListe">
+                    ${liste.length ? liste.map(u => {
+                        const banBilgi = u.banType === 'permanent'
+                            ? 'Kalıcı yasak'
+                            : (u.banUntil ? `Yasaklı — ${tarih(u.banUntil)} tarihine kadar` : 'Yasaklı');
+                        return `
+                        <div class="oge${u.banned ? ' oge-yasakli' : ''}" data-ad="${esc(u.username)} ${esc(u.email)}">
+                            <div class="oge-icerik">
+                                <h3>
+                                    ${esc(u.username)}
+                                    ${u.isAdmin ? '<span class="rozet rozet-yesil"><i class="fa-solid fa-shield-halved"></i> Yönetici</span>' : ''}
+                                    ${u.banned ? `<span class="rozet rozet-kirmizi"><i class="fa-solid fa-ban"></i> ${esc(banBilgi)}</span>` : '<span class="rozet rozet-yesil">Aktif</span>'}
+                                </h3>
+                                <div class="meta">
+                                    <span class="rozet"><i class="fa-solid fa-envelope"></i> ${esc(u.email || 'E-posta yok')}</span>
+                                    <span class="rozet"><i class="fa-solid fa-coins"></i> ${esc(u.balance)} puan</span>
+                                    <span class="rozet">${PLATFORM_AD[u.platform] || 'Tüm platformlar'}</span>
+                                    ${u.lastLogin ? `<span class="rozet"><i class="fa-solid fa-clock"></i> Son giriş: ${tarih(u.lastLogin)}</span>` : ''}
+                                </div>
+                                ${u.banned && u.banReason ? `<div class="ban-neden"><strong>Neden:</strong> ${esc(u.banReason)}</div>` : ''}
+                                ${u.banned && u.bannedBy ? `<div class="ban-neden">Yasaklayan: ${esc(u.bannedBy)} · ${tarih(u.bannedAt)}</div>` : ''}
+                            </div>
+                            <div class="oge-aksiyon">
+                                ${u.banned
+                                    ? `<button class="btn btn-ghost btn-sm" data-kaldir="${esc(u.username)}"><i class="fa-solid fa-lock-open"></i> Yasağı kaldır</button>`
+                                    : (u.isAdmin ? '' : `<button class="btn btn-danger btn-sm" data-yasak="${esc(u.username)}"><i class="fa-solid fa-ban"></i> Yasakla</button>`)}
+                                ${u.isAdmin ? '' : `<button class="btn btn-danger btn-sm" data-uye-sil="${esc(u.username)}"><i class="fa-solid fa-trash"></i> Sil</button>`}
+                            </div>
+                        </div>`;
+                    }).join('') : '<div class="bos">Henüz kayıtlı hesap yok.</div>'}
+                </div>`;
+
+            const ara = $('#uyeAra');
+            if (ara) {
+                ara.addEventListener('input', () => {
+                    const q = ara.value.toLocaleLowerCase('tr');
+                    document.querySelectorAll('#uyeListe .oge').forEach(el => {
+                        el.hidden = !String(el.dataset.ad || '').toLocaleLowerCase('tr').includes(q);
+                    });
+                });
+            }
+        }
+
+        function yasakModalAc(username) {
+            document.getElementById('banModal')?.remove();
+
+            const arka = document.createElement('div');
+            arka.className = 'modal-arka';
+            arka.id = 'banModal';
+            arka.innerHTML = `
+                <form class="modal" id="banForm">
+                    <h2>Hesabı yasakla</h2>
+                    <p class="yardim"><strong>${esc(username)}</strong> hesabına erişim engellenecek. Yasaklı hesap giriş yapamaz.</p>
+
+                    <label for="banTip">Yasak türü</label>
+                    <select id="banTip">
+                        <option value="temporary">Süreli yasak</option>
+                        <option value="permanent">Kalıcı yasak (süresiz)</option>
+                    </select>
+
+                    <div id="banSureAlan">
+                        <label for="banSure">Süre (saat)</label>
+                        <input type="number" id="banSure" min="1" max="87600" step="1" value="24">
+                    </div>
+
+                    <label for="banNeden">Neden (isteğe bağlı)</label>
+                    <textarea id="banNeden" maxlength="300" placeholder="Örn. kural ihlali, küfür, reklam..."></textarea>
+
+                    <div class="modal-alt">
+                        <button type="button" class="btn btn-ghost" id="banIptal">Vazgeç</button>
+                        <button type="submit" class="btn btn-danger" id="banGonder"><i class="fa-solid fa-ban"></i> Yasakla</button>
+                    </div>
+                </form>`;
+            document.body.appendChild(arka);
+
+            const tip = arka.querySelector('#banTip');
+            const sureAlan = arka.querySelector('#banSureAlan');
+            tip.addEventListener('change', () => {
+                sureAlan.hidden = tip.value === 'permanent';
+            });
+
+            arka.querySelector('#banIptal').addEventListener('click', () => arka.remove());
+            arka.addEventListener('click', (e) => { if (e.target === arka) arka.remove(); });
+
+            arka.querySelector('#banForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = arka.querySelector('#banGonder');
+                btn.disabled = true;
+                const d = await api('/api/admin/ban-user', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        username,
+                        type: tip.value,
+                        durationHours: Number(arka.querySelector('#banSure').value),
+                        reason: arka.querySelector('#banNeden').value.trim()
+                    })
+                });
+                bildir(d.success ? (d.message || 'Yasaklandı') : (d.error || 'Yasaklanamadı'), !d.success);
+                if (d.success) { arka.remove(); sekmeAc('uyeler'); }
+                else btn.disabled = false;
+            });
+        }
+
         /* ---------- Olay yönetimi ---------- */
         document.addEventListener('click', async (e) => {
             const ekle = e.target.closest('[data-ekle]');
             const sil  = e.target.closest('[data-sil]');
             const tam  = e.target.closest('[data-tamamla]');
             const red  = e.target.closest('[data-reddet]');
+            const yasak = e.target.closest('[data-yasak]');
+            const kaldir = e.target.closest('[data-kaldir]');
+            const uyeSil = e.target.closest('[data-uye-sil]');
             const tab  = e.target.closest('[data-sekme]');
 
             if (tab) return sekmeAc(tab.dataset.sekme);
+
+            if (yasak) { yasakModalAc(yasak.dataset.yasak); return; }
+
+            if (kaldir) {
+                const ad = kaldir.dataset.kaldir;
+                if (!confirm(`${ad} kullanıcısının yasağını kaldırmak istiyor musun?`)) return;
+                kaldir.disabled = true;
+                const d = await api('/api/admin/unban-user', {
+                    method: 'POST', body: JSON.stringify({ username: ad })
+                });
+                bildir(d.success ? (d.message || 'Yasak kaldırıldı') : (d.error || 'İşlem başarısız'), !d.success);
+                if (d.success) sekmeAc('uyeler');
+                else kaldir.disabled = false;
+                return;
+            }
+
+            if (uyeSil) {
+                const ad = uyeSil.dataset.uyeSil;
+                if (!confirm(`${ad} hesabı KALICI olarak silinecek. Bu işlem geri alınamaz. Onaylıyor musun?`)) return;
+                uyeSil.disabled = true;
+                const d = await api('/api/admin/delete-user', {
+                    method: 'POST', body: JSON.stringify({ username: ad })
+                });
+                bildir(d.success ? (d.message || 'Hesap silindi') : (d.error || 'Silinemedi'), !d.success);
+                if (d.success) sekmeAc('uyeler');
+                else uyeSil.disabled = false;
+                return;
+            }
 
             if (ekle) {
                 const tip = ekle.dataset.ekle;

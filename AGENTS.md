@@ -137,6 +137,10 @@ sistemi değildir; Microsoft hesabı ve Xbox Live kapsamlarıyla çalışır.
 | `/api/inventory` | GET | Kullanıcının talepleri |
 | `/api/announcements`, `/api/news`, `/api/campaigns` | GET | İçerik listeleri (`?platform=`) |
 | `/api/admin/requests` | GET | Tüm talepler (yönetici) |
+| `/api/admin/users` | GET | Kayıtlı hesapların listesi (yönetici) |
+| `/api/admin/ban-user` | POST | Süreli veya kalıcı yasak (yönetici) |
+| `/api/admin/unban-user` | POST | Yasağı kaldırma (yönetici) |
+| `/api/admin/delete-user` | POST | Hesabı ve sosyal bağlantılarını silme (yönetici) |
 | `/api/admin/complete-request`, `/api/admin/reject-request` | POST | Talep sonuçlandırma |
 | `/api/admin/announcement`, `/api/admin/news`, `/api/admin/campaign`, `/api/admin/item` | POST / DELETE | İçerik ekleme / silme |
 | `/api/notification/subscribe` | POST | Web push aboneliği |

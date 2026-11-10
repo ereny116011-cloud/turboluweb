@@ -65,28 +65,33 @@ export async function oauthIsle(request, env, url, yardimcilar) {
   const path = url.pathname;
   const method = request.method;
 
-  const providerConfigs = () => ({
-    github: {
-      ...OAUTH_PROVIDERS.github,
-      clientId: env.GITHUB_CLIENT_ID,
-      clientSecret: env.GITHUB_CLIENT_SECRET
-    },
-    google: {
-      ...OAUTH_PROVIDERS.google,
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET
-    },
-    microsoft: {
-      ...OAUTH_PROVIDERS.microsoft,
-      clientId: env.MICROSOFT_CLIENT_ID,
-      clientSecret: env.MICROSOFT_CLIENT_SECRET
-    },
-    xbox: {
-      ...OAUTH_PROVIDERS.xbox,
-      clientId: env.XBOX_CLIENT_ID || env.MICROSOFT_CLIENT_ID,
-      clientSecret: env.XBOX_CLIENT_SECRET || env.MICROSOFT_CLIENT_SECRET
-    }
-  });
+  const providerConfigs = () => {
+    /* Panodan yapıştırılan değerlerde satır sonu/boşluk kalabiliyor.
+       Client ID ve secret içinde boşluk olamayacağı için temizliyoruz. */
+    const temiz = (deger) => String(deger || '').replace(/\s+/g, '');
+    return {
+      github: {
+        ...OAUTH_PROVIDERS.github,
+        clientId: temiz(env.GITHUB_CLIENT_ID),
+        clientSecret: temiz(env.GITHUB_CLIENT_SECRET)
+      },
+      google: {
+        ...OAUTH_PROVIDERS.google,
+        clientId: temiz(env.GOOGLE_CLIENT_ID),
+        clientSecret: temiz(env.GOOGLE_CLIENT_SECRET)
+      },
+      microsoft: {
+        ...OAUTH_PROVIDERS.microsoft,
+        clientId: temiz(env.MICROSOFT_CLIENT_ID),
+        clientSecret: temiz(env.MICROSOFT_CLIENT_SECRET)
+      },
+      xbox: {
+        ...OAUTH_PROVIDERS.xbox,
+        clientId: temiz(env.XBOX_CLIENT_ID || env.MICROSOFT_CLIENT_ID),
+        clientSecret: temiz(env.XBOX_CLIENT_SECRET || env.MICROSOFT_CLIENT_SECRET)
+      }
+    };
+  };
 
   const isConfigured = (provider) => {
     const cfg = providerConfigs()[provider];
@@ -333,6 +338,13 @@ export async function oauthIsle(request, env, url, yardimcilar) {
           user = await findUserByEmail(profile.email);
         }
 
+        // Yasaklı hesaplar sosyal girişle de giriş yapamaz.
+        const banAktif = user && user.banned &&
+          (user.banType === 'permanent' || (Number(user.banUntil) || 0) > Date.now());
+        if (banAktif) {
+          return failRedirect(saved.redirectUri, 'Bu hesap yasaklandı. Ayrıntı için yöneticiye ulaş.');
+        }
+
         if (!user) {
           const base = sanitizeUsername(profile.name || profile.email.split('@')[0] || provider);
           let username = base;
@@ -407,6 +419,10 @@ export async function oauthIsle(request, env, url, yardimcilar) {
 
       const user = await getJSON(`user:${stored.username}`);
       if (!user || !user.token) return json({ error: 'Kullanıcı bulunamadı.' }, 400);
+
+      const banAktif = user.banned &&
+        (user.banType === 'permanent' || (Number(user.banUntil) || 0) > Date.now());
+      if (banAktif) return json({ error: 'Bu hesap yasaklandı.' }, 403);
 
       return json({
         token: user.token,
