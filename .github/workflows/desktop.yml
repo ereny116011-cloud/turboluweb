@@ -52,10 +52,31 @@ jobs:
       - name: Bağımlılıkları kur
         run: npm ci
 
-      - name: Derle
+      - name: Derle (Windows)
+        if: runner.os == 'Windows'
+        run: npx electron-builder --win --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+
+      - name: Derle (Linux)
+        if: runner.os == 'Linux'
+        run: npx electron-builder --linux --publish never
+
+      - name: Derle (macOS)
+        if: runner.os == 'macOS'
         run: npx electron-builder ${{ matrix.args }} --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Sağlama toplamı oluştur
+        run: node scripts/checksums.mjs dist
 
       - name: Çıktıları listele
         shell: bash
@@ -71,6 +92,7 @@ jobs:
             desktop/dist/*.deb
             desktop/dist/*.dmg
             desktop/dist/*.zip
+            desktop/dist/SHA256SUMS.txt
             desktop/dist/*.yml
           if-no-files-found: error
           retention-days: 30
