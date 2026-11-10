@@ -324,6 +324,9 @@ export async function oauthIsle(request, env, url, yardimcilar) {
         });
 
         if (!tokenResult.ok || !tokenResult.data.access_token) {
+          // Ayrıntıyı yalnızca Worker günlüğüne yaz; kullanıcıya gizli bilgi sızdırma.
+          console.warn('OAuth token takası başarısız:', provider, tokenResult.status,
+            tokenResult.data.error || '', tokenResult.data.error_description || '');
           throw new Error('Sağlayıcıdan oturum alınamadı.');
         }
 
