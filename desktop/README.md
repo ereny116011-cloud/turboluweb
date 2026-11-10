@@ -62,7 +62,11 @@ imzalanmalı ve noter onayından geçirilmelidir (`CSC_LINK`, `CSC_KEY_PASSWORD`
 Windows'ta kod imzalama sertifikası yoksa SmartScreen uyarısı çıkabilir.
 
 Linux ve macOS çıktıları bu depodaki GitHub Actions iş akışıyla üretilir:
-`.github/workflows/desktop.yml`.
+`.github/workflows/desktop.yml`. İş akışı `desktop-v*` etiketiyle veya
+**Actions → TurboluApp PC derleme → Run workflow** ile tetiklenir; çıktılar
+çalıştırma sayfasının altındaki **Artifacts** bölümünden indirilir.
+
+> Son başarılı derleme: [TurboluApp PC derleme #1](https://github.com/ereny116011-cloud/turboluweb/actions/runs/42851909453)
 
 ## API uçları
 
