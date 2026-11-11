@@ -3,6 +3,7 @@
 const { app, BrowserWindow, ipcMain, shell, clipboard, nativeTheme, safeStorage, Menu } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
+const { pathToFileURL } = require('node:url');
 
 const API_BASE = 'https://shrill-salad-a498.ereny116011.workers.dev';
 const WEBSITE = 'https://turboluweb.wasmer.app/';
@@ -40,6 +41,16 @@ const API_ROUTES = {
 
 const SESSION_FILE = 'session.json';
 const isDev = !app.isPackaged;
+
+/* Güvenlik sınırları */
+const MAX_API_BYTES = 4 * 1024 * 1024;   // API yanıtı üst sınırı
+const MAX_REQUEST_BYTES = 3 * 1024 * 1024; // Gönderilen gövde üst sınırı
+const MAX_TOKEN_LENGTH = 200;
+const TOKEN_PATTERN = /^[A-Za-z0-9._-]+$/;
+
+/* Sadece bu dosya renderer'da açılabilir; diğer adresler tarayıcıya gider. */
+const APP_FILE = path.join(__dirname, 'renderer', 'index.html');
+const APP_URL = pathToFileURL(APP_FILE).href;
 
 let mainWindow = null;
 let sessionToken = '';
@@ -154,7 +165,17 @@ async function callApi(payload = {}) {
   const headers = { Accept: 'application/json' };
   const token = payload.auth === false ? '' : sessionToken;
   if (token) headers.Authorization = `Bearer ${token}`;
+
+  let body;
   if (payload.body !== undefined && payload.body !== null) {
+    try {
+      body = JSON.stringify(payload.body);
+    } catch (_) {
+      return { ok: false, status: 400, data: { error: 'Geçersiz istek gövdesi.' } };
+    }
+    if (Buffer.byteLength(body, 'utf8') > MAX_REQUEST_BYTES) {
+      return { ok: false, status: 400, data: { error: 'İstek gövdesi çok büyük.' } };
+    }
     headers['Content-Type'] = 'application/json';
   }
 
@@ -162,11 +183,24 @@ async function callApi(payload = {}) {
     const response = await fetchWithTimeout(url.toString(), {
       method,
       headers,
-      body: payload.body === undefined || payload.body === null
-        ? undefined
-        : JSON.stringify(payload.body)
+      body
     });
-    const data = await response.json().catch(() => ({}));
+
+    // Büyük/yanıltıcı yanıtlarla belleği tüketmeyi engelle.
+    const declared = Number(response.headers.get('content-length') || 0);
+    if (declared > MAX_API_BYTES) {
+      return { ok: false, status: 0, data: { error: 'Sunucu yanıtı çok büyük.' } };
+    }
+    const text = await response.text();
+    if (Buffer.byteLength(text, 'utf8') > MAX_API_BYTES) {
+      return { ok: false, status: 0, data: { error: 'Sunucu yanıtı çok büyük.' } };
+    }
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (_) {
+      data = {};
+    }
     return { ok: response.ok, status: response.status, data };
   } catch (error) {
     const aborted = error && error.name === 'AbortError';
@@ -235,6 +269,11 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
+  // Uygulama hiçbir medya, bildirim veya konum izni istemez; hepsini reddet.
+  const appSession = mainWindow.webContents.session;
+  appSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
+  appSession.setPermissionCheckHandler(() => false);
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     if (isDev && process.env.TURBOLU_DEVTOOLS === '1') mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -281,10 +320,15 @@ function createWindow() {
   });
 
   mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (url !== mainWindow.webContents.getURL()) {
-      event.preventDefault();
-      openExternal(url);
-    }
+    // Yalnızca uygulamanın kendi dosyası yüklenebilir (hash yeniden yüklemesi dâhil).
+    if (String(url || '').split('#')[0] === APP_URL) return;
+    event.preventDefault();
+    openExternal(url);
+  });
+
+  mainWindow.webContents.on('will-redirect', (event, url) => {
+    event.preventDefault();
+    openExternal(url);
   });
 
   mainWindow.webContents.on('will-attach-webview', (event) => event.preventDefault());
@@ -294,6 +338,8 @@ function openExternal(rawUrl) {
   try {
     const url = new URL(String(rawUrl));
     if (url.protocol !== 'https:' && url.protocol !== 'http:') return false;
+    // Kimlik bilgisi içeren adresler (https://site@kotu-host) kabul edilmez.
+    if (url.username || url.password) return false;
     const allowed = [WEBSITE, GITHUB, 'https://shrill-salad-a498.ereny116011.workers.dev'];
     const hostAllowed = allowed.some(base => url.origin === new URL(base).origin);
     if (!hostAllowed) return false;
@@ -331,7 +377,12 @@ function registerIpc() {
   ipcMain.handle('win:close', () => mainWindow?.close());
   ipcMain.handle('win:isMaximized', () => Boolean(mainWindow && mainWindow.isMaximized()));
 
-  ipcMain.handle('api:call', (_event, payload) => callApi(payload));
+  ipcMain.handle('api:call', (_event, payload) => {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      return { ok: false, status: 400, data: { error: 'Geçersiz istek.' } };
+    }
+    return callApi(payload);
+  });
   ipcMain.handle('server:status', (_event, kind) => serverStatus(kind));
 
   ipcMain.handle('auth:load', async () => {
@@ -339,7 +390,10 @@ function registerIpc() {
     return sessionToken || '';
   });
   ipcMain.handle('auth:save', async (_event, token) => {
-    const value = typeof token === 'string' ? token : '';
+    const value = typeof token === 'string' ? token.trim() : '';
+    if (!value || value.length > MAX_TOKEN_LENGTH || !TOKEN_PATTERN.test(value)) {
+      return false;
+    }
     await writeSession(value);
     return true;
   });
@@ -349,7 +403,8 @@ function registerIpc() {
   });
 
   ipcMain.handle('clipboard:write', (_event, text) => {
-    clipboard.writeText(String(text || ''));
+    const value = String(text == null ? '' : text).slice(0, 4096);
+    clipboard.writeText(value);
     return true;
   });
 

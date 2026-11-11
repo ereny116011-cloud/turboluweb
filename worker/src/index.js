@@ -382,6 +382,62 @@ export default {
       return null;
     }
 
+    /* Sunucu tarafı alan doğrulaması. Arayüz kuralları atlatılabildiği için
+       her alan burada da denetlenir. */
+    const PLATFORMS = ['java', 'bedrock', 'all'];
+    const LIMITS = { title: 120, content: 4000, description: 2000, reward: 80, name: 120, command: 300, reason: 300 };
+
+    function textField(value, max, { required = false } = {}) {
+      if (value === undefined || value === null) return { ok: !required, value: '' };
+      const text = String(value).trim();
+      if (required && !text) return { ok: false };
+      if (text.length > max) return { ok: false };
+      return { ok: true, value: text };
+    }
+
+    function platformValue(value) {
+      const platform = String(value || 'all');
+      return PLATFORMS.includes(platform) ? platform : 'all';
+    }
+
+    /* Silme işlemlerinde yalnızca UUID biçimli kimlikler kabul edilir. */
+    function validId(value) {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value || ''));
+    }
+
+    function emailError(email) {
+      if (!email) return 'E-posta gerekli.';
+      if (email.length > 254) return 'E-posta adresi çok uzun.';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Geçerli bir e-posta adresi gir.';
+      return null;
+    }
+
+    function passwordError(password) {
+      const length = [...String(password || '')].length;
+      if (length < 6) return 'Parola en az 6 karakter olmalı.';
+      if (length > 128) return 'Parola en fazla 128 karakter olabilir.';
+      return null;
+    }
+
+    /* Profil simgesi: yalnızca küçük base64 görsel veya izinli avatar adresi. */
+    const MAX_ICON_LENGTH = 400000;
+    function safeIcon(value) {
+      const icon = String(value == null ? '' : value).trim();
+      if (!icon) return '';
+      if (icon.length > MAX_ICON_LENGTH) return null;
+      if (/^data:image\/(png|jpe?g|webp|gif);base64,[a-z0-9+/=]+$/i.test(icon)) return icon;
+      try {
+        const parsed = new URL(icon);
+        if (parsed.protocol !== 'https:') return null;
+        const hosts = ['turboluweb.wasmer.app', 'shrill-salad-a498.ereny116011.workers.dev',
+          'avatars.githubusercontent.com', 'lh3.googleusercontent.com', 'graph.microsoft.com'];
+        if (!hosts.includes(parsed.hostname.toLowerCase())) return null;
+        return parsed.href;
+      } catch (_) {
+        return null;
+      }
+    }
+
     // Admin hesabı (otomatik oluştur)
     // ÖNEMLİ: Parola artık KODDA DEĞİL — Cloudflare'deki gizli değişkenden okunur.
     //   Cloudflare paneli -> Worker -> Settings -> Variables and Secrets
@@ -438,7 +494,10 @@ export default {
         if (!username || !password || !email) return json({ error: 'Kullanıcı adı, parola ve e-posta gerekli' }, 400);
         const adHatasi = usernameError(username);
         if (adHatasi) return json({ error: adHatasi }, 400);
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'Geçerli bir e-posta adresi gir.' }, 400);
+        const sifreHatasi = passwordError(password);
+        if (sifreHatasi) return json({ error: sifreHatasi }, 400);
+        const epostaHatasi = emailError(email);
+        if (epostaHatasi) return json({ error: epostaHatasi }, 400);
         if (await env.MC_DB.get(`user:${username}`)) return json({ error: 'Bu kullanıcı adı alınmış' }, 409);
         const hash = await hashPassword(password);
         const token = crypto.randomUUID();
@@ -446,7 +505,7 @@ export default {
           username, password: hash, token, balance: 0,
           icon: '', status: 'Online', theme: 'dark', language: 'tr', isAdmin: false,
           email: email,
-          platform: platform || 'all',
+          platform: platformValue(platform),
           createdAt: new Date().toISOString()
         };
         await putJSON(`user:${username}`, user);
@@ -459,9 +518,25 @@ export default {
         const username = normalizeUsername(body.username);
         const password = String(body.password || '');
         if (!username || !password) return json({ error: 'Kullanıcı adı ve parola gerekli' }, 400);
+
+        // Kaba kuvvet denemelerini sınırla: aynı IP 15 dakikada en fazla
+        // 10 hatalı giriş yapabilir.
+        const ip = request.headers.get('CF-Connecting-IP') || 'bilinmiyor';
+        const failKey = `login_fail:${ip}`;
+        const failCount = Number(await env.MC_DB.get(failKey) || 0);
+        if (Number.isFinite(failCount) && failCount >= 10) {
+          return json({ error: 'Çok fazla hatalı deneme. Lütfen 15 dakika sonra tekrar dene.' }, 429);
+        }
+
         const user = await getJSON(`user:${username}`);
-        if (!user) return json({ error: 'Kullanıcı bulunamadı' }, 404);
-        if (!(await verifyPassword(password, user.password))) return json({ error: 'Parola yanlış' }, 401);
+        // Kullanıcı adının kayıtlı olup olmadığını ele vermemek için iki hata
+        // durumu da aynı mesajı ve durum kodunu döndürür.
+        const gecerli = user && await verifyPassword(password, user.password);
+        if (!gecerli) {
+          await env.MC_DB.put(failKey, String(failCount + 1), { expirationTtl: 900 });
+          return json({ error: 'Kullanıcı adı veya parola hatalı' }, 401);
+        }
+        await deleteKey(failKey);
         await clearExpiredBan(user);
         if (banActive(user)) {
           return json({
@@ -491,9 +566,37 @@ export default {
         const user = await getUser(request.headers.get('Authorization'));
         if (!user) return json({ error: 'Yetkisiz' }, 401);
         const updates = await request.json();
-        ['icon','status','theme','language','email'].forEach(k => {
-          if (updates[k] !== undefined) user[k] = updates[k];
-        });
+        if (!updates || typeof updates !== 'object') return json({ error: 'Geçersiz istek' }, 400);
+
+        if (updates.icon !== undefined) {
+          const icon = safeIcon(updates.icon);
+          if (icon === null) return json({ error: 'Geçersiz profil görseli.' }, 400);
+          user.icon = icon;
+        }
+        if (updates.status !== undefined) {
+          const status = String(updates.status);
+          if (!['Online', 'Away', 'Busy', 'Offline'].includes(status)) {
+            return json({ error: 'Geçersiz durum.' }, 400);
+          }
+          user.status = status;
+        }
+        if (updates.theme !== undefined) {
+          const theme = String(updates.theme);
+          if (!['dark', 'light', 'system'].includes(theme)) return json({ error: 'Geçersiz tema.' }, 400);
+          user.theme = theme;
+        }
+        if (updates.language !== undefined) {
+          const language = String(updates.language);
+          if (!['tr', 'en'].includes(language)) return json({ error: 'Geçersiz dil.' }, 400);
+          user.language = language;
+        }
+        if (updates.email !== undefined) {
+          const email = String(updates.email).trim().toLowerCase();
+          const epostaHatasi = emailError(email);
+          if (epostaHatasi) return json({ error: epostaHatasi }, 400);
+          user.email = email;
+        }
+
         await putJSON(`user:${user.username}`, user);
         return json({ success: true });
       }
@@ -504,6 +607,8 @@ export default {
         if (!user) return json({ error: 'Yetkisiz' }, 401);
         const { oldPassword, newPassword } = await request.json();
         if (!(await verifyPassword(oldPassword, user.password))) return json({ error: 'Mevcut parola yanlış' }, 400);
+        const sifreHatasi = passwordError(newPassword);
+        if (sifreHatasi) return json({ error: sifreHatasi }, 400);
         user.password = await hashPassword(newPassword);
         await putJSON(`user:${user.username}`, user);
         return json({ success: true });
@@ -549,6 +654,9 @@ export default {
         const resetData = await getJSON(`pwd_reset:${token}`);
         if (!resetData) return json({ error: 'Geçersiz veya süresi dolmuş token' }, 400);
         if (Date.now() > resetData.expiry) return json({ error: 'Token süresi doldu' }, 400);
+
+        const sifreHatasi = passwordError(newPassword);
+        if (sifreHatasi) return json({ error: sifreHatasi }, 400);
 
         const user = await getJSON(`user:${resetData.userId}`);
         if (!user) return json({ error: 'Kullanıcı bulunamadı' }, 404);
@@ -598,8 +706,12 @@ export default {
         const user = await getUser(request.headers.get('Authorization'));
         if (!user) return json({ error: 'Yetkisiz' }, 401);
         const { itemId } = await request.json();
+        if (!validId(itemId)) return json({ error: 'Ürün bulunamadı' }, 404);
         const item = await getJSON(`item:${itemId}`);
         if (!item) return json({ error: 'Ürün bulunamadı' }, 404);
+        if (typeof item.price !== 'number' || !Number.isFinite(item.price) || item.price < 0) {
+          return json({ error: 'Ürün fiyatı geçersiz.' }, 400);
+        }
         if (user.balance < item.price) return json({ error: 'Yetersiz bakiye' }, 400);
 
         user.balance -= item.price;
@@ -673,8 +785,29 @@ export default {
       if (path === '/api/notification/subscribe' && method === 'POST') {
         const user = await getUser(request.headers.get('Authorization'));
         if (!user) return json({ error: 'Yetkisiz' }, 401);
-        const { subscription, preferences, isAdmin } = await request.json();
-        await putJSON(`notification_sub:${user.username}`, { subscription, preferences, isAdmin });
+        const { subscription, preferences } = await request.json();
+        if (!subscription || typeof subscription !== 'object') {
+          return json({ error: 'Geçersiz abonelik.' }, 400);
+        }
+        const endpoint = String(subscription.endpoint || '');
+        if (endpoint.length > 2048 || !/^https:\/\//i.test(endpoint)) {
+          return json({ error: 'Geçersiz abonelik adresi.' }, 400);
+        }
+        const prefs = preferences && typeof preferences === 'object' ? preferences : {};
+        const safePrefs = {
+          announcements: Boolean(prefs.announcements),
+          news: Boolean(prefs.news),
+          campaigns: Boolean(prefs.campaigns),
+          items: Boolean(prefs.items)
+        };
+        await putJSON(`notification_sub:${user.username}`, {
+          subscription: {
+            endpoint,
+            keys: subscription.keys && typeof subscription.keys === 'object' ? subscription.keys : {}
+          },
+          preferences: safePrefs,
+          isAdmin: Boolean(user.isAdmin)
+        });
         return json({ success: true });
       }
 
@@ -685,7 +818,13 @@ export default {
         const subId = `notification_sub:${user.username}`;
         const existing = await getJSON(subId);
         if (existing) {
-          existing.preferences = preferences;
+          const prefs = preferences && typeof preferences === 'object' ? preferences : {};
+          existing.preferences = {
+            announcements: Boolean(prefs.announcements),
+            news: Boolean(prefs.news),
+            campaigns: Boolean(prefs.campaigns),
+            items: Boolean(prefs.items)
+          };
           await putJSON(subId, existing);
         }
         return json({ success: true });
@@ -838,6 +977,7 @@ export default {
       if (path === '/api/admin/complete-request' && method === 'POST') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
         const { requestId } = await request.json();
+        if (!validId(requestId)) return json({ error: 'Talep bulunamadı' }, 404);
         const req = await getJSON(`purchase_request:${requestId}`);
         if (!req) return json({ error: 'Talep bulunamadı' }, 404);
         req.status = 'completed';
@@ -849,8 +989,11 @@ export default {
       if (path === '/api/admin/reject-request' && method === 'POST') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
         const { requestId } = await request.json();
+        if (!validId(requestId)) return json({ error: 'Talep bulunamadı' }, 404);
         const req = await getJSON(`purchase_request:${requestId}`);
         if (!req) return json({ error: 'Talep bulunamadı' }, 404);
+        // Aynı talep iki kez reddedilerek bakiye iki kez iade edilmesin.
+        if (req.status !== 'pending') return json({ error: 'Bu talep zaten sonuçlandırılmış.' }, 400);
         req.status = 'rejected';
         req.rejectedAt = new Date().toISOString();
         const user = await getJSON(`user:${req.user}`);
@@ -865,11 +1008,14 @@ export default {
       // Duyuru ekle (PLATFORM EKLENDİ)
       if (path === '/api/admin/announcement' && method === 'POST') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
-        const { title, content, platform } = await request.json();
+        const body = await request.json();
+        const title = textField(body.title, LIMITS.title, { required: true });
+        const content = textField(body.content, LIMITS.content, { required: true });
+        if (!title.ok || !content.ok) return json({ error: 'Başlık veya içerik geçersiz.' }, 400);
         const id = crypto.randomUUID();
         await putJSON(`announce:${id}`, {
-          id, title, content,
-          platform: platform || 'all',
+          id, title: title.value, content: content.value,
+          platform: platformValue(body.platform),
           date: new Date().toISOString()
         });
         return json({ success: true });
@@ -879,7 +1025,7 @@ export default {
       if (path === '/api/admin/announcement' && method === 'DELETE') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
         const { id } = await request.json();
-        if (!id) return json({ error: 'ID gerekli' }, 400);
+        if (!validId(id)) return json({ error: 'ID gerekli' }, 400);
         await deleteKey(`announce:${id}`);
         return json({ success: true });
       }
@@ -887,11 +1033,14 @@ export default {
       // Haber ekle (PLATFORM EKLENDİ)
       if (path === '/api/admin/news' && method === 'POST') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
-        const { title, content, platform } = await request.json();
+        const body = await request.json();
+        const title = textField(body.title, LIMITS.title, { required: true });
+        const content = textField(body.content, LIMITS.content, { required: true });
+        if (!title.ok || !content.ok) return json({ error: 'Başlık veya içerik geçersiz.' }, 400);
         const id = crypto.randomUUID();
         await putJSON(`news:${id}`, {
-          id, title, content,
-          platform: platform || 'all',
+          id, title: title.value, content: content.value,
+          platform: platformValue(body.platform),
           date: new Date().toISOString()
         });
         return json({ success: true });
@@ -901,7 +1050,7 @@ export default {
       if (path === '/api/admin/news' && method === 'DELETE') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
         const { id } = await request.json();
-        if (!id) return json({ error: 'ID gerekli' }, 400);
+        if (!validId(id)) return json({ error: 'ID gerekli' }, 400);
         await deleteKey(`news:${id}`);
         return json({ success: true });
       }
@@ -909,12 +1058,27 @@ export default {
       // Kampanya ekle (PLATFORM EKLENDİ)
       if (path === '/api/admin/campaign' && method === 'POST') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
-        const { title, description, reward, endDate, platform } = await request.json();
+        const body = await request.json();
+        const title = textField(body.title, LIMITS.title, { required: true });
+        const description = textField(body.description, LIMITS.description, { required: true });
+        const reward = textField(body.reward, LIMITS.reward);
+        if (!title.ok || !description.ok || !reward.ok) {
+          return json({ error: 'Kampanya alanları geçersiz.' }, 400);
+        }
+        // Bitiş tarihi yalnızca YYYY-AA-GG biçiminde kabul edilir.
+        let endDate = null;
+        if (body.endDate) {
+          const raw = String(body.endDate);
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(raw) || Number.isNaN(new Date(raw).getTime())) {
+            return json({ error: 'Geçersiz bitiş tarihi.' }, 400);
+          }
+          endDate = raw;
+        }
         const id = crypto.randomUUID();
         await putJSON(`campaign:${id}`, {
-          id, title, description, reward,
-          endDate: endDate || null,
-          platform: platform || 'all',
+          id, title: title.value, description: description.value, reward: reward.value,
+          endDate,
+          platform: platformValue(body.platform),
           date: new Date().toISOString()
         });
         return json({ success: true });
@@ -924,7 +1088,7 @@ export default {
       if (path === '/api/admin/campaign' && method === 'DELETE') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
         const { id } = await request.json();
-        if (!id) return json({ error: 'ID gerekli' }, 400);
+        if (!validId(id)) return json({ error: 'ID gerekli' }, 400);
         await deleteKey(`campaign:${id}`);
         return json({ success: true });
       }
@@ -932,11 +1096,19 @@ export default {
       // Ürün ekle (PLATFORM EKLENDİ)
       if (path === '/api/admin/item' && method === 'POST') {
         if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
-        const { name, price, command, platform } = await request.json();
+        const body = await request.json();
+        const name = textField(body.name, LIMITS.name, { required: true });
+        const command = textField(body.command, LIMITS.command);
+        const price = Number(body.price);
+        if (!name.ok || !command.ok) return json({ error: 'Ürün alanları geçersiz.' }, 400);
+        if (!Number.isFinite(price) || price < 0 || price > 100000000) {
+          return json({ error: 'Geçersiz fiyat.' }, 400);
+        }
         const id = crypto.randomUUID();
         await putJSON(`item:${id}`, {
-          id, name, price, command,
-          platform: platform || 'all'
+          id, name: name.value, price,
+          command: command.value,
+          platform: platformValue(body.platform)
         });
         return json({ success: true });
       }
@@ -944,7 +1116,9 @@ export default {
       // 404
       return new Response('Not found', { status: 404, headers: corsHeaders });
     } catch (e) {
-      return json({ error: e.message }, 500);
+      // Ayrıntı yalnızca günlüğe yazılır; istemciye iç hata metni sızdırılmaz.
+      console.error('Worker hatası:', e && (e.stack || e.message));
+      return json({ error: 'Sunucu hatası' }, 500);
     }
   }
 };

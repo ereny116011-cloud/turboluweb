@@ -23,9 +23,16 @@ doğrudan Worker API'sini kullanır.
 ## Güvenlik modeli
 
 - `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`
-- Renderer'ın ağ erişimi yoktur (`connect-src 'none'`); tüm istekler main süreçte
+- Renderer'ın ağ erişimi yoktur (`connect-src 'none'`); tüm istekler ana süreçte
   yapılır ve yalnızca izin listesindeki API yollarına (`API_ROUTES`) çıkılır.
-- Dış bağlantılar yalnızca site, GitHub ve Worker origin'lerine açılabilir.
+- API yanıtları 4 MB, istek gövdeleri 3 MB ile sınırlandırılır; bozuk JSON sessizce
+  boş nesneye çevrilir.
+- Dış bağlantılar yalnızca site, GitHub ve Worker origin'lerine açılabilir; kimlik
+  bilgisi içeren (`https://site@baska-host`) adresler reddedilir. Pencere içinde
+  yalnızca uygulamanın kendi dosyası açılabilir.
+- Profil görselleri yalnızca yerel yol, `data:image` veya izinli avatar
+  sunucularından yüklenir; CSP `img-src` listesi de aynı sunucularla sınırlıdır.
+- Medya, bildirim, konum ve diğer tüm tarayıcı izinleri reddedilir.
 - Oturum token'ı `userData/session.json` içinde `safeStorage` ile şifrelenir.
   Şifreleme kullanılamıyorsa (anahtar zinciri olmayan Linux) düz metin saklanır.
 

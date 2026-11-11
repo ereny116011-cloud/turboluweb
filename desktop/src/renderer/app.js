@@ -64,14 +64,30 @@ function esc(value) {
   }[ch]));
 }
 
-/* Yalnızca yerel yol, http(s) veya data:image kabul edilir. */
+/* Görsel kaynakları: yerel yol, data:image veya izinli avatar sunucuları.
+   Rastgele dış adresler kabul edilmez; aksi halde bir kullanıcı profiline
+   koyduğu görselle diğer kullanıcıların IP adresini izleyebilirdi. */
+const IMAGE_HOSTS = [
+  'turboluweb.wasmer.app',
+  'shrill-salad-a498.ereny116011.workers.dev',
+  'avatars.githubusercontent.com',
+  'lh3.googleusercontent.com',
+  'graph.microsoft.com'
+];
+
 function safeImageSrc(value) {
   const url = String(value == null ? '' : value).trim();
   if (!url) return '';
   if (/^data:image\/(png|jpe?g|webp|gif);base64,[a-z0-9+/=]+$/i.test(url)) return url;
-  if (/^(https?:)?\/\//i.test(url)) return url;
-  if (/^[a-z0-9._\-/]+$/i.test(url)) return url;
-  return '';
+  if (/^[a-z0-9._\-/]+$/i.test(url) && !url.startsWith('//')) return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:') return '';
+    if (!IMAGE_HOSTS.includes(parsed.hostname.toLowerCase())) return '';
+    return parsed.href;
+  } catch (_) {
+    return '';
+  }
 }
 
 function fmtDate(value, short) {
@@ -242,7 +258,7 @@ function paintAccountChip() {
   if (user) {
     const icon = safeImageSrc(user.icon);
     avatar.innerHTML = icon
-      ? `<img src="${esc(icon)}" alt="">`
+      ? `<img src="${esc(icon)}" alt="" referrerpolicy="no-referrer">`
       : esc(initial(user.username));
     nameEl.textContent = user.username || 'Hesap';
     metaEl.textContent = `${fmtNumber(user.balance)} puan${user.isAdmin ? ' · Yönetici' : ''}`;
@@ -880,7 +896,7 @@ function profileView(user) {
   return `
     <div class="card">
       <div class="profile-head">
-        <div class="profile-avatar">${icon ? `<img src="${esc(icon)}" alt="">` : esc(initial(user.username))}</div>
+        <div class="profile-avatar">${icon ? `<img src="${esc(icon)}" alt="" referrerpolicy="no-referrer">` : esc(initial(user.username))}</div>
         <div>
           <h2 class="profile-name">${esc(user.username || 'Hesap')}</h2>
           <p class="profile-meta">${esc(user.email || 'E-posta yok')}${user.isAdmin ? ' · Yönetici' : ''}</p>
@@ -1274,7 +1290,7 @@ function adminUserRow(user) {
 
   return `
     <div class="user-row">
-      <div class="user-avatar">${icon ? `<img src="${esc(icon)}" alt="">` : esc(initial(user.username))}</div>
+      <div class="user-avatar">${icon ? `<img src="${esc(icon)}" alt="" referrerpolicy="no-referrer">` : esc(initial(user.username))}</div>
       <div class="user-main">
         <strong>${esc(user.username)} ${badges}</strong>
         <small>${esc(user.email || 'e-posta yok')} · ${fmtNumber(user.balance)} puan${user.lastLogin ? ' · son giriş ' + esc(fmtDate(user.lastLogin, true)) : ''}</small>
