@@ -428,23 +428,38 @@ function pageHead(kicker, title, subtitle, action) {
       <div>
         <p class="page-kicker">${esc(kicker)}</p>
         <h1 class="page-title">${esc(title)}</h1>
+        <svg class="title-underline" viewBox="0 0 160 10" fill="none" aria-hidden="true" preserveAspectRatio="none">
+          <path d="M2 6.2C28 3.1 55 7.4 84 4.8c26-2.3 46 .8 74-1.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M14 8.6c22-1.2 44 .6 66-.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".45"/>
+        </svg>
         ${subtitle ? `<p class="page-sub">${esc(subtitle)}</p>` : ''}
       </div>
       ${action || ''}
     </div>`;
 }
 
+function greetingForNow() {
+  const hour = new Date().getHours();
+  if (hour < 6) return 'İyi geceler';
+  if (hour < 12) return 'Günaydın';
+  if (hour < 18) return 'İyi günler';
+  return 'İyi akşamlar';
+}
+
 function renderOverview() {
   const user = state.user;
-  const greeting = user ? `Tekrar hoş geldin, ${esc(user.username)}!` : 'Turbolu dünyasına hoş geldin.';
+  const greeting = user
+    ? `${greetingForNow()}, ${esc(user.username)}!`
+    : `${greetingForNow()}! Turbolu dünyasına hoş geldin.`;
   const balance = user ? `${fmtNumber(user.balance)} puan` : 'Misafir';
 
   $('#view').innerHTML = `
     ${pageHead('Turbolu Studios', 'Genel Bakış', 'Sunucu durumu, duyurular ve hesabın tek ekranda.')}
     <section class="hero">
+      <span class="hero-stamp" aria-hidden="true">El emeği<small>PC sürümü</small></span>
       <p class="hero-eyebrow">${SVG.spark} TurboluApp PC</p>
       <h2>${greeting}</h2>
-      <p>TurboluMC Java ve Turbolu Bedrock sunucularının canlı durumunu takip et, duyuruları oku, marketten alışveriş yap. Her şey bu masaüstü uygulamasında.</p>
+      <p>Sunucuların canlı durumu, son duyurular ve market tek pencerede. Aşağıdaki kartlardan başlayabilirsin.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" type="button" data-copy="${esc(JAVA_IP)}">${SVG.copy} Sunucu adresini kopyala</button>
         <button class="btn" type="button" data-goto="market">${SVG.cart} Market</button>
@@ -1005,6 +1020,14 @@ async function renderSettings() {
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn btn-sm" type="button" data-goto="account">${SVG.user} ${state.user ? 'Hesabım' : 'Giriş yap'}</button>
         ${state.user ? `<button class="btn btn-sm btn-danger" type="button" id="settingsLogout">${SVG.logout} Oturumu kapat</button>` : ''}
+      </div>
+    </div>
+
+    <div class="signature">
+      <img src="asset/logo.png" alt="">
+      <div class="signature-text">
+        <em>Severek yapıldı.</em>
+        Turbolu Studios · TurboluApp PC
       </div>
     </div>`;
 

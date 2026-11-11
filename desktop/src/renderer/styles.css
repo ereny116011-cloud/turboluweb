@@ -692,6 +692,129 @@ select.input { cursor: pointer; }
 ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); background-clip: content-box; }
 
+/* ---------------- İnsan dokunuşu ----------------
+   Amaç: arayüz "hazır şablon" gibi değil, elle hazırlanmış gibi dursun.
+   Kağıt dokusu, hafif eğik damga, el çizimi alt çizgi ve asimetrik
+   köşeler bu hissi verir; hepsi tema değişkenleriyle çalışır. */
+
+/* Kağıt tanesi: tüm arayüzün üzerinde çok hafif bir film görevi görür. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  opacity: .05;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+:root[data-theme="light"] body::after { opacity: .06; mix-blend-mode: multiply; }
+
+/* Başlık altındaki el çizimi çizgi */
+.title-underline {
+  display: block;
+  width: 128px;
+  height: 9px;
+  margin: 5px 0 0;
+  color: var(--accent);
+  opacity: .75;
+}
+
+/* Asimetrik köşeler: kusursuz dikdörtgen yerine hafif "elle kesilmiş" his */
+.card { border-radius: 19px 15px 21px 16px; }
+.feed-item { border-radius: 14px 11px 16px 12px; }
+.item-card { border-radius: 18px 14px 20px 15px; }
+.hero { border-radius: 28px 20px 26px 22px; }
+.modal { border-radius: 20px 16px 22px 17px; }
+
+/* Kahraman kartında çok hafif eskiz taraması */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .5;
+  background-image: repeating-linear-gradient(135deg, transparent 0 15px, rgba(255, 255, 255, .03) 15px 16px);
+  -webkit-mask-image: linear-gradient(115deg, transparent 35%, #000 100%);
+  mask-image: linear-gradient(115deg, transparent 35%, #000 100%);
+}
+
+/* "El emeği" damgası */
+.hero-stamp {
+  position: absolute;
+  right: 26px;
+  top: 22px;
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1.45;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(-11deg);
+  opacity: .7;
+  pointer-events: none;
+}
+.hero-stamp small { font-size: 8px; letter-spacing: .2em; opacity: .8; }
+
+/* Seçili menü öğesinde küçük el çizimi tık */
+.nav-item { position: relative; }
+.nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  width: 3px;
+  height: 15px;
+  border-radius: 3px;
+  background: var(--accent);
+  transform: translateY(-50%) rotate(4deg);
+}
+
+/* Kart ve başlıklarda minicik eğim: düzenli ızgarayı yumuşatır */
+.titlebar-badge { transform: rotate(-2deg); }
+.feed-item:hover { transform: translateY(-1px) rotate(-.12deg); }
+.item-card:hover { transform: translateY(-2px) rotate(.15deg); }
+
+/* Birincil düğmede iç ışık; düz gradyan yerine hafif hacim */
+.btn-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .28),
+    0 6px 18px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* Ayarlar sayfasındaki imza satırı */
+.signature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-strong);
+  color: var(--text-dim);
+}
+.signature img { width: 26px; height: 26px; border-radius: 7px; transform: rotate(-4deg); }
+.signature-text { font-size: 12px; line-height: 1.5; }
+.signature-text em {
+  display: block;
+  font-family: "Segoe Print", "Segoe Script", "Bradley Hand", cursive;
+  font-style: normal;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+.handwritten { font-family: "Segoe Print", "Segoe Script", "Bradley Hand", cursive; }
+
+::selection { background: var(--accent-soft); color: var(--text); }
+
 /* ---------------- Duyarlı ---------------- */
 
 @media (max-width: 1040px) {
@@ -710,6 +833,7 @@ select.input { cursor: pointer; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .hero { padding: 24px; }
   .hero h2 { font-size: 25px; }
+  .hero-stamp { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
