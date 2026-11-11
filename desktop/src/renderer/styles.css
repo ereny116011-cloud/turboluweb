@@ -870,11 +870,276 @@ body::after {
 .admin-content-grid { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 16px; align-items: start; }
 textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; }
 
+/* ---------------- El yapımı görünüm, ikinci geçiş ----------------
+   Amaç: soğuk "hazır şablon" yerine bir stüdyo defteri. Serif başlıklar,
+   kağıt bandı, el çizimi manzara, defter kenarı ve fiyat etiketi bu hissi
+   kurar. Tüm renkler tema değişkenlerinden gelir. */
+
+:root {
+  --ink-warm: #e7c07b;
+  --ink-warm-soft: rgba(231, 192, 123, .14);
+  --display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, "Times New Roman", serif;
+}
+
+:root[data-theme="light"] {
+  --ink-warm: #a9761f;
+  --ink-warm-soft: rgba(169, 118, 31, .12);
+}
+
+/* Serif başlıklar: el yazısına yakın, editoryal bir doku */
+.page-title,
+.hero h2,
+.profile-name {
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+.page-title { font-size: 27px; }
+.hero h2 { font-size: 31px; line-height: 1.12; }
+.card-title { font-family: var(--display); font-size: 15.5px; font-weight: 700; }
+.section-head { border-bottom: 1px dashed var(--border-strong); padding-bottom: 9px; margin-bottom: 14px; }
+.section-head h3 { font-family: var(--display); font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+
+/* Sayfa başlığındaki tarih: ajanda satırı gibi */
+.page-kicker { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.page-dateline {
+  padding-left: 10px;
+  border-left: 1px dashed var(--border-strong);
+  color: var(--text-dim);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+
+/* Sol üstteki defter etiketi */
+.side-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 6px 14px;
+  margin-bottom: 2px;
+  border-bottom: 1px dashed var(--border-strong);
+}
+.side-brand-logo {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 13px 10px 14px 11px;
+  background: var(--surface-2);
+  transform: rotate(-3deg);
+}
+.side-brand-logo img { border-radius: 8px; }
+.side-brand-copy { flex: 1; min-width: 0; }
+.side-brand-copy strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 18px;
+  line-height: 1.05;
+}
+.side-brand-copy small {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.side-brand-year {
+  align-self: flex-start;
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--text-dim);
+  transform: rotate(4deg);
+}
+
+/* Seçili menü "kağıt sekmesi" gibi hafif eğik dursun */
+.nav-item.is-active { transform: rotate(-.3deg); }
+
+/* Kahraman kartı: yapıştırılmış kağıt bandı + el çizimi manzara */
+.hero { overflow: visible; padding-right: 330px; }
+.hero::after { display: none; }
+.hero > * { position: relative; z-index: 1; }
+.hero-art {
+  position: absolute;
+  right: 30px;
+  bottom: 16px;
+  width: 296px;
+  z-index: 0;
+  opacity: .9;
+  pointer-events: none;
+}
+.hero-art svg { display: block; width: 100%; height: auto; }
+.hero-stamp { position: absolute; z-index: 2; }
+
+.hero-tape,
+.card-tape {
+  position: absolute;
+  top: -11px;
+  left: 36px;
+  width: 112px;
+  height: 26px;
+  z-index: 3;
+  transform: rotate(-2.6deg);
+  background:
+    repeating-linear-gradient(90deg,
+      color-mix(in srgb, var(--ink-warm) 24%, transparent) 0 9px,
+      color-mix(in srgb, var(--ink-warm) 12%, transparent) 9px 18px);
+  border-left: 1px dashed color-mix(in srgb, var(--ink-warm) 42%, transparent);
+  border-right: 1px dashed color-mix(in srgb, var(--ink-warm) 42%, transparent);
+  clip-path: polygon(2% 8%, 98% 0, 100% 92%, 1% 100%);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .18);
+  opacity: .8;
+  pointer-events: none;
+}
+
+.card-tape {
+  top: -10px;
+  left: 50%;
+  margin-left: -48px;
+  width: 96px;
+  height: 24px;
+  transform: rotate(-2deg);
+}
+
+/* Giriş kartının üstündeki el yazısı not */
+.auth-card { position: relative; }
+.auth-note {
+  margin: 0 0 12px 8px;
+  font-size: 14px;
+  color: var(--ink-warm);
+  transform: rotate(-1.2deg);
+}
+
+/* Karşılama cümlesinde fosforlu kalem izi */
+.hero h2 .marker { position: relative; display: inline-block; isolation: isolate; }
+.hero h2 .marker::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  right: -5px;
+  bottom: 3px;
+  height: .44em;
+  border-radius: 4px 9px 5px 10px;
+  background: color-mix(in srgb, var(--accent) 42%, transparent);
+  transform: rotate(-1.2deg) skewX(-6deg);
+  z-index: -1;
+}
+
+/* Akış öğeleri: defter kenarındaki iğne deliği ve dikey çizgi */
+.feed-item { position: relative; padding-left: 24px; }
+.feed-item::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 16px;
+  bottom: 16px;
+  width: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+.feed-item::after {
+  content: "";
+  position: absolute;
+  left: 5.5px;
+  top: 15px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  border: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+}
+@keyframes noteIn { from { opacity: 0; transform: translateY(6px); } }
+.feed-item { animation: noteIn 320ms cubic-bezier(.22, .8, .32, 1) backwards; }
+.feed-item:nth-child(2) { animation-delay: 40ms; }
+.feed-item:nth-child(3) { animation-delay: 80ms; }
+.feed-item:nth-child(4) { animation-delay: 120ms; }
+.feed-item:nth-child(5) { animation-delay: 160ms; }
+.feed-item:nth-child(6) { animation-delay: 200ms; }
+
+/* Düğmeler ve alanlar: maket bıçağıyla kesilmiş gibi asimetrik köşe */
+.btn { border-radius: 12px 9px 13px 10px; }
+.btn-sm { border-radius: 9px 7px 10px 8px; }
+.input { border-radius: 11px 8px 12px 9px; }
+.segmented button.is-active { transform: rotate(-.6deg); }
+
+/* Market: etiketli fiyat + hafif eğik ürün simgesi */
+.item-card { padding: 20px 18px 18px; }
+.item-glyph {
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 14px 10px 16px 11px;
+  transform: rotate(-2deg);
+  transition: transform 220ms ease;
+}
+.item-card:hover .item-glyph { transform: rotate(2deg) translateY(-1px); }
+.item-price { margin: 6px 0 0; }
+.price-tag {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 4px 11px 4px 20px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 5px 10px 10px 5px;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.price-tag::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* Boş durum simgesi: deftere çizilmiş yuvarlak */
+.empty svg {
+  width: 52px;
+  height: 52px;
+  padding: 11px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 50% 47% 52% 49%;
+}
+
+/* Genel bakışın sonundaki el yazısı imza */
+.overview-signoff {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 10px;
+  margin: 26px 2px 0;
+  color: var(--text-dim);
+  font-size: 11.5px;
+}
+.overview-signoff .handwritten {
+  display: inline-block;
+  font-size: 20px;
+  color: var(--ink-warm);
+  transform: rotate(-1.4deg);
+}
+
 /* ---------------- Duyarlı ---------------- */
 
 @media (max-width: 1040px) {
   .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .view { padding: 24px 22px 40px; }
+  .hero { padding-right: 272px; }
+  .hero-art { width: 236px; right: 22px; }
+  .hero-tape { left: 26px; }
+}
+
+@media (max-width: 1000px) {
+  .hero { padding-right: 24px; }
+  .hero-art { display: none; }
+  .hero-tape { left: 22px; }
 }
 
 @media (max-width: 860px) {
@@ -886,9 +1151,12 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; }
   .account-chip-text, #accountChipAction { display: none; }
   .account-chip { justify-content: center; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  .hero { padding: 24px; }
+  .hero { padding: 24px; padding-right: 24px; }
   .hero h2 { font-size: 25px; }
   .hero-stamp { display: none; }
+  .hero-art { display: none; }
+  .side-brand { justify-content: center; padding: 0 0 12px; }
+  .side-brand-copy, .side-brand-year { display: none; }
   .admin-content-grid { grid-template-columns: 1fr; }
   .user-row { flex-wrap: wrap; }
   .user-actions { width: 100%; justify-content: flex-start; }

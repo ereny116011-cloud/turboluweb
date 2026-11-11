@@ -37,7 +37,34 @@ const SVG = {
   plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="m6.5 7 1 12a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1l1-12"/><path d="M10 11v5M14 11v5"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>',
-  ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg>'
+  ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg>',
+  /* El çizimi manzara: kahraman kartının sağ altında durur. */
+  doodle: `<svg viewBox="0 0 260 170" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <circle cx="196" cy="42" r="17" stroke="var(--ink-warm)" stroke-width="1.6" opacity=".85"/>
+    <path d="M188 36c3 2 5 3 9 3M199 49c2-1 4-1 6-1" stroke="var(--ink-warm)" stroke-width="1.1" opacity=".5"/>
+    <path d="M62 28v8M58 32h8" stroke="var(--accent)" stroke-width="1.2" opacity=".6"/>
+    <path d="M124 18v6M121 21h6" stroke="var(--accent)" stroke-width="1.1" opacity=".45"/>
+    <circle cx="160" cy="24" r="1.4" fill="var(--accent)" opacity=".6"/>
+    <circle cx="88" cy="52" r="1.2" fill="var(--accent)" opacity=".5"/>
+    <path d="M6 146c18-20 36-27 54-24 20 3 30 14 46 13 18-1 25-11 43-12 22-1 34 11 55 12 14 1 28-4 50-7" stroke="var(--accent)" stroke-width="1.8" opacity=".5"/>
+    <path d="M24 146c6-14 16-22 30-23 12-1 21 5 29 13" stroke="var(--accent)" stroke-width="1.4" opacity=".32"/>
+    <path d="M118 158c-4-14 2-24 12-31 8-6 16-10 24-18" stroke="var(--cyan)" stroke-width="1.4" stroke-dasharray="3 6" opacity=".5"/>
+    <g stroke="var(--accent)" stroke-width="1.5" opacity=".78">
+      <path d="M74 118l-9 16h18z"/><path d="M74 108l-7 13h14z"/><path d="M74 129v7"/>
+    </g>
+    <g stroke="var(--accent)" stroke-width="1.3" opacity=".6">
+      <path d="M44 126l-7 13h14z"/><path d="M44 136v6"/>
+    </g>
+    <g stroke="var(--accent)" stroke-width="1.3" opacity=".55">
+      <path d="M204 122l-7 13h14z"/><path d="M204 132v6"/>
+    </g>
+    <g stroke="var(--ink-warm)" stroke-width="1.4">
+      <path d="M158 140v-20h30v20"/><path d="M154 121l19-13 19 13"/>
+      <rect x="170" y="128" width="7" height="12" rx="1"/><path d="M166 131h-4M184 131h4"/>
+    </g>
+    <path d="M177 104c-4-5 2-7 0-11-2-3 2-4 2-7" stroke="var(--text-dim)" stroke-width="1.2" opacity=".4"/>
+    <path d="M96 146v-7M104 147v-7M112 148v-7" stroke="var(--ink-warm)" stroke-width="1.2" opacity=".4"/>
+  </svg>`
 };
 
 const state = {
@@ -456,7 +483,7 @@ function pageHead(kicker, title, subtitle, action) {
   return `
     <div class="page-head">
       <div>
-        <p class="page-kicker">${esc(kicker)}</p>
+        <p class="page-kicker">${esc(kicker)}<span class="page-dateline">${esc(dayLabel())}</span></p>
         <h1 class="page-title">${esc(title)}</h1>
         <svg class="title-underline" viewBox="0 0 160 10" fill="none" aria-hidden="true" preserveAspectRatio="none">
           <path d="M2 6.2C28 3.1 55 7.4 84 4.8c26-2.3 46 .8 74-1.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
@@ -466,6 +493,18 @@ function pageHead(kicker, title, subtitle, action) {
       </div>
       ${action || ''}
     </div>`;
+}
+
+/* Her sayfanın başında görünen tarih; ajanda hissi verir. */
+function dayLabel() {
+  const now = new Date();
+  try {
+    const day = now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const weekday = now.toLocaleDateString('tr-TR', { weekday: 'long' });
+    return `${day} · ${weekday}`;
+  } catch (_) {
+    return now.toISOString().slice(0, 10);
+  }
 }
 
 function greetingForNow() {
@@ -479,14 +518,16 @@ function greetingForNow() {
 function renderOverview() {
   const user = state.user;
   const greeting = user
-    ? `${greetingForNow()}, ${esc(user.username)}!`
-    : `${greetingForNow()}! Turbolu dünyasına hoş geldin.`;
+    ? `${greetingForNow()}, <span class="marker">${esc(user.username)}</span>!`
+    : `${greetingForNow()}! <span class="marker">Turbolu</span> dünyasına hoş geldin.`;
   const balance = user ? `${fmtNumber(user.balance)} puan` : 'Misafir';
 
   $('#view').innerHTML = `
     ${pageHead('Turbolu Studios', 'Genel Bakış', 'Sunucu durumu, duyurular ve hesabın tek ekranda.')}
     <section class="hero">
       <span class="hero-stamp" aria-hidden="true">El emeği<small>PC sürümü</small></span>
+      <span class="hero-tape" aria-hidden="true"></span>
+      <div class="hero-art" aria-hidden="true">${SVG.doodle}</div>
       <p class="hero-eyebrow">${SVG.spark} TurboluApp PC</p>
       <h2>${greeting}</h2>
       <p>Sunucuların canlı durumu, son duyurular ve market tek pencerede. Aşağıdaki kartlardan başlayabilirsin.</p>
@@ -512,7 +553,8 @@ function renderOverview() {
       <h3>Son duyurular</h3>
       <button class="link" type="button" data-goto="announcements">Tümünü gör</button>
     </div>
-    <div id="overviewFeed" class="feed"><div class="skeleton" style="height:86px"></div><div class="skeleton" style="height:86px"></div></div>`;
+    <div id="overviewFeed" class="feed"><div class="skeleton" style="height:86px"></div><div class="skeleton" style="height:86px"></div></div>
+    <p class="overview-signoff"><span class="handwritten">iyi oyunlar!</span><span>— Turbolu Studios, ${esc(dayLabel())}</span></p>`;
 
   paintServerGrid();
   paintHeroPlayers();
@@ -642,7 +684,7 @@ function itemCard(item) {
       <div class="item-glyph">${SVG.package}</div>
       <div>
         <h4 class="item-name">${esc(item.name || 'Ürün')}</h4>
-        <p class="item-price"><b>${fmtNumber(price)}</b> puan</p>
+        <p class="item-price"><span class="price-tag"><b>${fmtNumber(price)}</b> puan</span></p>
       </div>
       ${platformBadge(item.platform)}
       <button class="btn btn-primary btn-sm btn-block" type="button"
@@ -726,7 +768,9 @@ async function buyItem(itemId, name, price) {
 function authCard() {
   return `
     <div class="auth-shell">
+      <p class="auth-note handwritten">küçük not: parolanı kimseyle paylaşma.</p>
       <div class="card auth-card">
+        <span class="card-tape" aria-hidden="true"></span>
         <div class="auth-tabs" role="tablist">
           <button class="auth-tab is-active" type="button" data-auth-tab="login" role="tab" aria-selected="true">Giriş yap</button>
           <button class="auth-tab" type="button" data-auth-tab="register" role="tab" aria-selected="false">Kayıt ol</button>
