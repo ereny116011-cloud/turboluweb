@@ -32,7 +32,12 @@ const SVG = {
   package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4v10l-8 4-8-4V7l8-4Z"/><path d="m4 7 8 4 8-4"/><path d="M12 11v10"/></svg>',
   logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7"/><path d="M17 8.5 20.5 12 17 15.5"/><path d="M10.5 12h10"/></svg>',
   server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.6"/><rect x="4" y="14" width="16" height="6" rx="1.6"/><path d="M7.5 7h.01M7.5 17h.01"/></svg>',
-  spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>'
+  spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.2 2.9 7.4 7 9 4.1-1.6 7-4.8 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="m6.5 7 1 12a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1l1-12"/><path d="M10 11v5M14 11v5"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>',
+  ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg>'
 };
 
 const state = {
@@ -218,12 +223,20 @@ async function clearSession() {
   paintAccountChip();
 }
 
+function paintAdminNav() {
+  const item = $('#navAdmin');
+  if (!item) return;
+  const isAdmin = Boolean(state.user && state.user.isAdmin);
+  item.hidden = !isAdmin;
+}
+
 function paintAccountChip() {
   const user = state.user;
   const avatar = $('#accountChipAvatar');
   const nameEl = $('#accountChipName');
   const metaEl = $('#accountChipMeta');
   const action = $('#accountChipAction');
+  paintAdminNav();
   if (!avatar) return;
 
   if (user) {
@@ -397,7 +410,8 @@ const PAGES = {
   campaigns: { title: 'Kampanyalar', render: () => renderFeed('campaigns') },
   market: { title: 'Market', render: renderMarket },
   account: { title: 'Hesabım', render: renderAccount },
-  settings: { title: 'Ayarlar', render: renderSettings }
+  settings: { title: 'Ayarlar', render: renderSettings },
+  admin: { title: 'Yönetim', render: renderAdmin }
 };
 
 function navigate(page) {
@@ -1058,6 +1072,551 @@ async function renderSettings() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Sayfa: Yönetim                                                      */
+/* ------------------------------------------------------------------ */
+
+let adminTab = 'requests';
+let adminContentType = 'announcements';
+let adminUsers = [];
+let adminUserQuery = '';
+
+const ADMIN_CONTENT = {
+  announcements: {
+    label: 'Duyurular',
+    endpoint: '/api/announcements',
+    create: '/api/admin/announcement',
+    remove: '/api/admin/announcement'
+  },
+  news: {
+    label: 'Haberler',
+    endpoint: '/api/news',
+    create: '/api/admin/news',
+    remove: '/api/admin/news'
+  },
+  campaigns: {
+    label: 'Kampanyalar',
+    endpoint: '/api/campaigns',
+    create: '/api/admin/campaign',
+    remove: '/api/admin/campaign'
+  },
+  items: {
+    label: 'Market ürünleri',
+    endpoint: '/api/items',
+    create: '/api/admin/item',
+    remove: ''
+  }
+};
+
+function isAdminUser() {
+  return Boolean(state.user && state.user.isAdmin);
+}
+
+function adminTabButton(tab, label) {
+  return `<button type="button" role="tab" aria-selected="${adminTab === tab}" data-admin="admin-tab" data-tab="${tab}" class="${adminTab === tab ? 'is-active' : ''}">${esc(label)}</button>`;
+}
+
+function renderAdmin() {
+  if (!isAdminUser()) {
+    $('#view').innerHTML = `
+      ${pageHead('Yönetim', 'Yetkisiz', 'Bu sayfa yalnızca yönetici hesapları için açıktır.')}
+      <div class="empty">
+        ${SVG.ban}
+        <strong>Yönetici yetkisi gerekli</strong>
+        <p>Yönetim araçlarını görmek için yönetici bir hesapla giriş yap.</p>
+      </div>`;
+    return;
+  }
+
+  $('#view').innerHTML = `
+    ${pageHead('Yönetim', 'Yönetim', 'Talepleri sonuçlandır, hesapları yönet ve içerik ekle.')}
+    <div class="segmented admin-tabs" role="tablist" aria-label="Yönetim bölümleri">
+      ${adminTabButton('requests', 'Talepler')}
+      ${adminTabButton('users', 'Kullanıcılar')}
+      ${adminTabButton('content', 'İçerik')}
+    </div>
+    <div id="adminBody" style="margin-top:16px"></div>`;
+
+  paintAdminBody();
+}
+
+function paintAdminBody() {
+  if (adminTab === 'users') { paintAdminUsers(); return; }
+  if (adminTab === 'content') { paintAdminContent(); return; }
+  paintAdminRequests();
+}
+
+/* ---------------- Talepler ---------------- */
+
+async function paintAdminRequests() {
+  const host = $('#adminBody');
+  if (!host) return;
+  host.innerHTML = '<div class="skeleton" style="height:92px"></div><div class="skeleton" style="height:92px;margin-top:10px"></div>';
+
+  const response = await api('/api/admin/requests');
+  const target = $('#adminBody');
+  if (!target || target !== host) return;
+
+  if (!response.ok || !Array.isArray(response.data)) {
+    target.innerHTML = emptyState('Talepler yüklenemedi', apiError(response, 'Talepler şu an görüntülenemiyor.'), true);
+    return;
+  }
+
+  const list = response.data.slice().sort((a, b) => {
+    const aPending = (a.status || 'pending') === 'pending' ? 0 : 1;
+    const bPending = (b.status || 'pending') === 'pending' ? 0 : 1;
+    if (aPending !== bPending) return aPending - bPending;
+    return String(b.date || '').localeCompare(String(a.date || ''));
+  });
+  const pending = list.filter((entry) => (entry.status || 'pending') === 'pending').length;
+
+  target.innerHTML = `
+    <div class="admin-toolbar">
+      <span class="card-note">${list.length} talep · <b>${pending}</b> bekliyor</span>
+      <button class="btn btn-sm btn-ghost" type="button" data-admin="refresh-requests" style="margin-left:auto">${SVG.refresh} Yenile</button>
+    </div>
+    ${list.length
+      ? `<div class="feed">${list.map(adminRequestCard).join('')}</div>`
+      : emptyState('Henüz talep yok', 'Bir kullanıcı marketten ürün aldığında talep burada görünür.')}`;
+}
+
+function adminRequestCard(req) {
+  const status = String(req.status || 'pending');
+  const pending = status === 'pending';
+  return `
+    <article class="feed-item">
+      <div class="admin-item-head">
+        <div style="min-width:0">
+          <h4>${esc(req.item || 'Ürün')}</h4>
+          <p>${esc(req.user || '—')} · ${fmtNumber(req.price)} puan · ${esc(fmtDate(req.date))}</p>
+        </div>
+        ${statusBadge(status)}
+      </div>
+      <div class="feed-meta">
+        ${platformBadge(req.platform)}
+        ${req.command ? `<code class="admin-code">${esc(req.command)}</code>` : ''}
+        ${pending ? `<span class="admin-actions">
+          <button class="btn btn-sm btn-primary" type="button" data-admin="complete-request" data-id="${esc(req.id)}">${SVG.check} Onayla</button>
+          <button class="btn btn-sm btn-danger" type="button" data-admin="reject-request" data-id="${esc(req.id)}">Reddet</button>
+        </span>` : ''}
+      </div>
+    </article>`;
+}
+
+/* ---------------- Kullanıcılar ---------------- */
+
+async function paintAdminUsers() {
+  const host = $('#adminBody');
+  if (!host) return;
+  host.innerHTML = '<div class="skeleton" style="height:64px"></div><div class="skeleton" style="height:64px;margin-top:8px"></div>';
+
+  const response = await api('/api/admin/users');
+  const target = $('#adminBody');
+  if (!target || target !== host) return;
+
+  if (!response.ok || !Array.isArray(response.data)) {
+    target.innerHTML = emptyState('Hesaplar yüklenemedi', apiError(response, 'Hesap listesi şu an görüntülenemiyor.'), true);
+    return;
+  }
+
+  adminUsers = response.data;
+  target.innerHTML = `
+    <div class="admin-toolbar">
+      <label class="admin-search">
+        ${SVG.search}
+        <input class="input" id="adminUserSearch" type="search" placeholder="Kullanıcı adı veya e-posta ara" value="${esc(adminUserQuery)}">
+      </label>
+      <span class="card-note">${adminUsers.length} hesap</span>
+      <button class="btn btn-sm btn-ghost" type="button" data-admin="refresh-users">${SVG.refresh} Yenile</button>
+    </div>
+    <div id="adminUserList"></div>`;
+
+  paintAdminUserList();
+  $('#adminUserSearch')?.addEventListener('input', (event) => {
+    adminUserQuery = event.target.value;
+    paintAdminUserList();
+  });
+}
+
+function paintAdminUserList() {
+  const host = $('#adminUserList');
+  if (!host) return;
+  const query = adminUserQuery.trim().toLowerCase();
+  const list = query
+    ? adminUsers.filter((user) =>
+      String(user.username || '').toLowerCase().includes(query) ||
+      String(user.email || '').toLowerCase().includes(query))
+    : adminUsers;
+
+  if (!list.length) {
+    host.innerHTML = emptyState('Eşleşen hesap yok', 'Arama ifadesini değiştirip tekrar dene.');
+    return;
+  }
+  host.innerHTML = list.map(adminUserRow).join('');
+}
+
+function adminUserRow(user) {
+  const icon = safeImageSrc(user.icon);
+  const badges = [
+    user.isAdmin ? '<span class="badge badge-green">Yönetici</span>' : '',
+    user.banned ? '<span class="badge badge-red">Yasaklı</span>' : ''
+  ].filter(Boolean).join(' ');
+  const banNote = user.banned
+    ? `<small class="admin-note">${user.banType === 'permanent' ? 'Kalıcı yasak' : 'Yasak bitişi: ' + esc(fmtDate(user.banUntil))}${user.banReason ? ' · ' + esc(user.banReason) : ''}</small>`
+    : '';
+
+  const actions = user.isAdmin
+    ? '<span class="badge">Korunan hesap</span>'
+    : `
+      ${user.banned
+        ? `<button class="btn btn-sm" type="button" data-admin="unban" data-user="${esc(user.username)}">Yasağı kaldır</button>`
+        : `<button class="btn btn-sm btn-danger" type="button" data-admin="ban" data-user="${esc(user.username)}">${SVG.ban} Yasakla</button>`}
+      <button class="btn btn-sm btn-ghost" type="button" data-admin="delete-user" data-user="${esc(user.username)}">${SVG.trash} Sil</button>`;
+
+  return `
+    <div class="user-row">
+      <div class="user-avatar">${icon ? `<img src="${esc(icon)}" alt="">` : esc(initial(user.username))}</div>
+      <div class="user-main">
+        <strong>${esc(user.username)} ${badges}</strong>
+        <small>${esc(user.email || 'e-posta yok')} · ${fmtNumber(user.balance)} puan${user.lastLogin ? ' · son giriş ' + esc(fmtDate(user.lastLogin, true)) : ''}</small>
+        ${banNote}
+      </div>
+      <div class="user-actions">${actions}</div>
+    </div>`;
+}
+
+function banDialog(username) {
+  return new Promise((resolve) => {
+    const root = $('#modalRoot');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    backdrop.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="banTitle">
+        <h3 id="banTitle">Hesabı yasakla</h3>
+        <p><b>${esc(username)}</b> için yasak türünü ve sebebini belirle.</p>
+        <div class="field">
+          <label for="banType">Tür</label>
+          <select class="input" id="banType">
+            <option value="temporary">Süreli</option>
+            <option value="permanent">Kalıcı</option>
+          </select>
+        </div>
+        <div class="field" id="banHoursField">
+          <label for="banHours">Süre (saat)</label>
+          <input class="input" id="banHours" type="number" min="1" max="87600" step="1" value="24">
+        </div>
+        <div class="field">
+          <label for="banReason">Sebep (isteğe bağlı)</label>
+          <input class="input" id="banReason" maxlength="300" placeholder="Örn. küfür, spam">
+        </div>
+        <p class="form-error" id="banError"></p>
+        <div class="modal-actions">
+          <button class="btn btn-ghost btn-sm" type="button" data-ban="cancel">Vazgeç</button>
+          <button class="btn btn-danger btn-sm" type="button" data-ban="ok">${SVG.ban} Yasakla</button>
+        </div>
+      </div>`;
+
+    const finish = (value) => {
+      document.removeEventListener('keydown', onKey);
+      backdrop.remove();
+      resolve(value);
+    };
+    const onKey = (event) => {
+      if (event.key === 'Escape') finish(null);
+    };
+
+    const type = $('#banType', backdrop);
+    const hoursField = $('#banHoursField', backdrop);
+    type.addEventListener('change', () => {
+      hoursField.style.display = type.value === 'permanent' ? 'none' : '';
+    });
+
+    backdrop.addEventListener('click', (event) => {
+      if (event.target === backdrop) { finish(null); return; }
+      const action = event.target.closest('[data-ban]');
+      if (!action) return;
+      if (action.dataset.ban === 'cancel') { finish(null); return; }
+
+      const hours = Number($('#banHours', backdrop).value);
+      if (type.value === 'temporary' && (!Number.isFinite(hours) || hours <= 0)) {
+        $('#banError', backdrop).textContent = 'Geçerli bir süre gir.';
+        return;
+      }
+      finish({
+        type: type.value,
+        durationHours: hours,
+        reason: $('#banReason', backdrop).value.trim()
+      });
+    });
+
+    document.addEventListener('keydown', onKey);
+    root.appendChild(backdrop);
+    type.focus();
+  });
+}
+
+/* ---------------- İçerik ---------------- */
+
+function paintAdminContent() {
+  const host = $('#adminBody');
+  if (!host) return;
+
+  const tabs = Object.entries(ADMIN_CONTENT).map(([key, meta]) =>
+    `<button type="button" role="tab" aria-selected="${adminContentType === key}" data-admin="content-tab" data-type="${key}" class="${adminContentType === key ? 'is-active' : ''}">${esc(meta.label)}</button>`
+  ).join('');
+
+  host.innerHTML = `
+    <div class="segmented admin-tabs admin-tabs-sub" role="tablist" aria-label="İçerik türleri">${tabs}</div>
+    <div class="admin-content-grid">
+      <div>${adminContentForm(adminContentType)}</div>
+      <div id="adminContentList" class="feed">
+        <div class="skeleton" style="height:92px"></div>
+        <div class="skeleton" style="height:92px"></div>
+      </div>
+    </div>`;
+
+  paintAdminContentList();
+}
+
+function adminContentForm(type) {
+  const meta = ADMIN_CONTENT[type];
+  let fields = '';
+
+  if (type === 'announcements' || type === 'news') {
+    fields = `
+      <div class="field"><label for="contentTitle">Başlık</label><input class="input" id="contentTitle" name="title" required maxlength="120"></div>
+      <div class="field"><label for="contentBody">İçerik</label><textarea class="input" id="contentBody" name="content" rows="6" required></textarea></div>`;
+  } else if (type === 'campaigns') {
+    fields = `
+      <div class="field"><label for="contentTitle">Başlık</label><input class="input" id="contentTitle" name="title" required maxlength="120"></div>
+      <div class="field"><label for="contentBody">Açıklama</label><textarea class="input" id="contentBody" name="description" rows="4" required></textarea></div>
+      <div class="field"><label for="contentReward">Ödül</label><input class="input" id="contentReward" name="reward" maxlength="80" placeholder="Örn. 500 puan"></div>
+      <div class="field"><label for="contentEnd">Bitiş tarihi</label><input class="input" id="contentEnd" name="endDate" type="date"></div>`;
+  } else {
+    fields = `
+      <div class="field"><label for="contentName">Ürün adı</label><input class="input" id="contentName" name="name" required maxlength="120"></div>
+      <div class="field"><label for="contentPrice">Fiyat (puan)</label><input class="input" id="contentPrice" name="price" type="number" min="1" step="1" required></div>
+      <div class="field"><label for="contentCommand">Komut</label><input class="input" id="contentCommand" name="command" maxlength="200" placeholder="give {oyuncu} diamond 1"></div>`;
+  }
+
+  return `
+    <form class="card admin-form" data-admin-form="${type}">
+      <div class="card-head"><h3 class="card-title">${esc(meta.label)} · yeni kayıt</h3></div>
+      ${fields}
+      <div class="field">
+        <label for="contentPlatform">Platform</label>
+        <select class="input" id="contentPlatform" name="platform">
+          <option value="all">İkisi de</option>
+          <option value="java">Java</option>
+          <option value="bedrock">Bedrock</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">${SVG.plus} Ekle</button>
+    </form>`;
+}
+
+async function paintAdminContentList() {
+  const host = $('#adminContentList');
+  if (!host) return;
+  const meta = ADMIN_CONTENT[adminContentType];
+  const response = await api(meta.endpoint);
+  const target = $('#adminContentList');
+  if (!target || target !== host) return;
+
+  if (!response.ok || !Array.isArray(response.data)) {
+    target.innerHTML = emptyState('İçerik yüklenemedi', apiError(response, 'Liste şu an görüntülenemiyor.'), true);
+    return;
+  }
+  if (!response.data.length) {
+    target.innerHTML = emptyState('Henüz içerik yok', 'Soldaki formdan ilk kaydı ekleyebilirsin.');
+    return;
+  }
+  target.innerHTML = response.data.map((entry) => adminContentRow(adminContentType, entry)).join('');
+}
+
+function adminContentRow(type, entry) {
+  const meta = ADMIN_CONTENT[type];
+  const deleteButton = meta.remove
+    ? `<button class="btn btn-sm btn-ghost" type="button" data-admin="delete-content" data-type="${esc(type)}" data-id="${esc(entry.id)}">${SVG.trash} Sil</button>`
+    : '';
+
+  let title = entry.title;
+  let body = entry.content;
+  if (type === 'campaigns') body = entry.description;
+  if (type === 'items') {
+    title = entry.name;
+    body = `${fmtNumber(entry.price)} puan${entry.command ? ' · ' + entry.command : ''}`;
+  }
+
+  return `
+    <article class="feed-item">
+      <div class="admin-item-head">
+        <div style="min-width:0">
+          <h4>${esc(title || 'Başlıksız')}</h4>
+          <p>${esc(body || '')}</p>
+        </div>
+        ${deleteButton}
+      </div>
+      <div class="feed-meta">
+        ${platformBadge(entry.platform)}
+        ${entry.date ? `<span>${esc(fmtDate(entry.date))}</span>` : ''}
+        ${entry.endDate ? `<span class="badge">Bitiş: ${esc(fmtDate(entry.endDate, true))}</span>` : ''}
+        ${entry.reward ? `<span class="badge badge-green">Ödül: ${esc(entry.reward)}</span>` : ''}
+      </div>
+    </article>`;
+}
+
+async function submitAdminForm(form) {
+  const type = form.dataset.adminForm;
+  const meta = ADMIN_CONTENT[type];
+  if (!meta) return;
+
+  const values = Object.fromEntries(new FormData(form).entries());
+  let body;
+  if (type === 'campaigns') {
+    body = {
+      title: values.title,
+      description: values.description,
+      reward: values.reward || '',
+      endDate: values.endDate || null,
+      platform: values.platform
+    };
+  } else if (type === 'items') {
+    body = {
+      name: values.name,
+      price: Number(values.price) || 0,
+      command: values.command || '',
+      platform: values.platform
+    };
+  } else {
+    body = { title: values.title, content: values.content, platform: values.platform };
+  }
+
+  const button = form.querySelector('button[type="submit"]');
+  if (button) button.disabled = true;
+  const response = await api(meta.create, { method: 'POST', body });
+  if (button) button.disabled = false;
+
+  if (!response.ok) {
+    toast(apiError(response, 'Kayıt eklenemedi.'), 'error');
+    return;
+  }
+  form.reset();
+  toast('Kayıt eklendi.', 'success');
+  paintAdminContentList();
+}
+
+async function deleteAdminContent(type, id) {
+  const meta = ADMIN_CONTENT[type];
+  if (!meta || !meta.remove) return;
+  const approved = await confirmDialog({
+    title: 'Kaydı sil',
+    message: 'Bu kayıt kalıcı olarak silinsin mi?',
+    confirmText: 'Sil',
+    danger: true
+  });
+  if (!approved) return;
+
+  const response = await api(meta.remove, { method: 'DELETE', body: { id } });
+  if (!response.ok) {
+    toast(apiError(response, 'Kayıt silinemedi.'), 'error');
+    return;
+  }
+  toast('Kayıt silindi.', 'success');
+  paintAdminContentList();
+}
+
+async function handleAdminAction(action, element) {
+  switch (action) {
+    case 'admin-tab':
+      adminTab = element.dataset.tab;
+      renderAdmin();
+      break;
+    case 'content-tab':
+      adminContentType = element.dataset.type;
+      paintAdminContent();
+      break;
+    case 'refresh-requests':
+      paintAdminRequests();
+      break;
+    case 'refresh-users':
+      paintAdminUsers();
+      break;
+    case 'complete-request': {
+      const response = await api('/api/admin/complete-request', {
+        method: 'POST',
+        body: { requestId: element.dataset.id }
+      });
+      if (!response.ok) { toast(apiError(response, 'Talep tamamlanamadı.'), 'error'); return; }
+      toast('Talep tamamlandı.', 'success');
+      paintAdminRequests();
+      break;
+    }
+    case 'reject-request': {
+      const approved = await confirmDialog({
+        title: 'Talebi reddet',
+        message: 'Talep reddedilsin mi? Ücret kullanıcıya iade edilir.',
+        confirmText: 'Reddet',
+        danger: true
+      });
+      if (!approved) return;
+      const response = await api('/api/admin/reject-request', {
+        method: 'POST',
+        body: { requestId: element.dataset.id }
+      });
+      if (!response.ok) { toast(apiError(response, 'Talep reddedilemedi.'), 'error'); return; }
+      toast('Talep reddedildi, bakiye iade edildi.', 'success');
+      paintAdminRequests();
+      break;
+    }
+    case 'ban': {
+      const username = element.dataset.user;
+      const choice = await banDialog(username);
+      if (!choice) return;
+      const response = await api('/api/admin/ban-user', {
+        method: 'POST',
+        body: { username, type: choice.type, durationHours: choice.durationHours, reason: choice.reason }
+      });
+      if (!response.ok) { toast(apiError(response, 'Hesap yasaklanamadı.'), 'error'); return; }
+      toast((response.data && response.data.message) || 'Hesap yasaklandı.', 'success');
+      paintAdminUsers();
+      break;
+    }
+    case 'unban': {
+      const username = element.dataset.user;
+      const approved = await confirmDialog({
+        title: 'Yasağı kaldır',
+        message: `${username} hesabının yasağı kaldırılsın mı?`,
+        confirmText: 'Kaldır'
+      });
+      if (!approved) return;
+      const response = await api('/api/admin/unban-user', { method: 'POST', body: { username } });
+      if (!response.ok) { toast(apiError(response, 'Yasak kaldırılamadı.'), 'error'); return; }
+      toast('Yasak kaldırıldı.', 'success');
+      paintAdminUsers();
+      break;
+    }
+    case 'delete-user': {
+      const username = element.dataset.user;
+      const approved = await confirmDialog({
+        title: 'Hesabı sil',
+        message: `${username} hesabı ve tüm bağlantıları kalıcı olarak silinecek. Bu işlem geri alınamaz.`,
+        confirmText: 'Kalıcı olarak sil',
+        danger: true
+      });
+      if (!approved) return;
+      const response = await api('/api/admin/delete-user', { method: 'POST', body: { username } });
+      if (!response.ok) { toast(apiError(response, 'Hesap silinemedi.'), 'error'); return; }
+      toast((response.data && response.data.message) || 'Hesap silindi.', 'success');
+      paintAdminUsers();
+      break;
+    }
+    case 'delete-content':
+      await deleteAdminContent(element.dataset.type, element.dataset.id);
+      break;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Boş durum                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -1079,6 +1638,12 @@ function bindGlobalEvents() {
   const view = $('#view');
 
   view.addEventListener('click', async (event) => {
+    const adminAction = event.target.closest('[data-admin]');
+    if (adminAction) {
+      await handleAdminAction(adminAction.dataset.admin, adminAction);
+      return;
+    }
+
     const copyTarget = event.target.closest('[data-copy]');
     if (copyTarget) {
       await window.turbolu.clipboard(copyTarget.dataset.copy);
@@ -1116,6 +1681,13 @@ function bindGlobalEvents() {
       event.preventDefault();
       copyTarget.click();
     }
+  });
+
+  view.addEventListener('submit', async (event) => {
+    const form = event.target.closest('[data-admin-form]');
+    if (!form) return;
+    event.preventDefault();
+    await submitAdminForm(form);
   });
 
   $$('.nav-item').forEach((item) => {

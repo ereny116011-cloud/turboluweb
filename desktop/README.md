@@ -17,6 +17,7 @@ doğrudan Worker API'sini kullanır.
 | Duyurular / Haberler / Kampanyalar | Platform filtreli içerik akışları |
 | Market | Ürün listesi, bakiye kontrolü, onaylı satın alma |
 | Hesabım | Giriş/kayıt, profil, bakiye, talepler (envanter) |
+| Yönetim | Talepleri sonuçlandırma, hesap yasaklama/silme ve içerik ekleme (yalnızca yönetici) |
 | Ayarlar | Tema (sistem/koyu/açık), platform filtresi, uygulama bilgisi |
 
 ## Güvenlik modeli
@@ -81,5 +82,13 @@ Uygulama yalnızca şu uçları kullanır:
 - `GET /api/profile`
 - `GET /api/items`, `POST /api/buy`, `GET /api/inventory`
 - `GET /api/announcements`, `GET /api/news`, `GET /api/campaigns`
+
+Yönetici hesabında ek olarak:
+
+- `GET /api/admin/requests`, `GET /api/admin/users`
+- `POST /api/admin/complete-request`, `POST /api/admin/reject-request`
+- `POST /api/admin/ban-user`, `POST /api/admin/unban-user`, `POST /api/admin/delete-user`
+- `POST/DELETE /api/admin/announcement`, `/api/admin/news`, `/api/admin/campaign`
+- `POST /api/admin/item`
 
 Sunucu durumu doğrudan `api.mcsrvstat.us` üzerinden alınır.

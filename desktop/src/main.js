@@ -24,7 +24,18 @@ const API_ROUTES = {
   '/api/inventory': ['GET'],
   '/api/announcements': ['GET'],
   '/api/news': ['GET'],
-  '/api/campaigns': ['GET']
+  '/api/campaigns': ['GET'],
+  '/api/admin/users': ['GET'],
+  '/api/admin/requests': ['GET'],
+  '/api/admin/ban-user': ['POST'],
+  '/api/admin/unban-user': ['POST'],
+  '/api/admin/delete-user': ['POST'],
+  '/api/admin/complete-request': ['POST'],
+  '/api/admin/reject-request': ['POST'],
+  '/api/admin/announcement': ['POST', 'DELETE'],
+  '/api/admin/news': ['POST', 'DELETE'],
+  '/api/admin/campaign': ['POST', 'DELETE'],
+  '/api/admin/item': ['POST']
 };
 
 const SESSION_FILE = 'session.json';
