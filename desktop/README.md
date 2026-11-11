@@ -60,7 +60,8 @@ npm run dist:mac
 macOS paketleri imzasız üretilir; dağıtımdan önce Apple Developer sertifikasıyla
 imzalanmalı ve noter onayından geçirilmelidir (`CSC_LINK`, `CSC_KEY_PASSWORD`).
 Windows'ta kod imzalama sertifikası yoksa SmartScreen uyarısı çıkabilir.
-İmzalama adımları ve gereken GitHub sırları: `desktop/SIGNING.md`.
+Windows paketleri proje sahibinin kendi sertifikasıyla imzalanır; adımlar ve
+gereken GitHub sırları: `desktop/SIGNING.md`.
 
 Her derlemeden sonra `dist/SHA256SUMS.txt` üretilir; doğrulama için
 `npm run checksums` komutu kullanılabilir.

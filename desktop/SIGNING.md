@@ -4,7 +4,7 @@ TurboluApp PC paketleri varsayılan olarak **imzasız** üretilir. İmza, yalnı
 sertifika ve parola ortam değişkenleri verildiğinde otomatik uygulanır; hiçbir
 sır depoya yazılmaz.
 
-## Windows
+## Windows: kendi sertifikan (seçilen yöntem)
 
 Gereken: bir kod imzalama sertifikası (`.pfx` / `.p12`). OV veya EV sertifika
 kullanılabilir. Sertifika yoksa SmartScreen "Bilinmeyen yayıncı" uyarısı verir.
@@ -15,6 +15,36 @@ $env:CSC_LINK = "C:\yol\sertifika.pfx"     # veya base64 metni
 $env:CSC_KEY_PASSWORD = "sertifika-parolasi"
 npm run dist:win
 ```
+
+Sertifika parolası komut satırına yazılmak istenmiyorsa `CSC_KEY_PASSWORD`
+değerini oturum boyunca ortam değişkeni olarak ver veya build sırasında
+PowerShell `Read-Host -AsSecureString` ile al.
+
+### Sertifikan yoksa: kendinden imzalı sertifika
+
+Kendinden imzalı sertifika ücretsizdir ve dosyada geçerli bir imza oluşturur.
+Ancak işletim sistemi sertifikayı güvenilir kabul etmediği için SmartScreen
+uyarısı devam eder; imza yalnızca sertifika o makinede güvenilir listeye
+eklendiğinde doğrulanır. Uyarısız dağıtım için satın alınmış bir OV/EV kod
+imzalama sertifikası gerekir.
+
+```powershell
+# 1) Sertifikayı oluştur (CurrentUser\My deposuna yazılır)
+$cert = New-SelfSignedCertificate `
+  -Type CodeSigningCert `
+  -Subject "CN=Turbolu Studios" `
+  -KeyUsage DigitalSignature `
+  -FriendlyName "TurboluApp Code Signing" `
+  -CertStoreLocation "Cert:\CurrentUser\My" `
+  -NotAfter (Get-Date).AddYears(5)
+
+# 2) Parolalı .pfx olarak dışa aktar
+$pwd = ConvertTo-SecureString -String "PAROLA" -Force -AsPlainText
+Export-PfxCertificate -Cert $cert -FilePath "C:\yol\turbolu-codesign.pfx" -Password $pwd
+```
+
+Ardından yukarıdaki `CSC_LINK` / `CSC_KEY_PASSWORD` değişkenleriyle derle.
+Aynı sertifikayla imzalanmış eski sürümlerin güncellemeleri sorunsuz çalışır.
 
 GitHub Actions için depo sırları:
 
