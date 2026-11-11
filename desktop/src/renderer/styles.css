@@ -1126,6 +1126,348 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; }
   transform: rotate(-1.4deg);
 }
 
+/* ---------------- Karşılama ekranı ---------------- */
+
+body.welcome-open { overflow: hidden; }
+
+.welcome {
+  position: fixed;
+  inset: var(--titlebar-height) 0 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: 26px;
+  overflow: auto;
+  background:
+    radial-gradient(110% 80% at 12% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 62%),
+    var(--bg);
+}
+.welcome[hidden] { display: none; }
+
+.welcome-panel {
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  width: min(960px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface-solid);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  animation: welcomeIn 460ms cubic-bezier(.22, .8, .32, 1) both;
+}
+@keyframes welcomeIn {
+  from { opacity: 0; transform: translateY(14px) scale(.99); }
+}
+
+/* Sol taraf: defter kapağı gibi sakin bir anlatım alanı */
+.welcome-aside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 34px 32px 28px;
+  border-right: 1px solid var(--border);
+  background:
+    linear-gradient(165deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent 68%),
+    var(--surface-2);
+  overflow: hidden;
+}
+.welcome-aside::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(color-mix(in srgb, var(--text-dim) 34%, transparent) .7px, transparent .7px);
+  background-size: 15px 15px;
+  opacity: .3;
+  pointer-events: none;
+}
+.welcome-aside > * { position: relative; z-index: 1; }
+
+.welcome-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: var(--display);
+  font-size: 16px;
+  line-height: 1.1;
+}
+.welcome-brand img {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 2px;
+  background: var(--surface-solid);
+  transform: rotate(-3deg);
+}
+.welcome-brand span { display: flex; flex-direction: column; gap: 3px; }
+.welcome-brand small {
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.welcome-story { margin-top: 10px; }
+.welcome-kicker {
+  margin: 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.welcome-story h1 {
+  margin: 0 0 12px;
+  font-family: var(--display);
+  font-size: clamp(28px, 3.2vw, 36px);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  font-weight: 700;
+}
+.welcome-lede {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+.welcome-art {
+  position: absolute;
+  right: -18px;
+  bottom: 42px;
+  width: 240px;
+  opacity: .5;
+  pointer-events: none;
+}
+.welcome-art svg { display: block; width: 100%; height: auto; }
+.welcome-foot {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: auto 0 0;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.welcome-foot .handwritten {
+  font-size: 19px;
+  color: var(--ink-warm);
+  transform: rotate(-1.6deg);
+}
+
+/* Sağ taraf: giriş formu */
+.welcome-main {
+  display: flex;
+  flex-direction: column;
+  padding: 32px 38px 26px;
+}
+.welcome-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.welcome-step {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.welcome-theme {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+.welcome-theme svg { width: 17px; height: 17px; }
+
+.welcome-main h2 {
+  margin: 0 0 6px;
+  font-family: var(--display);
+  font-size: 29px;
+  line-height: 1.1;
+  letter-spacing: -.015em;
+}
+.welcome-sub {
+  margin: 0 0 20px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.social-host { min-height: 42px; }
+.social-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 650;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 160ms, border-color 160ms, transform 160ms;
+}
+.social-btn:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border-strong));
+  transform: translateY(-1px);
+}
+.social-btn:disabled { opacity: .65; cursor: default; }
+.social-icon {
+  display: inline-flex;
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+.social-icon svg { width: 100%; height: 100%; }
+
+.social-loading,
+.social-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  min-height: 42px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+.social-note svg { width: 16px; height: 16px; flex: none; color: var(--warning); }
+
+.welcome-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  color: var(--text-dim);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.welcome-divider::before,
+.welcome-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+}
+
+.welcome-form { display: flex; flex-direction: column; }
+.welcome-form[hidden] { display: none; }
+.welcome-form:not([hidden]) { animation: welcomeForm 240ms ease both; }
+@keyframes welcomeForm {
+  from { opacity: 0; transform: translateY(5px); }
+}
+
+.welcome-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 13px;
+}
+.welcome-field label {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .03em;
+  color: var(--text-muted);
+}
+.welcome-field .input {
+  padding: 11px 10px;
+  border: 1px solid transparent;
+  border-bottom-color: var(--border-strong);
+  border-radius: 8px;
+  background: transparent;
+  transition: background 180ms, border-color 180ms, border-radius 180ms, box-shadow 180ms;
+}
+.welcome-field .input:hover { border-bottom-color: var(--text-dim); }
+.welcome-field .input:focus {
+  background: var(--surface-2);
+  border-color: var(--accent);
+  border-radius: 9px 7px 10px 8px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.welcome-submit {
+  min-height: 46px;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.welcome-forgot {
+  align-self: center;
+  margin-top: 10px;
+  padding: 2px 4px;
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+.welcome-forgot:hover { color: var(--text-muted); }
+
+.welcome-switch {
+  margin-top: 18px;
+  padding: 8px;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.welcome-switch b {
+  color: var(--text);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+.welcome-guest {
+  margin-top: 2px;
+  padding: 7px;
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.welcome-guest:hover { color: var(--text-muted); }
+
+/* Giriş sırasında dönen küçük halka */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+  vertical-align: -2px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Hesabım sayfasındaki giriş kartında da aynı sosyal düğmeler */
+.auth-social { min-height: 0; }
+.auth-card .welcome-divider { margin: 12px 0 16px; }
+.auth-card .social-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
 /* ---------------- Duyarlı ---------------- */
 
 @media (max-width: 1040px) {
@@ -1160,6 +1502,21 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; }
   .admin-content-grid { grid-template-columns: 1fr; }
   .user-row { flex-wrap: wrap; }
   .user-actions { width: 100%; justify-content: flex-start; }
+}
+
+@media (max-width: 900px) {
+  .welcome-panel { grid-template-columns: 1fr; }
+  .welcome-aside { display: none; }
+  .welcome-main { padding: 30px 28px 24px; }
+}
+
+@media (max-width: 520px) {
+  .welcome { padding: 12px; }
+  .welcome-panel { border-radius: 18px; }
+  .welcome-main { padding: 24px 18px 20px; }
+  .welcome-main h2 { font-size: 25px; }
+  .social-row { grid-template-columns: 1fr; }
+  .auth-card .social-row { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

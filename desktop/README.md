@@ -16,7 +16,8 @@ doğrudan Worker API'sini kullanır.
 | Genel Bakış | Java ve Bedrock sunucu durumu, oyuncu sayısı, son duyurular |
 | Duyurular / Haberler / Kampanyalar | Platform filtreli içerik akışları |
 | Market | Ürün listesi, bakiye kontrolü, onaylı satın alma |
-| Hesabım | Giriş/kayıt, profil, bakiye, talepler (envanter) |
+| Hesabım | Giriş/kayıt, GitHub ve Google ile sosyal giriş, profil, bakiye, talepler (envanter) |
+| Karşılama | İlk açılışta giriş ekranı; misafir olarak devam etme seçeneği |
 | Yönetim | Talepleri sonuçlandırma, hesap yasaklama/silme ve içerik ekleme (yalnızca yönetici) |
 | Ayarlar | Tema (sistem/koyu/açık), platform filtresi, uygulama bilgisi |
 
@@ -35,6 +36,9 @@ doğrudan Worker API'sini kullanır.
 - Medya, bildirim, konum ve diğer tüm tarayıcı izinleri reddedilir.
 - Oturum token'ı `userData/session.json` içinde `safeStorage` ile şifrelenir.
   Şifreleme kullanılamıyorsa (anahtar zinciri olmayan Linux) düz metin saklanır.
+- Sosyal girişte sağlayıcı sayfası sistem tarayıcısında açılır. Dönüş yalnızca
+  `127.0.0.1` üzerindeki tek kullanımlık, rastgele yollu yerel dinleyiciye yapılır;
+  OAuth client secret'ları yalnızca Worker ortamında tutulur.
 
 ## Geliştirme
 

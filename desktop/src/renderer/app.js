@@ -38,6 +38,12 @@ const SVG = {
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="m6.5 7 1 12a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1l1-12"/><path d="M10 11v5M14 11v5"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>',
   ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.5 5.5l1.4 1.4M17.1 17.1l1.4 1.4M18.5 5.5l-1.4 1.4M6.9 17.1l-1.4 1.4"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg>',
+  github: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.16-.02-2.1-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.35.78 1.05.78 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>',
+  google: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.27c0-.79-.07-1.54-.2-2.27H12v4.51h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.86c2.26-2.08 3.57-5.15 3.57-8.87Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.86-3c-1.08.72-2.45 1.15-4.09 1.15-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.29A12 12 0 0 0 0 12c0 1.94.46 3.77 1.29 5.37l3.98-3.09Z"/><path fill="#EA4335" d="M12 4.76c1.76 0 3.35.61 4.6 1.8l3.42-3.42A11.9 11.9 0 0 0 12 0 12 12 0 0 0 1.29 6.63l3.98 3.09C6.22 6.87 8.87 4.76 12 4.76Z"/></svg>',
+  microsoft: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#F25022" d="M2 2h9.5v9.5H2z"/><path fill="#7FBA00" d="M12.5 2H22v9.5h-9.5z"/><path fill="#00A4EF" d="M2 12.5h9.5V22H2z"/><path fill="#FFB900" d="M12.5 12.5H22V22h-9.5z"/></svg>',
+  xbox: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M6.3 18.4c1.3-2.6 3.4-4.9 5.7-6.7M17.7 18.4c-1.3-2.6-3.4-4.9-5.7-6.7"/><path d="M6.5 5.9c2.1.4 4.3 2.2 5.5 4.1 1.2-1.9 3.4-3.7 5.5-4.1"/></svg>',
   /* El çizimi manzara: kahraman kartının sağ altında durur. */
   doodle: `<svg viewBox="0 0 260 170" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
     <circle cx="196" cy="42" r="17" stroke="var(--ink-warm)" stroke-width="1.6" opacity=".85"/>
@@ -75,7 +81,10 @@ const state = {
   theme: 'system',
   info: null,
   servers: { java: null, bedrock: null },
-  busy: false
+  busy: false,
+  welcomeOpen: false,
+  oauthProviders: undefined,
+  oauthLoading: false
 };
 
 /* ------------------------------------------------------------------ */
@@ -330,6 +339,8 @@ function applyTheme(mode) {
   $$('[data-theme-choice]').forEach((button) => {
     button.classList.toggle('is-active', button.dataset.themeChoice === state.theme);
   });
+  const welcomeTheme = $('#welcomeTheme');
+  if (welcomeTheme) welcomeTheme.innerHTML = welcomeThemeIcon();
 }
 
 /* ------------------------------------------------------------------ */
@@ -762,6 +773,388 @@ async function buyItem(itemId, name, price) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Karşılama ekranı ve sosyal giriş                                    */
+/* ------------------------------------------------------------------ */
+
+const OAUTH_META = {
+  github: { label: 'GitHub', icon: SVG.github },
+  google: { label: 'Google', icon: SVG.google },
+  microsoft: { label: 'Microsoft', icon: SVG.microsoft },
+  xbox: { label: 'Xbox', icon: SVG.xbox }
+};
+
+/* Sağlayıcı listesi bir kez alınır. `undefined` henüz sorulmadı,
+   `false` istek başarısız, dizi ise sunucunun döndürdüğü liste. */
+async function loadOAuthProviders() {
+  if (state.oauthProviders !== undefined && state.oauthProviders !== false) {
+    return state.oauthProviders;
+  }
+  if (state.oauthLoading) return null;
+  state.oauthLoading = true;
+  try {
+    const response = await api('/api/auth/oauth/providers', { auth: false });
+    if (response.ok && response.data && Array.isArray(response.data.providers)) {
+      state.oauthProviders = response.data.providers.filter((name) => OAUTH_META[name]);
+    } else {
+      state.oauthProviders = false;
+    }
+  } catch (_) {
+    state.oauthProviders = false;
+  } finally {
+    state.oauthLoading = false;
+  }
+  return state.oauthProviders;
+}
+
+function socialButtonsMarkup(providers) {
+  return providers.map((provider) => {
+    const meta = OAUTH_META[provider];
+    if (!meta) return '';
+    return `
+      <button class="social-btn" type="button" data-oauth="${esc(provider)}">
+        <span class="social-icon" aria-hidden="true">${meta.icon}</span>
+        <span>${esc(meta.label)}</span>
+      </button>`;
+  }).join('');
+}
+
+async function refreshSocial(host) {
+  if (!host) return;
+  host.setAttribute('aria-busy', 'true');
+  host.innerHTML = '<span class="social-loading"><span class="spinner" aria-hidden="true"></span> Giriş yöntemleri yükleniyor…</span>';
+  const providers = await loadOAuthProviders();
+  if (!host.isConnected) return;
+  host.setAttribute('aria-busy', 'false');
+  if (providers === false) {
+    host.innerHTML = `<p class="social-note">${SVG.alert} Sosyal giriş şu an kullanılamıyor. Kullanıcı adınla giriş yapabilirsin.</p>`;
+    return;
+  }
+  if (!providers.length) {
+    host.innerHTML = '<p class="social-note">Sosyal giriş henüz etkin değil. Kullanıcı adınla giriş yapabilirsin.</p>';
+    return;
+  }
+  host.innerHTML = `<div class="social-row">${socialButtonsMarkup(providers)}</div>`;
+}
+
+async function startSocialLogin(provider, scope) {
+  if (!window.turbolu.oauth || state.busy) return;
+  if (!OAUTH_META[provider]) return;
+
+  const buttons = $$('[data-oauth]', scope || document);
+  const active = scope ? $(`[data-oauth="${provider}"]`, scope) : null;
+  const previous = active ? active.innerHTML : '';
+  const errorEl = $('#welcomeError') || $('#loginError');
+
+  if (errorEl) errorEl.textContent = '';
+  state.busy = true;
+  buttons.forEach((button) => { button.disabled = true; });
+  if (active) {
+    active.innerHTML = '<span class="spinner" aria-hidden="true"></span> Tarayıcı açılıyor…';
+  }
+
+  try {
+    const result = await window.turbolu.oauth.login(provider);
+    if (!result || !result.ok) {
+      throw new Error((result && result.error) || 'Sosyal giriş tamamlanamadı.');
+    }
+
+    const exchange = await api('/api/auth/oauth/exchange', {
+      method: 'POST',
+      body: { code: result.code },
+      auth: false
+    });
+    if (!exchange.ok || !exchange.data || !exchange.data.token) {
+      throw new Error(apiError(exchange, 'Sosyal giriş tamamlanamadı.'));
+    }
+
+    await finishLogin(exchange.data, (OAUTH_META[provider] || {}).label || 'oyuncu');
+  } catch (error) {
+    const message = error && error.message ? error.message : 'Sosyal giriş tamamlanamadı.';
+    if (errorEl) errorEl.textContent = message;
+    else toast(message, 'error');
+  } finally {
+    state.busy = false;
+    buttons.forEach((button) => { button.disabled = false; });
+    if (active) active.innerHTML = previous;
+  }
+}
+
+function bindSocialButtons(scope) {
+  if (!scope) return;
+  scope.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-oauth]');
+    if (!button) return;
+    event.preventDefault();
+    startSocialLogin(button.dataset.oauth, scope);
+  });
+}
+
+async function finishLogin(data, fallbackName) {
+  state.token = data.token;
+  await window.turbolu.auth.save(state.token);
+  await loadProfile();
+
+  if (!state.user) {
+    // Profil isteği aksasa bile giriş başarılı; temel bilgilerle devam et.
+    state.user = {
+      username: data.username || fallbackName || 'oyuncu',
+      balance: Number(data.balance) || 0,
+      isAdmin: Boolean(data.isAdmin)
+    };
+  }
+
+  paintAccountChip();
+  hideWelcome();
+  toast(`Hoş geldin, ${state.user.username || fallbackName || 'oyuncu'}!`, 'success');
+
+  if (state.page === 'account') renderAccount();
+  else navigate(state.page || 'overview');
+}
+
+function welcomeThemeIcon() {
+  const light = document.documentElement.dataset.theme === 'light';
+  return light ? SVG.moon : SVG.sun;
+}
+
+function welcomeMarkup() {
+  return `
+    <div class="welcome-panel" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+      <aside class="welcome-aside">
+        <div class="welcome-brand">
+          <img src="asset/logo.png" alt="" width="34" height="34">
+          <span>Turbolu Studios<small>TurboluApp PC</small></span>
+        </div>
+        <div class="welcome-story">
+          <p class="welcome-kicker">Sunucular, market, duyurular</p>
+          <h1>Kaldığın yerden<br>devam et.</h1>
+          <p class="welcome-lede">Hesabına giriş yap; bakiyen, taleplerin ve market tek yerde seni bekliyor.</p>
+        </div>
+        <div class="welcome-art" aria-hidden="true">${SVG.doodle}</div>
+        <p class="welcome-foot"><span class="handwritten">iyi oyunlar</span><span>Turbolu Studios</span></p>
+      </aside>
+
+      <section class="welcome-main">
+        <div class="welcome-top">
+          <span class="welcome-step">Hoş geldin</span>
+          <button class="icon-ghost welcome-theme" type="button" id="welcomeTheme" aria-label="Temayı değiştir" title="Temayı değiştir">${welcomeThemeIcon()}</button>
+        </div>
+
+        <h2 id="welcomeTitle">Giriş yap</h2>
+        <p class="welcome-sub" id="welcomeSub">Turbolu hesabınla devam et.</p>
+
+        <div class="social-host" id="welcomeSocial" aria-busy="true"></div>
+        <div class="welcome-divider"><span>veya</span></div>
+
+        <form class="welcome-form" id="welcomeLoginForm" novalidate>
+          <div class="welcome-field">
+            <label for="welcomeUsername">Kullanıcı adı</label>
+            <input class="input" id="welcomeUsername" name="username" autocomplete="username" placeholder="Kullanıcı adın" required>
+          </div>
+          <div class="welcome-field">
+            <label for="welcomePassword">Parola</label>
+            <input class="input" id="welcomePassword" name="password" type="password" autocomplete="current-password" placeholder="Parolan" required>
+          </div>
+          <p class="form-error" id="welcomeError" role="alert"></p>
+          <button class="btn btn-primary btn-block welcome-submit" type="submit" id="welcomeLoginSubmit">Giriş yap</button>
+          <button class="welcome-forgot" type="button" id="welcomeForgot">Parolanı mı unuttun?</button>
+        </form>
+
+        <form class="welcome-form" id="welcomeRegisterForm" novalidate hidden>
+          <div class="welcome-field">
+            <label for="welcomeRegUsername">Kullanıcı adı</label>
+            <input class="input" id="welcomeRegUsername" name="username" autocomplete="username" placeholder="En az 3 karakter" required>
+          </div>
+          <div class="welcome-field">
+            <label for="welcomeRegEmail">E-posta</label>
+            <input class="input" id="welcomeRegEmail" name="email" type="email" autocomplete="email" placeholder="ornek@eposta.com" required>
+          </div>
+          <div class="welcome-field">
+            <label for="welcomeRegPassword">Parola</label>
+            <input class="input" id="welcomeRegPassword" name="password" type="password" autocomplete="new-password" placeholder="En az 6 karakter" required>
+          </div>
+          <div class="welcome-field">
+            <label for="welcomeRegPlatform">Platform</label>
+            <select class="input" id="welcomeRegPlatform" name="platform">
+              <option value="all">İkisi de</option>
+              <option value="java">Java</option>
+              <option value="bedrock">Bedrock</option>
+            </select>
+          </div>
+          <p class="form-error" id="welcomeRegError" role="alert"></p>
+          <button class="btn btn-primary btn-block welcome-submit" type="submit" id="welcomeRegisterSubmit">Hesap oluştur</button>
+        </form>
+
+        <button class="welcome-switch" type="button" id="welcomeSwitch">Hesabın yok mu? <b>Kayıt ol</b></button>
+        <button class="welcome-guest" type="button" id="welcomeGuest">Şimdi değil, misafir olarak devam et</button>
+      </section>
+    </div>`;
+}
+
+function showWelcome() {
+  const host = $('#welcome');
+  if (!host || state.welcomeOpen) return;
+  host.innerHTML = welcomeMarkup();
+  host.hidden = false;
+  state.welcomeOpen = true;
+  document.body.classList.add('welcome-open');
+  bindWelcome();
+  refreshSocial($('#welcomeSocial'));
+  setTimeout(() => { $('#welcomeUsername')?.focus(); }, 320);
+}
+
+function hideWelcome() {
+  const host = $('#welcome');
+  if (!host) return;
+  host.hidden = true;
+  host.innerHTML = '';
+  state.welcomeOpen = false;
+  document.body.classList.remove('welcome-open');
+}
+
+function bindWelcome() {
+  const host = $('#welcome');
+  if (!host) return;
+
+  const loginForm = $('#welcomeLoginForm');
+  const registerForm = $('#welcomeRegisterForm');
+  const title = $('#welcomeTitle');
+  const subtitle = $('#welcomeSub');
+  const switchButton = $('#welcomeSwitch');
+
+  const setMode = (mode) => {
+    const register = mode === 'register';
+    loginForm.hidden = register;
+    registerForm.hidden = !register;
+    title.textContent = register ? 'Aramıza katıl' : 'Giriş yap';
+    subtitle.textContent = register
+      ? 'Birkaç saniyede hesabını oluştur.'
+      : 'Turbolu hesabınla devam et.';
+    switchButton.innerHTML = register
+      ? 'Zaten hesabın var mı? <b>Giriş yap</b>'
+      : 'Hesabın yok mu? <b>Kayıt ol</b>';
+    $('#welcomeError').textContent = '';
+    $('#welcomeRegError').textContent = '';
+    setTimeout(() => {
+      (register ? $('#welcomeRegUsername') : $('#welcomeUsername'))?.focus();
+    }, 30);
+  };
+
+  switchButton.addEventListener('click', () => {
+    setMode(registerForm.hidden ? 'register' : 'login');
+  });
+
+  $('#welcomeGuest')?.addEventListener('click', hideWelcome);
+
+  $('#welcomeTheme')?.addEventListener('click', () => {
+    applyTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+    const button = $('#welcomeTheme');
+    if (button) button.innerHTML = welcomeThemeIcon();
+  });
+
+  $('#welcomeForgot')?.addEventListener('click', () => {
+    window.turbolu.open('https://turboluweb.wasmer.app/sifremi-unuttum.html');
+  });
+
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (state.busy) return;
+
+    const errorEl = $('#welcomeError');
+    errorEl.textContent = '';
+    const username = $('#welcomeUsername').value.trim();
+    const password = $('#welcomePassword').value;
+    if (!username || !password) {
+      errorEl.textContent = 'Kullanıcı adı ve parola gerekli.';
+      return;
+    }
+
+    state.busy = true;
+    const submit = $('#welcomeLoginSubmit');
+    submit.disabled = true;
+    submit.innerHTML = '<span class="spinner" aria-hidden="true"></span> Giriş yapılıyor…';
+
+    const response = await api('/api/login', { method: 'POST', body: { username, password }, auth: false });
+
+    state.busy = false;
+    submit.disabled = false;
+    submit.textContent = 'Giriş yap';
+
+    if (!response.ok || !response.data || !response.data.token) {
+      errorEl.textContent = apiError(response, 'Giriş yapılamadı. Bilgilerini kontrol et.');
+      return;
+    }
+
+    await finishLogin(response.data, username);
+  });
+
+  registerForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (state.busy) return;
+
+    const errorEl = $('#welcomeRegError');
+    errorEl.textContent = '';
+    const username = $('#welcomeRegUsername').value.trim();
+    const email = $('#welcomeRegEmail').value.trim();
+    const password = $('#welcomeRegPassword').value;
+    const platform = $('#welcomeRegPlatform').value;
+
+    if (username.length < 3) {
+      errorEl.textContent = 'Kullanıcı adı en az 3 karakter olmalı.';
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errorEl.textContent = 'Geçerli bir e-posta adresi gir.';
+      return;
+    }
+    if (password.length < 6) {
+      errorEl.textContent = 'Parola en az 6 karakter olmalı.';
+      return;
+    }
+
+    state.busy = true;
+    const submit = $('#welcomeRegisterSubmit');
+    submit.disabled = true;
+    submit.innerHTML = '<span class="spinner" aria-hidden="true"></span> Hesap oluşturuluyor…';
+
+    const response = await api('/api/register', {
+      method: 'POST',
+      body: { username, password, email, platform },
+      auth: false
+    });
+
+    state.busy = false;
+    submit.disabled = false;
+    submit.textContent = 'Hesap oluştur';
+
+    if (!response.ok || !response.data || !response.data.token) {
+      errorEl.textContent = apiError(response, 'Kayıt tamamlanamadı.');
+      return;
+    }
+
+    await finishLogin(response.data, username);
+  });
+
+  bindSocialButtons($('#welcomeSocial'));
+
+  // Klavye odağı pencere içinde kalsın.
+  host.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+    const focusable = $$('button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href]', host)
+      .filter((element) => element.offsetParent !== null);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ */
 /* Sayfa: Hesabım                                                      */
 /* ------------------------------------------------------------------ */
 
@@ -771,6 +1164,8 @@ function authCard() {
       <p class="auth-note handwritten">küçük not: parolanı kimseyle paylaşma.</p>
       <div class="card auth-card">
         <span class="card-tape" aria-hidden="true"></span>
+        <div class="social-host auth-social" data-social-host></div>
+        <div class="welcome-divider"><span>veya</span></div>
         <div class="auth-tabs" role="tablist">
           <button class="auth-tab is-active" type="button" data-auth-tab="login" role="tab" aria-selected="true">Giriş yap</button>
           <button class="auth-tab" type="button" data-auth-tab="register" role="tab" aria-selected="false">Kayıt ol</button>
@@ -823,6 +1218,10 @@ function bindAuthCard() {
   const tabs = $$('[data-auth-tab]');
   const loginForm = $('#loginForm');
   const registerForm = $('#registerForm');
+
+  const socialHost = $('[data-social-host]', $('.auth-card'));
+  bindSocialButtons(socialHost);
+  refreshSocial(socialHost);
 
   const selectTab = (tab) => {
     tabs.forEach((button) => {
@@ -1821,6 +2220,10 @@ async function boot() {
   paintAccountChip();
   navigate('overview');
   startServerLoop();
+
+  // İlk açılışta giriş ekranı: oturum yoksa karşılama katmanı görünür.
+  // "Misafir olarak devam et" seçeneğiyle kapatılabilir.
+  if (!state.user) showWelcome();
 
   try {
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {

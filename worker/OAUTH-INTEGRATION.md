@@ -43,6 +43,8 @@ olan sağlayıcıların düğmesini etkin bırakır.
   - `https://turboluweb.wasmer.app`
   - `https://shrill-salad-a498.ereny116011.workers.dev` (test)
   - `http://localhost:8080`, `http://localhost:8765` (yerel geliştirme)
+  - `http://127.0.0.1:{rastgele port}` (TurboluApp PC'nin tek kullanımlık
+    yerel dinleyicisi; yalnızca geri döngü adresleri kabul edilir)
 
 İzin listesi dışındaki değer `400` ile reddedilmelidir. Açık yönlendirme
 (open redirect) güvenlik açığıdır.

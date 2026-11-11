@@ -100,8 +100,23 @@ export async function oauthIsle(request, env, url, yardimcilar) {
 
   const callbackUrl = (provider) => `${url.origin}/api/auth/oauth/${provider}/callback`;
 
+  /* Masaüstü uygulaması girişi 127.0.0.1 üzerindeki geçici bir yerel
+     sunucuya döner. Yalnızca geri döngü adreslerine izin verilir; rastgele
+     bir dış adres kabul edilmez. */
+  const isLoopbackRedirect = (value) => {
+    try {
+      const target = new URL(value);
+      if (target.protocol !== 'http:' && target.protocol !== 'https:') return false;
+      const host = target.hostname;
+      return host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '::1';
+    } catch (_) {
+      return false;
+    }
+  };
+
   /* Yalnızca izin listesindeki site adreslerine geri dönüşe izin ver. */
   const isAllowedRedirect = (value) => {
+    if (isLoopbackRedirect(value)) return true;
     try {
       const origin = new URL(value).origin;
       const allowed = String(env.OAUTH_ALLOWED_ORIGINS || '')

@@ -20,6 +20,10 @@ contextBridge.exposeInMainWorld('turbolu', {
   api: (payload) => ipcRenderer.invoke('api:call', payload),
   status: (kind) => ipcRenderer.invoke('server:status', kind),
 
+  oauth: {
+    login: (provider) => ipcRenderer.invoke('oauth:login', provider)
+  },
+
   auth: {
     load: () => ipcRenderer.invoke('auth:load'),
     save: (token) => ipcRenderer.invoke('auth:save', token),

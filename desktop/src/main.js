@@ -3,6 +3,8 @@
 const { app, BrowserWindow, ipcMain, shell, clipboard, nativeTheme, safeStorage, Menu } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
+const http = require('node:http');
+const crypto = require('node:crypto');
 const { pathToFileURL } = require('node:url');
 
 const API_BASE = 'https://shrill-salad-a498.ereny116011.workers.dev';
@@ -19,6 +21,8 @@ const STATUS_SOURCES = {
 const API_ROUTES = {
   '/api/login': ['POST'],
   '/api/register': ['POST'],
+  '/api/auth/oauth/providers': ['GET'],
+  '/api/auth/oauth/exchange': ['POST'],
   '/api/profile': ['GET', 'PUT'],
   '/api/items': ['GET'],
   '/api/buy': ['POST'],
@@ -351,6 +355,162 @@ function openExternal(rawUrl) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Sosyal giriş                                                        */
+/* ------------------------------------------------------------------ */
+
+/* Sağlayıcı, tarayıcıda açılır. Dönüş adresi olarak yalnızca bu makinede
+   çalışan geçici bir dinleyici kullanılır; kod tarayıcıdan uygulamaya
+   köprü üzerinden geçer. */
+const OAUTH_PROVIDERS = ['github', 'google', 'microsoft', 'xbox'];
+const OAUTH_TIMEOUT = 5 * 60 * 1000;
+
+let activeOAuth = null;
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+function oauthResultPage(ok, message) {
+  const title = ok ? 'Giriş tamamlandı' : 'Giriş tamamlanamadı';
+  const detail = escapeHtml(message || (ok
+    ? 'Tarayıcıyı kapatıp TurboluApp’e dönebilirsin.'
+    : 'Uygulamaya dönüp yeniden deneyebilirsin.'));
+  return `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(title)} — TurboluApp</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      padding: 24px; background: #0b101d; color: #e9eefb;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+    .card {
+      width: min(420px, 100%); padding: 34px 30px; text-align: center;
+      border: 1px solid rgba(255,255,255,.1); border-radius: 18px;
+      background: #111726; box-shadow: 0 24px 70px rgba(0,0,0,.45);
+    }
+    .mark {
+      width: 52px; height: 52px; margin: 0 auto 18px; display: grid;
+      place-items: center; border-radius: 50%;
+      background: ${ok ? 'rgba(74,222,128,.14)' : 'rgba(248,113,113,.14)'};
+      color: ${ok ? '#4ade80' : '#f87171'}; font-size: 26px;
+    }
+    h1 { margin: 0 0 10px; font-size: 21px; font-weight: 650; letter-spacing: -.01em; }
+    p { margin: 0; color: #93a1bb; font-size: 14px; line-height: 1.6; }
+    .hint { margin-top: 18px; font-size: 12px; color: #6b7897; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark">${ok ? '✓' : '!'}</div>
+    <h1>${escapeHtml(title)}</h1>
+    <p>${detail}</p>
+    <p class="hint">Bu sekmeyi kapatabilirsin.</p>
+  </div>
+  <script>if (${ok ? 'true' : 'false'}) { setTimeout(function () { window.close(); }, 900); }</script>
+</body>
+</html>`;
+}
+
+function startOAuth(provider) {
+  if (!OAUTH_PROVIDERS.includes(provider)) {
+    return Promise.resolve({ ok: false, error: 'Bilinmeyen giriş yöntemi.' });
+  }
+  if (activeOAuth) {
+    return Promise.resolve({ ok: false, error: 'Zaten açık bir giriş işlemi var. Tarayıcıdaki sekmeyi tamamla.' });
+  }
+
+  return new Promise((resolve) => {
+    const nonce = crypto.randomBytes(18).toString('hex');
+    let settled = false;
+    let timer = null;
+
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      activeOAuth = null;
+      try { server.close(); } catch (_) { /* yoksay */ }
+      resolve(result);
+    };
+
+    const server = http.createServer((request, response) => {
+      let requestUrl;
+      try {
+        requestUrl = new URL(request.url, 'http://127.0.0.1');
+      } catch (_) {
+        response.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+        response.end('Geçersiz istek.');
+        return;
+      }
+
+      if (request.method !== 'GET' || requestUrl.pathname !== `/oauth/${nonce}`) {
+        response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        response.end('Bulunamadı.');
+        return;
+      }
+
+      const code = requestUrl.searchParams.get('code') || '';
+      const message = requestUrl.searchParams.get('message') || '';
+      const ok = Boolean(code);
+
+      response.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"
+      });
+      response.end(oauthResultPage(ok, message));
+
+      if (ok) finish({ ok: true, code });
+      else finish({ ok: false, error: message || 'Giriş iptal edildi.' });
+    });
+
+    server.on('error', () => {
+      finish({ ok: false, error: 'Yerel giriş köprüsü açılamadı.' });
+    });
+
+    server.listen(0, '127.0.0.1', async () => {
+      try {
+        const address = server.address();
+        const redirectUri = `http://127.0.0.1:${address.port}/oauth/${nonce}`;
+        const target = new URL(`/api/auth/oauth/${provider}/start`, API_BASE);
+        target.searchParams.set('redirect_uri', redirectUri);
+
+        timer = setTimeout(() => {
+          finish({ ok: false, error: 'Giriş zaman aşımına uğradı. Lütfen yeniden dene.' });
+        }, OAUTH_TIMEOUT);
+
+        try {
+          await shell.openExternal(target.toString());
+        } catch (_) {
+          finish({ ok: false, error: 'Tarayıcı açılamadı.' });
+        }
+      } catch (_) {
+        finish({ ok: false, error: 'Giriş başlatılamadı.' });
+      }
+    });
+  });
+}
+
+function registerOAuthIpc() {
+  ipcMain.handle('oauth:login', (_event, provider) => {
+    if (activeOAuth) {
+      return { ok: false, error: 'Zaten açık bir giriş işlemi var. Tarayıcıdaki sekmeyi tamamla.' };
+    }
+    activeOAuth = startOAuth(String(provider || ''));
+    return activeOAuth;
+  });
+}
+
+/* ------------------------------------------------------------------ */
 /* IPC                                                                 */
 /* ------------------------------------------------------------------ */
 
@@ -436,6 +596,7 @@ if (!gotLock) {
     Menu.setApplicationMenu(null);
     sessionToken = await readSession();
     registerIpc();
+    registerOAuthIpc();
     createWindow();
 
     app.on('activate', () => {
