@@ -694,6 +694,47 @@ body::before {
 }
 .small-btn:hover { background: var(--accent); color: white; }
 
+/* ========== ÇOCUK HEDİYELERİ ========== */
+.cocuk-hediye {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px;
+  margin: 10px 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+.cocuk-hediye > i {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--accent-soft, rgba(34,197,94,.14));
+  color: var(--accent);
+  font-size: 1rem;
+}
+.cocuk-hediye b { display: block; font-size: 1rem; }
+.cocuk-hediye p {
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+.hediye-odul {
+  display: inline-block;
+  margin-top: 9px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft, rgba(34,197,94,.14));
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 /* ========== DUYURU / HABER / KAMPANYA ========== */
 .announcement-item,
 .news-item {

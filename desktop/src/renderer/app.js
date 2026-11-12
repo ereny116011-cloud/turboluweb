@@ -44,6 +44,7 @@ const SVG = {
   google: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.27c0-.79-.07-1.54-.2-2.27H12v4.51h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.86c2.26-2.08 3.57-5.15 3.57-8.87Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.86-3c-1.08.72-2.45 1.15-4.09 1.15-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.29A12 12 0 0 0 0 12c0 1.94.46 3.77 1.29 5.37l3.98-3.09Z"/><path fill="#EA4335" d="M12 4.76c1.76 0 3.35.61 4.6 1.8l3.42-3.42A11.9 11.9 0 0 0 12 0 12 12 0 0 0 1.29 6.63l3.98 3.09C6.22 6.87 8.87 4.76 12 4.76Z"/></svg>',
   microsoft: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#F25022" d="M2 2h9.5v9.5H2z"/><path fill="#7FBA00" d="M12.5 2H22v9.5h-9.5z"/><path fill="#00A4EF" d="M2 12.5h9.5V22H2z"/><path fill="#FFB900" d="M12.5 12.5H22V22h-9.5z"/></svg>',
   xbox: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M6.3 18.4c1.3-2.6 3.4-4.9 5.7-6.7M17.7 18.4c-1.3-2.6-3.4-4.9-5.7-6.7"/><path d="M6.5 5.9c2.1.4 4.3 2.2 5.5 4.1 1.2-1.9 3.4-3.7 5.5-4.1"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8.5" width="18" height="4" rx="1"/><path d="M5 12.5V20h14v-7.5"/><path d="M12 8.5V20"/><path d="M12 8.5C10.4 5.4 6.7 5.4 6.7 7.8c0 1.6 2.6 1.5 5.3.7Z"/><path d="M12 8.5c1.6-3.1 5.3-3.1 5.3-.7 0 1.6-2.6 1.5-5.3.7Z"/></svg>',
   /* El çizimi manzara: kahraman kartının sağ altında durur. */
   doodle: `<svg viewBox="0 0 260 170" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
     <circle cx="196" cy="42" r="17" stroke="var(--ink-warm)" stroke-width="1.6" opacity=".85"/>
@@ -560,6 +561,12 @@ function renderOverview() {
     </div>
     <div class="grid grid-2" id="serverGrid"></div>
 
+    ${user && user.isChild ? `
+    <div class="section-head">
+      <h3>${SVG.gift} Sana özel hediyeler</h3>
+    </div>
+    <div id="childGiftHost" class="gift-grid"><div class="skeleton" style="height:120px"></div></div>` : ''}
+
     <div class="section-head">
       <h3>Son duyurular</h3>
       <button class="link" type="button" data-goto="announcements">Tümünü gör</button>
@@ -570,6 +577,33 @@ function renderOverview() {
   paintServerGrid();
   paintHeroPlayers();
   loadOverviewFeed();
+  loadChildGifts();
+}
+
+/* Çocuk hesaplarına özel hediyeler. */
+async function loadChildGifts() {
+  const host = $('#childGiftHost');
+  if (!host) return;
+  const response = await api('/api/child-gifts', { query: { platform: state.platform }, auth: false });
+  const target = $('#childGiftHost');
+  if (!target) return;
+
+  if (!response.ok || !Array.isArray(response.data)) {
+    target.innerHTML = emptyState('Hediyeler yüklenemedi', apiError(response, 'Hediyeler şu an görüntülenemiyor.'), true);
+    return;
+  }
+  if (!response.data.length) {
+    target.innerHTML = `<div class="card gift-empty">${SVG.gift}<div><strong>Şimdilik hediye yok</strong><p>Yeni hediyeler eklendiğinde burada görünecek.</p></div></div>`;
+    return;
+  }
+
+  target.innerHTML = response.data.map((gift) => `
+    <article class="card gift-card">
+      <span class="gift-ribbon" aria-hidden="true">${SVG.gift}</span>
+      <h4>${esc(gift.title || 'Hediye')}</h4>
+      <p>${esc(gift.description || '')}</p>
+      ${gift.reward ? `<span class="gift-reward">${esc(gift.reward)}</span>` : ''}
+    </article>`).join('');
 }
 
 function paintHeroPlayers() {
@@ -889,7 +923,7 @@ function bindSocialButtons(scope) {
   });
 }
 
-async function finishLogin(data, fallbackName) {
+async function finishLogin(data, fallbackName, options = {}) {
   state.token = data.token;
   await window.turbolu.auth.save(state.token);
   await loadProfile();
@@ -904,6 +938,15 @@ async function finishLogin(data, fallbackName) {
   }
 
   paintAccountChip();
+
+  // Yeni kayıt veya yarım kalmış kurulum: önce hesap kurulumu sorulur.
+  const needsSetup = options.setup === true || state.user.setupCompleted === false;
+  if (needsSetup) {
+    toast(`Hoş geldin, ${state.user.username || fallbackName || 'oyuncu'}!`, 'success');
+    showSetup();
+    return;
+  }
+
   hideWelcome();
   toast(`Hoş geldin, ${state.user.username || fallbackName || 'oyuncu'}!`, 'success');
 
@@ -1131,7 +1174,7 @@ function bindWelcome() {
       return;
     }
 
-    await finishLogin(response.data, username);
+    await finishLogin(response.data, username, { setup: true });
   });
 
   bindSocialButtons($('#welcomeSocial'));
@@ -1151,6 +1194,173 @@ function bindWelcome() {
       event.preventDefault();
       first.focus();
     }
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Hesap kurulumu (kayıttan sonra)                                     */
+/* ------------------------------------------------------------------ */
+
+const MINECRAFT_JAVA_PATTERN = /^[A-Za-z0-9_]{3,16}$/;
+const MINECRAFT_BEDROCK_PATTERN = /^[\p{L}\p{N} _.-]{2,20}$/u;
+
+function todayValue() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function setupMarkup() {
+  const user = state.user || {};
+  return `
+    <div class="welcome-panel setup-panel" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+      <aside class="welcome-aside">
+        <div class="welcome-brand">
+          <img src="asset/logo.png" alt="" width="34" height="34">
+          <span>Turbolu Studios<small>TurboluApp PC</small></span>
+        </div>
+        <div class="welcome-story">
+          <p class="welcome-kicker">Son bir adım</p>
+          <h1>Seni sunucuda<br>tanıyalım.</h1>
+          <p class="welcome-lede">Minecraft adlarını ve doğum tarihini ekle; taleplerin doğru oyuncuya ulaşsın. Doğum tarihin başka kimseye gösterilmez.</p>
+        </div>
+        <ol class="setup-list">
+          <li><span>1</span> Minecraft kullanıcı adları</li>
+          <li><span>2</span> Doğum tarihi</li>
+          <li><span>3</span> Hediyeler ve market</li>
+        </ol>
+        <p class="welcome-foot"><span class="handwritten">iyi oyunlar</span><span>${esc(user.username || 'Turbolu Studios')}</span></p>
+      </aside>
+
+      <section class="welcome-main">
+        <div class="welcome-top">
+          <span class="welcome-step">Hesap kurulumu</span>
+          <button class="icon-ghost welcome-theme" type="button" id="setupTheme" aria-label="Temayı değiştir" title="Temayı değiştir">${welcomeThemeIcon()}</button>
+        </div>
+
+        <h2 id="setupTitle">Kurulumu tamamla</h2>
+        <p class="welcome-sub">Hoş geldin${user.username ? ', ' + esc(user.username) : ''}! Birkaç bilgi daha ekleyelim.</p>
+
+        <form class="welcome-form setup-form" id="setupForm" novalidate>
+          <div class="setup-group">
+            <p class="setup-group-title">Minecraft hesapların</p>
+            <div class="welcome-field">
+              <label for="setupJava">Java sürümü kullanıcı adı</label>
+              <input class="input" id="setupJava" name="minecraftJava" autocomplete="off" spellcheck="false"
+                     placeholder="Örn. TurboluMC" value="${esc(user.minecraftJava || '')}">
+            </div>
+            <div class="welcome-field">
+              <label for="setupBedrock">Bedrock sürümü oyuncu adı</label>
+              <input class="input" id="setupBedrock" name="minecraftBedrock" autocomplete="off" spellcheck="false"
+                     placeholder="Örn. TurboluMC" value="${esc(user.minecraftBedrock || '')}">
+            </div>
+            <p class="setup-hint">En az birini doldur. Yalnızca tek sürümde oynuyorsan diğerini boş bırakabilirsin.</p>
+          </div>
+
+          <div class="welcome-field">
+            <label for="setupBirth">Doğum tarihi</label>
+            <input class="input" id="setupBirth" name="birthDate" type="date" max="${todayValue()}"
+                   value="${esc(user.birthDate || '')}" required>
+          </div>
+
+          <p class="form-error" id="setupError" role="alert"></p>
+          <button class="btn btn-primary btn-block welcome-submit" type="submit" id="setupSubmit">Kurulumu tamamla</button>
+          <button class="welcome-guest" type="button" id="setupSkip">Şimdilik atla, sonra tamamlarım</button>
+        </form>
+      </section>
+    </div>`;
+}
+
+function showSetup() {
+  const host = $('#welcome');
+  if (!host) return;
+  host.innerHTML = setupMarkup();
+  host.hidden = false;
+  state.welcomeOpen = true;
+  document.body.classList.add('welcome-open');
+  bindSetup();
+  setTimeout(() => { $('#setupJava')?.focus(); }, 260);
+}
+
+function bindSetup() {
+  const host = $('#welcome');
+  if (!host) return;
+
+  $('#setupTheme')?.addEventListener('click', () => {
+    applyTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+    const button = $('#setupTheme');
+    if (button) button.innerHTML = welcomeThemeIcon();
+  });
+
+  $('#setupSkip')?.addEventListener('click', () => {
+    hideWelcome();
+    toast('Kurulumu daha sonra Hesabım sayfasından tamamlayabilirsin.', 'info');
+    if (state.page === 'account') renderAccount();
+    else navigate(state.page || 'overview');
+  });
+
+  $('#setupForm')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (state.busy) return;
+
+    const errorEl = $('#setupError');
+    errorEl.textContent = '';
+
+    const minecraftJava = $('#setupJava').value.trim();
+    const minecraftBedrock = $('#setupBedrock').value.trim();
+    const birthDate = $('#setupBirth').value;
+
+    if (!minecraftJava && !minecraftBedrock) {
+      errorEl.textContent = 'En az bir Minecraft kullanıcı adı gir.';
+      return;
+    }
+    if (minecraftJava && !MINECRAFT_JAVA_PATTERN.test(minecraftJava)) {
+      errorEl.textContent = 'Java adı 3-16 karakter olmalı (harf, rakam, alt çizgi).';
+      return;
+    }
+    if (minecraftBedrock && !MINECRAFT_BEDROCK_PATTERN.test(minecraftBedrock)) {
+      errorEl.textContent = 'Bedrock adı 2-20 karakter olabilir.';
+      return;
+    }
+    if (!birthDate) {
+      errorEl.textContent = 'Doğum tarihini seç.';
+      return;
+    }
+    if (birthDate > todayValue()) {
+      errorEl.textContent = 'Doğum tarihi gelecekte olamaz.';
+      return;
+    }
+
+    state.busy = true;
+    const submit = $('#setupSubmit');
+    submit.disabled = true;
+    submit.innerHTML = '<span class="spinner" aria-hidden="true"></span> Kaydediliyor…';
+
+    const response = await api('/api/profile', {
+      method: 'PUT',
+      body: { minecraftJava, minecraftBedrock, birthDate, setupCompleted: true }
+    });
+
+    state.busy = false;
+    submit.disabled = false;
+    submit.textContent = 'Kurulumu tamamla';
+
+    if (!response.ok) {
+      errorEl.textContent = apiError(response, 'Kurulum kaydedilemedi.');
+      return;
+    }
+
+    await loadProfile();
+    paintAccountChip();
+    hideWelcome();
+    toast('Kurulum tamamlandı. İyi oyunlar!', 'success');
+    if (state.user && state.user.isChild) {
+      toast('Sana özel hediyeler Genel Bakış sayfasında seni bekliyor.', 'info');
+    }
+
+    if (state.page === 'account') renderAccount();
+    else navigate(state.page || 'overview');
   });
 }
 
@@ -1265,20 +1475,7 @@ function bindAuthCard() {
       return;
     }
 
-    state.token = response.data.token;
-    await window.turbolu.auth.save(state.token);
-    await loadProfile();
-    if (!state.user) {
-      // Profil isteği aksasa bile giriş başarılı; temel bilgilerle devam et.
-      state.user = {
-        username: response.data.username || username,
-        balance: Number(response.data.balance) || 0,
-        isAdmin: Boolean(response.data.isAdmin)
-      };
-    }
-    paintAccountChip();
-    toast(`Hoş geldin, ${response.data.username || username}!`, 'success');
-    renderAccount();
+    await finishLogin(response.data, username);
   });
 
   registerForm.addEventListener('submit', async (event) => {
@@ -1325,12 +1522,7 @@ function bindAuthCard() {
       return;
     }
 
-    state.token = response.data.token;
-    await window.turbolu.auth.save(state.token);
-    await loadProfile();
-    paintAccountChip();
-    toast('Hesabın hazır. Hoş geldin!', 'success');
-    renderAccount();
+    await finishLogin(response.data, username, { setup: true });
   });
 }
 
@@ -1350,8 +1542,20 @@ function profileView(user) {
         <div class="stat-box"><span>Platform</span><strong style="font-size:15px">${esc(platformLabel(user.platform))}</strong></div>
         <div class="stat-box"><span>Kayıt</span><strong style="font-size:15px">${esc(fmtDate(user.createdAt, true))}</strong></div>
       </div>
+
+      <div class="mc-list">
+        <div class="mc-row"><span>Java adı</span><strong>${user.minecraftJava ? esc(user.minecraftJava) : '—'}</strong></div>
+        <div class="mc-row"><span>Bedrock adı</span><strong>${user.minecraftBedrock ? esc(user.minecraftBedrock) : '—'}</strong></div>
+        <div class="mc-row"><span>Doğum tarihi</span><strong>${user.birthDate ? esc(fmtDate(user.birthDate, true)) : '—'}</strong></div>
+        <div class="mc-row"><span>Hesap</span><strong>${user.isChild ? 'Çocuk hesabı' : 'Yetişkin hesabı'}</strong></div>
+      </div>
+
+      ${user.setupCompleted === false ? `
+      <p class="mc-note">Hesabın henüz tamamlanmadı. Minecraft adlarını ve doğum tarihini ekleyerek başlayabilirsin.</p>` : ''}
+
       <div style="display:flex;gap:9px;margin-top:20px;flex-wrap:wrap">
         <button class="btn btn-sm" type="button" id="refreshAccount">${SVG.refresh} Yenile</button>
+        <button class="btn btn-sm ${user.setupCompleted === false ? 'btn-primary' : ''}" type="button" id="editSetupBtn">${SVG.user} ${user.setupCompleted === false ? 'Kurulumu tamamla' : 'Bilgileri düzenle'}</button>
         <button class="btn btn-sm btn-ghost" type="button" data-goto="market">${SVG.cart} Market</button>
         <button class="btn btn-sm btn-danger" type="button" id="logoutBtn" style="margin-left:auto">${SVG.logout} Çıkış yap</button>
       </div>
@@ -1394,6 +1598,10 @@ async function renderAccount() {
     paintAccountChip();
     renderAccount();
     toast('Hesap bilgileri güncellendi.', 'success');
+  });
+
+  $('#editSetupBtn')?.addEventListener('click', () => {
+    showSetup();
   });
 
   loadInventory();
@@ -1563,6 +1771,12 @@ const ADMIN_CONTENT = {
     endpoint: '/api/items',
     create: '/api/admin/item',
     remove: ''
+  },
+  childgifts: {
+    label: 'Çocuk hediyeleri',
+    endpoint: '/api/admin/child-gifts',
+    create: '/api/admin/child-gift',
+    remove: '/api/admin/child-gift'
   }
 };
 
@@ -1850,6 +2064,11 @@ function adminContentForm(type) {
       <div class="field"><label for="contentBody">Açıklama</label><textarea class="input" id="contentBody" name="description" rows="4" required></textarea></div>
       <div class="field"><label for="contentReward">Ödül</label><input class="input" id="contentReward" name="reward" maxlength="80" placeholder="Örn. 500 puan"></div>
       <div class="field"><label for="contentEnd">Bitiş tarihi</label><input class="input" id="contentEnd" name="endDate" type="date"></div>`;
+  } else if (type === 'childgifts') {
+    fields = `
+      <div class="field"><label for="contentTitle">Başlık</label><input class="input" id="contentTitle" name="title" required maxlength="120" placeholder="Ücretsiz elmas kılıç"></div>
+      <div class="field"><label for="contentBody">Açıklama</label><textarea class="input" id="contentBody" name="description" rows="4" required placeholder="Hediyenin detayı..."></textarea></div>
+      <div class="field"><label for="contentReward">Ödül</label><input class="input" id="contentReward" name="reward" maxlength="80" placeholder="1 elmas, özel rol..."></div>`;
   } else {
     fields = `
       <div class="field"><label for="contentName">Ürün adı</label><input class="input" id="contentName" name="name" required maxlength="120"></div>
@@ -1905,6 +2124,14 @@ function adminContentRow(type, entry) {
     title = entry.name;
     body = `${fmtNumber(entry.price)} puan${entry.command ? ' · ' + entry.command : ''}`;
   }
+  if (type === 'childgifts') {
+    body = entry.description;
+    // Hediyenin yayın durumu ayrı bir düğmeyle değiştirilir.
+  }
+
+  const publishButton = type === 'childgifts'
+    ? `<button class="btn btn-sm ${entry.active === false ? 'btn-primary' : 'btn-ghost'}" type="button" data-admin="publish-child-gift" data-id="${esc(entry.id)}" data-active="${entry.active === false ? '1' : '0'}">${entry.active === false ? 'Yayınla' : 'Durdur'}</button>`
+    : '';
 
   return `
     <article class="feed-item">
@@ -1913,13 +2140,17 @@ function adminContentRow(type, entry) {
           <h4>${esc(title || 'Başlıksız')}</h4>
           <p>${esc(body || '')}</p>
         </div>
-        ${deleteButton}
+        <span class="admin-actions">
+          ${publishButton}
+          ${deleteButton}
+        </span>
       </div>
       <div class="feed-meta">
         ${platformBadge(entry.platform)}
         ${entry.date ? `<span>${esc(fmtDate(entry.date))}</span>` : ''}
         ${entry.endDate ? `<span class="badge">Bitiş: ${esc(fmtDate(entry.endDate, true))}</span>` : ''}
         ${entry.reward ? `<span class="badge badge-green">Ödül: ${esc(entry.reward)}</span>` : ''}
+        ${type === 'childgifts' ? `<span class="badge ${entry.active === false ? '' : 'badge-green'}">${entry.active === false ? 'Yayında değil' : 'Yayında'}</span>` : ''}
       </div>
     </article>`;
 }
@@ -1945,6 +2176,14 @@ async function submitAdminForm(form) {
       price: Number(values.price) || 0,
       command: values.command || '',
       platform: values.platform
+    };
+  } else if (type === 'childgifts') {
+    body = {
+      title: values.title,
+      description: values.description,
+      reward: values.reward || '',
+      platform: values.platform,
+      active: true
     };
   } else {
     body = { title: values.title, content: values.content, platform: values.platform };
@@ -2000,6 +2239,17 @@ async function handleAdminAction(action, element) {
     case 'refresh-users':
       paintAdminUsers();
       break;
+    case 'publish-child-gift': {
+      const active = element.dataset.active === '1';
+      const response = await api('/api/admin/child-gift/publish', {
+        method: 'POST',
+        body: { id: element.dataset.id, active }
+      });
+      if (!response.ok) { toast(apiError(response, 'Hediye güncellenemedi.'), 'error'); return; }
+      toast(active ? 'Hediye yayınlandı.' : 'Hediye yayından kaldırıldı.', 'success');
+      paintAdminContentList();
+      break;
+    }
     case 'complete-request': {
       const response = await api('/api/admin/complete-request', {
         method: 'POST',

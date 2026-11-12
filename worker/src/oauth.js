@@ -389,9 +389,13 @@ export async function oauthIsle(request, env, url, yardimcilar) {
             isAdmin: false,
             email: profile.email || '',
             emailVerified: Boolean(profile.verified),
-            platform: 'all'
+            platform: 'all',
+            setupCompleted: false,
+            createdAt: new Date().toISOString()
           };
           await putJSON(`user:${user.username}`, user);
+          // Token dizini: yeni hesap hemen yetkilendirilebilsin.
+          await putJSON(`token:${user.token}`, { username: user.username });
         } else {
           let changed = false;
           if (!user.token) {
@@ -410,6 +414,9 @@ export async function oauthIsle(request, env, url, yardimcilar) {
           }
           if (changed) await putJSON(`user:${user.username}`, user);
         }
+
+        // Token dizini her durumda tazelenir.
+        await putJSON(`token:${user.token}`, { username: user.username });
 
         await putJSON(linkKey, user.username);
 

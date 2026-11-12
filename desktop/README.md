@@ -13,13 +13,28 @@ doğrudan Worker API'sini kullanır.
 
 | Bölüm | İçerik |
 | --- | --- |
-| Genel Bakış | Java ve Bedrock sunucu durumu, oyuncu sayısı, son duyurular |
+| Genel Bakış | Java ve Bedrock sunucu durumu, oyuncu sayısı, son duyurular, çocuk hesaplarına özel hediyeler |
 | Duyurular / Haberler / Kampanyalar | Platform filtreli içerik akışları |
 | Market | Ürün listesi, bakiye kontrolü, onaylı satın alma |
 | Hesabım | Giriş/kayıt, GitHub ve Google ile sosyal giriş, profil, bakiye, talepler (envanter) |
 | Karşılama | İlk açılışta giriş ekranı; misafir olarak devam etme seçeneği |
-| Yönetim | Talepleri sonuçlandırma, hesap yasaklama/silme ve içerik ekleme (yalnızca yönetici) |
+| Hesap kurulumu | Kayıt sonrası Minecraft kullanıcı adları (Java/Bedrock) ve doğum tarihi |
+| Yönetim | Talepleri sonuçlandırma, hesap yasaklama/silme, içerik ve çocuk hediyesi ekleme (yalnızca yönetici) |
 | Ayarlar | Tema (sistem/koyu/açık), platform filtresi, uygulama bilgisi |
+
+### Hesap kurulumu
+
+Kayıt sonrası (veya kurulumu tamamlanmamış bir hesapla giriş sonrası) kurulum
+ekranı açılır:
+
+- Java sürümü Minecraft kullanıcı adı (`A-Z`, `0-9`, `_`, 3-16 karakter)
+- Bedrock sürümü oyuncu adı (2-20 karakter; harf, rakam, boşluk, `_`, `.`, `-`)
+- Doğum tarihi (zorunlu, gelecek tarih kabul edilmez)
+
+En az bir Minecraft kullanıcı adı girilmelidir. Doğum tarihi sunucuda
+13 yaş sınırına göre değerlendirilir; 13 yaşından küçük hesaplar "çocuk hesabı"
+sayılır ve Genel Bakış'ta çocuklara özel hediyeler gösterilir. Doğum tarihi
+başka kullanıcılara gösterilmez ve yalnızca yaş hesabı için saklanır.
 
 ## Güvenlik modeli
 
@@ -90,9 +105,10 @@ Linux ve macOS çıktıları bu depodaki GitHub Actions iş akışıyla üretili
 Uygulama yalnızca şu uçları kullanır:
 
 - `POST /api/login`, `POST /api/register`
-- `GET /api/profile`
+- `GET /api/profile`, `PUT /api/profile`
 - `GET /api/items`, `POST /api/buy`, `GET /api/inventory`
 - `GET /api/announcements`, `GET /api/news`, `GET /api/campaigns`
+- `GET /api/child-gifts`
 
 Yönetici hesabında ek olarak:
 
@@ -101,5 +117,7 @@ Yönetici hesabında ek olarak:
 - `POST /api/admin/ban-user`, `POST /api/admin/unban-user`, `POST /api/admin/delete-user`
 - `POST/DELETE /api/admin/announcement`, `/api/admin/news`, `/api/admin/campaign`
 - `POST /api/admin/item`
+- `GET /api/admin/child-gifts`, `POST /api/admin/child-gift`,
+  `POST /api/admin/child-gift/publish`, `DELETE /api/admin/child-gift`
 
 Sunucu durumu doğrudan `api.mcsrvstat.us` üzerinden alınır.

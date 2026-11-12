@@ -87,6 +87,27 @@ sürüm notları, duyurular, haberler, kampanyalar, ürünler ve kullanıcılar.
 - Profil bilgisi `GET /api/profile` ile alınır; yönetici işlemleri aynı token ile yetkilendirilir.
 - Yönetici kontrolü profil yanıtındaki `isAdmin` alanıyla yapılır.
 - Çıkışta `token` ve kullanıcı bilgileri temizlenir.
+- Worker, token'ı `token:{token}` anahtarında kullanıcı adına eşler. KV `list()`
+  çağrısı önbellekli olduğu için yeni kaydedilen hesap listede hemen görünmez;
+  bu dizin yeni hesabın anında yetkilendirilmesini sağlar.
+
+### Hesap kurulumu ve çocuk hediyeleri
+
+- Kayıt sonrası hesap kurulumu istenir: Java Minecraft adı (`[A-Za-z0-9_]{3,16}`),
+  Bedrock oyuncu adı (`[\p{L}\p{N} _.-]{2,20}`) ve doğum tarihi. En az bir
+  Minecraft adı zorunludur.
+- Kayıt `setupCompleted: false` ile oluşturulur. Kurulum tamamlanınca profil
+  `PUT /api/profile` ile `setupCompleted: true` alır.
+- "Çocuk" ölçütü 13 yaş altıdır ve sunucuda doğum tarihinden hesaplanır.
+  Profil yanıtı `isChild` alanını döner; doğum tarihi başka kullanıcılara
+  gösterilmez.
+- Çocuk hediyeleri `childgift:{id}` anahtarında tutulur: başlık, açıklama,
+  ödül, platform, `active` ve tarih. Herkese açık uç yalnızca yayındakileri
+  (`active !== false`) döner; yönetici uçları hepsini döner.
+- Hediye listesi KV `list()` yerine `childgift_index` anahtarındaki kimlik
+  dizisinden okunur; böylece yeni eklenen hediye listede anında görünür.
+- Panelde "Çocuk Hediyeleri" sekmesi; masaüstü uygulamada Yönetim → İçerik →
+  Çocuk hediyeleri alt sekmesi.
 
 ### Sosyal giriş (OAuth)
 
@@ -152,6 +173,7 @@ sistemi değildir; Microsoft hesabı ve Xbox Live kapsamlarıyla çalışır.
 | `/api/buy` | POST | Ürün satın alma |
 | `/api/inventory` | GET | Kullanıcının talepleri |
 | `/api/announcements`, `/api/news`, `/api/campaigns` | GET | İçerik listeleri (`?platform=`) |
+| `/api/child-gifts` | GET | Yayındaki çocuk hediyeleri (`?platform=`) |
 | `/api/admin/requests` | GET | Tüm talepler (yönetici) |
 | `/api/admin/users` | GET | Kayıtlı hesapların listesi (yönetici) |
 | `/api/admin/ban-user` | POST | Süreli veya kalıcı yasak (yönetici) |
@@ -159,6 +181,9 @@ sistemi değildir; Microsoft hesabı ve Xbox Live kapsamlarıyla çalışır.
 | `/api/admin/delete-user` | POST | Hesabı ve sosyal bağlantılarını silme (yönetici) |
 | `/api/admin/complete-request`, `/api/admin/reject-request` | POST | Talep sonuçlandırma |
 | `/api/admin/announcement`, `/api/admin/news`, `/api/admin/campaign`, `/api/admin/item` | POST / DELETE | İçerik ekleme / silme |
+| `/api/admin/child-gifts` | GET | Çocuk hediyelerinin tamamı (yönetici) |
+| `/api/admin/child-gift` | POST / DELETE | Çocuk hediyesi ekleme / silme (yönetici) |
+| `/api/admin/child-gift/publish` | POST | Çocuk hediyesini yayınlama / durdurma (yönetici) |
 | `/api/notification/subscribe` | POST | Web push aboneliği |
 | `/api/country` | GET | Ülke bilgisi |
 | `/api/status` | GET | Portal için yedek sunucu durumu |
@@ -197,6 +222,8 @@ sistemi değildir; Microsoft hesabı ve Xbox Live kapsamlarıyla çalışır.
 - `esc`, `safeId`, `safeImageSrc`, `translations`, `t`, tema fonksiyonları
 - Buhar/parçacık efektleri, bildirim aboneliği, `copyText` / `kopyalaIP`
 - `renderUI`, `showContent`, sayfa render fonksiyonları, auth ve profil akışları
+- Hesap kurulumu (`hesapKurulumAc`, `profilYenile`, `bugunTarih`), çocuk hediyeleri
+  (`cocukHediyeleriYukle`)
 
 Yalnızca platforma özgü kısımlar (sunucu adresi, `PLATFORM`, `DEFAULT_AVATAR`) bilinçli olarak farklıdır.
 

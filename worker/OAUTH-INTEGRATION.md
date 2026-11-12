@@ -108,6 +108,7 @@ Worker kodu `env.MC_DB` üzerinden anahtar-değer API'si (`get`, `put`, `list`,
 | `oauth_code:{code}` | `{ username, provider, expiry }` | 2 dakika |
 | `oauth:{provider}:{providerUserId}` | Kullanıcı adı | Kalıcı |
 | `user:{username}` | Mevcut kullanıcı kaydı | Kalıcı |
+| `token:{token}` | `{ username }` — oturum token'ı ile kullanıcı eşlemesi | Kalıcı |
 
 - `state` ve tek kullanımlık kod, KV destekliyorsa `expirationTtl` ile yazılır;
   ayrıca `expiry` alanı kod tarafında da kontrol edilir.

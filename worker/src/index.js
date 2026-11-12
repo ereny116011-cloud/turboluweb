@@ -223,18 +223,57 @@ export default {
       status, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
-    const getJSON = async (key) => JSON.parse(await env.MC_DB.get(key) || 'null');
+    const getJSON = async (key) => {
+      const raw = await env.MC_DB.get(key);
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw);
+      } catch (_) {
+        // Bozuk veri tüm isteği düşürmemeli; kayıt yok sayılır.
+        return null;
+      }
+    };
     const putJSON = (key, value) => env.MC_DB.put(key, JSON.stringify(value));
     const deleteKey = async (key) => env.MC_DB.delete(key);
 
+    /* Token -> kullanıcı adı dizini.
+       KV list() çağrısı önbellekli olduğu için yeni kaydedilen kullanıcı
+       bir süre listede görünmez. Dizini tutmak, yeni hesabın hemen
+       yetkilendirilebilmesini sağlar. */
+    const tokenIndexKey = (token) => `token:${token}`;
+
+    async function tokenIndexEkle(token, username) {
+      if (!token || !username) return;
+      await putJSON(tokenIndexKey(token), { username });
+    }
+
+    async function tokenIndexSil(token) {
+      if (!token) return;
+      await deleteKey(tokenIndexKey(token));
+    }
+
     async function getUser(auth) {
       if (!auth) return null;
-      const token = auth.replace('Bearer ', '');
+      const token = auth.replace('Bearer ', '').trim();
+      if (!token) return null;
+
+      // Hızlı yol: token dizininden kullanıcıya git.
+      const index = await getJSON(tokenIndexKey(token));
+      if (index && index.username) {
+        const user = await getJSON(`user:${index.username}`);
+        if (user && user.token === token) {
+          await clearExpiredBan(user);
+          if (banActive(user)) return null;
+          return user;
+        }
+      }
+
+      // Yedek yol: eski kayıtlar için tüm kullanıcıları tara.
       const list = await env.MC_DB.list({ prefix: 'user:' });
       for (const k of list.keys) {
         const user = await getJSON(k.name);
         if (user && user.token === token) {
-          // Süresi dolmuş geçici yasakları burada temizle.
+          await tokenIndexEkle(token, user.username);
           await clearExpiredBan(user);
           if (banActive(user)) return null;
           return user;
@@ -360,6 +399,8 @@ export default {
     // Platform filtresi — eski kayıtlar için platform yoksa 'all' kabul edilir
     function matchPlatform(item, platform) {
       if (!platform) return true;
+      // 'all' istendiğinde tüm kayıtlar döner.
+      if (platform === 'all') return true;
       const p = item.platform || 'all';
       return p === 'all' || p === platform;
     }
@@ -386,6 +427,7 @@ export default {
        her alan burada da denetlenir. */
     const PLATFORMS = ['java', 'bedrock', 'all'];
     const LIMITS = { title: 120, content: 4000, description: 2000, reward: 80, name: 120, command: 300, reason: 300 };
+    const CHILD_AGE = 13;
 
     function textField(value, max, { required = false } = {}) {
       if (value === undefined || value === null) return { ok: !required, value: '' };
@@ -417,6 +459,93 @@ export default {
       if (length < 6) return 'Parola en az 6 karakter olmalı.';
       if (length > 128) return 'Parola en fazla 128 karakter olabilir.';
       return null;
+    }
+
+    /* Doğum tarihi ve çocuk hesabı.
+       "Çocuk" ölçütü 13 yaş altıdır; yalnızca yaş aralığı hesaplanır,
+       doğum tarihi başka kullanıcılara gösterilmez. */
+    function birthDateError(value) {
+      const text = String(value || '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return 'Doğum tarihini seç.';
+      const date = new Date(`${text}T00:00:00Z`);
+      if (Number.isNaN(date.getTime())) return 'Geçerli bir doğum tarihi gir.';
+      const now = Date.now();
+      if (date.getTime() > now) return 'Doğum tarihi gelecekte olamaz.';
+      const yilOnce = new Date();
+      yilOnce.setUTCFullYear(yilOnce.getUTCFullYear() - 120);
+      if (date.getTime() < yilOnce.getTime()) return 'Geçerli bir doğum tarihi gir.';
+      return null;
+    }
+
+    function ageFromBirthDate(value) {
+      const text = String(value || '');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
+      const date = new Date(`${text}T00:00:00Z`);
+      if (Number.isNaN(date.getTime())) return null;
+      const now = new Date();
+      let age = now.getUTCFullYear() - date.getUTCFullYear();
+      const ay = now.getUTCMonth() - date.getUTCMonth();
+      if (ay < 0 || (ay === 0 && now.getUTCDate() < date.getUTCDate())) age -= 1;
+      return age >= 0 && age < 130 ? age : null;
+    }
+
+    function isChildUser(user) {
+      const age = ageFromBirthDate(user && user.birthDate);
+      return age !== null && age < CHILD_AGE;
+    }
+
+    function minecraftNameError(value, edition) {
+      const text = String(value || '').trim();
+      if (!text) return null;
+      if (edition === 'java') {
+        return /^[A-Za-z0-9_]{3,16}$/.test(text) ? null : 'Java kullanıcı adı 3-16 karakter olmalı (harf, rakam, alt çizgi).';
+      }
+      return /^[\p{L}\p{N} _.-]{2,20}$/u.test(text) ? null : 'Bedrock oyuncu adı 2-20 karakter olabilir.';
+    }
+
+    /* Çocuk hediyeleri için kimlik listesi.
+       KV list() çağrısı "eventual consistency" ile çalışır; yeni eklenen
+       hediye listede dakikalar sonra görünebilir. Bu yüzden kimlikler ayrı
+       bir indekste tutulur, liste anında güncel olur. */
+    const CHILD_GIFT_INDEX_KEY = 'childgift_index';
+
+    async function childGiftIndeksi() {
+      const index = await getJSON(CHILD_GIFT_INDEX_KEY);
+      return Array.isArray(index) ? index.filter((id) => typeof id === 'string') : [];
+    }
+
+    async function childGiftIndeksineEkle(id) {
+      const index = await childGiftIndeksi();
+      if (!index.includes(id)) index.unshift(id);
+      await putJSON(CHILD_GIFT_INDEX_KEY, index.slice(0, 500));
+    }
+
+    async function childGiftIndeksindenSil(id) {
+      const index = await childGiftIndeksi();
+      await putJSON(CHILD_GIFT_INDEX_KEY, index.filter((value) => value !== id).slice(0, 500));
+    }
+
+    /* İndeks varsa ondan, yoksa KV taramasından hediyeleri toplar. */
+    async function childGiftListesi() {
+      const index = await childGiftIndeksi();
+      const list = [];
+      const gorulen = new Set();
+
+      for (const id of index) {
+        const gift = await getJSON(`childgift:${id}`);
+        if (gift) { list.push(gift); gorulen.add(id); }
+      }
+
+      // İndekse girmemiş (eski) kayıtları da bulmak için KV taraması yapılır.
+      const keys = await env.MC_DB.list({ prefix: 'childgift:' });
+      for (const k of keys.keys) {
+        const id = k.name.slice('childgift:'.length);
+        if (gorulen.has(id)) continue;
+        const gift = await getJSON(k.name);
+        if (gift) list.push(gift);
+      }
+
+      return list;
     }
 
     /* Profil simgesi: yalnızca küçük base64 görsel veya izinli avatar adresi. */
@@ -506,9 +635,11 @@ export default {
           icon: '', status: 'Online', theme: 'dark', language: 'tr', isAdmin: false,
           email: email,
           platform: platformValue(platform),
+          setupCompleted: false,
           createdAt: new Date().toISOString()
         };
         await putJSON(`user:${username}`, user);
+        await tokenIndexEkle(token, username);
         return json({ token, username, balance: 0, isAdmin: false });
       }
 
@@ -551,6 +682,7 @@ export default {
         }
         user.lastLogin = new Date().toISOString();
         await putJSON(`user:${user.username}`, user);
+        await tokenIndexEkle(user.token, user.username);
         return json({ token: user.token, username: user.username, balance: user.balance, isAdmin: user.isAdmin });
       }
 
@@ -559,7 +691,7 @@ export default {
         const user = await getUser(request.headers.get('Authorization'));
         if (!user) return json({ error: 'Yetkisiz' }, 401);
         const { password, token, ...safe } = user;
-        return json(safe);
+        return json({ ...safe, isChild: isChildUser(user) });
       }
 
       if (path === '/api/profile' && method === 'PUT') {
@@ -596,9 +728,34 @@ export default {
           if (epostaHatasi) return json({ error: epostaHatasi }, 400);
           user.email = email;
         }
+        if (updates.minecraftJava !== undefined) {
+          const value = String(updates.minecraftJava || '').trim();
+          const hata = minecraftNameError(value, 'java');
+          if (hata) return json({ error: hata }, 400);
+          user.minecraftJava = value;
+        }
+        if (updates.minecraftBedrock !== undefined) {
+          const value = String(updates.minecraftBedrock || '').trim();
+          const hata = minecraftNameError(value, 'bedrock');
+          if (hata) return json({ error: hata }, 400);
+          user.minecraftBedrock = value;
+        }
+        if (updates.birthDate !== undefined) {
+          const value = String(updates.birthDate || '').trim();
+          const hata = birthDateError(value);
+          if (hata) return json({ error: hata }, 400);
+          user.birthDate = value;
+        }
+        if (updates.setupCompleted === true) {
+          if (!user.birthDate) return json({ error: 'Doğum tarihi gerekli.' }, 400);
+          if (!user.minecraftJava && !user.minecraftBedrock) {
+            return json({ error: 'En az bir Minecraft kullanıcı adı gerekli.' }, 400);
+          }
+          user.setupCompleted = true;
+        }
 
         await putJSON(`user:${user.username}`, user);
-        return json({ success: true });
+        return json({ success: true, setupCompleted: Boolean(user.setupCompleted), isChild: isChildUser(user) });
       }
 
       // === Şifre değiştir ===
@@ -781,6 +938,15 @@ export default {
         return json(list);
       }
 
+      // === Çocuk hediyeleri (yalnızca yayınlananlar) ===
+      if (path === '/api/child-gifts' && method === 'GET') {
+        const platform = url.searchParams.get('platform');
+        const list = await childGiftListesi();
+        const yayinda = list.filter((gift) => gift.active !== false && matchPlatform(gift, platform));
+        yayinda.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        return json(yayinda);
+      }
+
       // === Bildirim abone ===
       if (path === '/api/notification/subscribe' && method === 'POST') {
         const user = await getUser(request.headers.get('Authorization'));
@@ -854,6 +1020,11 @@ export default {
             isAdmin: Boolean(user.isAdmin),
             platform: user.platform || 'all',
             icon: user.icon || '',
+            isChild: isChildUser(user),
+            birthDate: user.birthDate || '',
+            minecraftJava: user.minecraftJava || '',
+            minecraftBedrock: user.minecraftBedrock || '',
+            setupCompleted: Boolean(user.setupCompleted),
             banned: banActive(user),
             banType: banActive(user) ? user.banType : null,
             banUntil: banActive(user) ? (user.banUntil || null) : null,
@@ -941,6 +1112,7 @@ export default {
         if (user.isAdmin) return json({ error: 'Yönetici hesapları silinemez.' }, 400);
 
         await deleteKey(`user:${username}`);
+        await tokenIndexSil(user.token);
 
         // Sosyal giriş bağlantılarını da temizle.
         const oauthKeys = await env.MC_DB.list({ prefix: 'oauth:' });
@@ -1110,6 +1282,57 @@ export default {
           command: command.value,
           platform: platformValue(body.platform)
         });
+        return json({ success: true });
+      }
+
+      // === ÇOCUK HEDİYELERİ (yönetici) ===
+      if (path === '/api/admin/child-gifts' && method === 'GET') {
+        if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
+        const list = await childGiftListesi();
+        list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        return json(list);
+      }
+
+      if (path === '/api/admin/child-gift' && method === 'POST') {
+        if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
+        const body = await request.json();
+        const title = textField(body.title, LIMITS.title, { required: true });
+        const description = textField(body.description, LIMITS.description, { required: true });
+        const reward = textField(body.reward, LIMITS.reward);
+        if (!title.ok || !description.ok || !reward.ok) {
+          return json({ error: 'Hediye alanları geçersiz.' }, 400);
+        }
+        const id = crypto.randomUUID();
+        await putJSON(`childgift:${id}`, {
+          id,
+          title: title.value,
+          description: description.value,
+          reward: reward.value,
+          platform: platformValue(body.platform),
+          active: body.active !== false,
+          date: new Date().toISOString()
+        });
+        await childGiftIndeksineEkle(id);
+        return json({ success: true, id });
+      }
+
+      if (path === '/api/admin/child-gift/publish' && method === 'POST') {
+        if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
+        const { id, active } = await request.json();
+        if (!validId(id)) return json({ error: 'ID gerekli' }, 400);
+        const gift = await getJSON(`childgift:${id}`);
+        if (!gift) return json({ error: 'Hediye bulunamadı.' }, 404);
+        gift.active = Boolean(active);
+        await putJSON(`childgift:${id}`, gift);
+        return json({ success: true, active: gift.active });
+      }
+
+      if (path === '/api/admin/child-gift' && method === 'DELETE') {
+        if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 403);
+        const { id } = await request.json();
+        if (!validId(id)) return json({ error: 'ID gerekli' }, 400);
+        await deleteKey(`childgift:${id}`);
+        await childGiftIndeksindenSil(id);
         return json({ success: true });
       }
 

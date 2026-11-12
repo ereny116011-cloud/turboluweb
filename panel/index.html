@@ -386,6 +386,7 @@
             { id: 'haberler',    ad: 'Haberler',    ikon: 'fa-newspaper' },
             { id: 'kampanyalar', ad: 'Kampanyalar', ikon: 'fa-tags' },
             { id: 'market',      ad: 'Market',      ikon: 'fa-cart-shopping' },
+            { id: 'hediyeler',   ad: 'Çocuk Hediyeleri', ikon: 'fa-gift' },
             { id: 'talepler',    ad: 'Talepler',    ikon: 'fa-clipboard-list' },
             { id: 'uyeler',      ad: 'Üyeler',      ikon: 'fa-users' },
             { id: 'tikla',       ad: 'Tıkla Sürümü', ikon: 'fa-mobile-screen-button' }
@@ -405,7 +406,8 @@
             sekmeCiz();
             $('#icerik').innerHTML = '<div class="bos">Yükleniyor...</div>';
             ({ duyurular: duyurularCiz, haberler: haberlerCiz, kampanyalar: kampanyalarCiz,
-               market: marketCiz, talepler: taleplerCiz, uyeler: uyelerCiz, tikla: tiklaCiz })[id]();
+               market: marketCiz, hediyeler: hediyelerCiz, talepler: taleplerCiz,
+               uyeler: uyelerCiz, tikla: tiklaCiz })[id]();
         }
 
         async function tiklaCiz() {
@@ -636,6 +638,70 @@
                 </div>`;
         }
 
+        /* ---------- Çocuk Hediyeleri ---------- */
+        async function hediyelerCiz() {
+            let liste;
+            try {
+                liste = await api('/api/admin/child-gifts');
+            } catch (_) {
+                liste = null;
+            }
+
+            if (!Array.isArray(liste)) {
+                $('#icerik').innerHTML = '<div class="bos">Hediye listesi alınamadı. Yetkin olduğundan emin ol.</div>';
+                return;
+            }
+
+            const yayinda = liste.filter(h => h.active !== false).length;
+
+            $('#icerik').innerHTML = `
+                <div class="bolum">
+                    <div class="card">
+                        <h2 class="bolum-baslik">Yeni çocuk hediyesi</h2>
+                        <label>Başlık</label>
+                        <input type="text" data-alan="title" placeholder="Ücretsiz Elmas Kılıç">
+                        <label>Açıklama</label>
+                        <textarea data-alan="description" placeholder="Hediyenin detayı..."></textarea>
+                        <label>Ödül</label>
+                        <input type="text" data-alan="reward" placeholder="1 elmas, 1 rol, özel hediye...">
+                        ${PLATFORM_SEC}
+                        <button class="btn btn-primary" style="width:100%; justify-content:center;" data-ekle="childgift">
+                            <i class="fa-solid fa-plus"></i> Hediye ekle
+                        </button>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin:12px 0 0; line-height:1.5;">Eklenen hediye otomatik yayınlanır. Yayını durdurmak için aşağıdaki listeden düğmeyi kullanabilirsin.</p>
+                    </div>
+                    <div>
+                        <h2 class="bolum-baslik">Çocuk hediyeleri (${liste.length})</h2>
+                        <div class="uyeler-arac">
+                            <span class="rozet">${liste.length} hediye</span>
+                            <span class="rozet ${yayinda ? 'rozet-yesil' : ''}">${yayinda} yayında</span>
+                        </div>
+                        <div class="liste">${liste.length ? liste.map(h => `
+                            <div class="oge${h.active === false ? ' oge-yasakli' : ''}">
+                                <div class="oge-icerik">
+                                    <h3>${esc(h.title)}</h3>
+                                    <p>${esc(h.description)}</p>
+                                    <div class="meta">
+                                        ${h.reward ? `<span class="rozet rozet-yesil"><i class="fa-solid fa-gift"></i> ${esc(h.reward)}</span>` : ''}
+                                        <span class="rozet"><i class="fa-solid fa-calendar"></i> ${tarih(h.date)}</span>
+                                        <span class="rozet">${PLATFORM_AD[h.platform] || 'İkisi de'}</span>
+                                        <span class="rozet ${h.active === false ? 'rozet-kirmizi' : 'rozet-yesil'}">${h.active === false ? 'Yayında değil' : 'Yayında'}</span>
+                                    </div>
+                                </div>
+                                <div class="oge-aksiyon">
+                                    <button class="btn btn-ghost btn-sm" data-yayin="${esc(h.id)}" data-durum="${h.active === false ? '1' : '0'}">
+                                        <i class="fa-solid ${h.active === false ? 'fa-play' : 'fa-pause'}"></i>
+                                        ${h.active === false ? 'Yayınla' : 'Durdur'}
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" data-sil="child-gift" data-id="${esc(h.id)}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>`).join('') : '<div class="bos">Henüz çocuk hediyesi yok.</div>'}</div>
+                    </div>
+                </div>`;
+        }
+
         /* ---------- Talepler ---------- */
         async function taleplerCiz() {
             const liste = await api('/api/admin/requests');
@@ -799,9 +865,22 @@
             const yasak = e.target.closest('[data-yasak]');
             const kaldir = e.target.closest('[data-kaldir]');
             const uyeSil = e.target.closest('[data-uye-sil]');
+            const yayin = e.target.closest('[data-yayin]');
             const tab  = e.target.closest('[data-sekme]');
 
             if (tab) return sekmeAc(tab.dataset.sekme);
+
+            if (yayin) {
+                const id = yayin.dataset.yayin;
+                const aktif = yayin.dataset.durum === '1';
+                yayin.disabled = true;
+                const d = await api('/api/admin/child-gift/publish', {
+                    method: 'POST', body: JSON.stringify({ id, active: aktif })
+                });
+                bildir(d.success ? (aktif ? 'Hediye yayınlandı' : 'Hediye yayından kaldırıldı') : (d.error || 'İşlem başarısız'), !d.success);
+                sekmeAc('hediyeler');
+                return;
+            }
 
             if (yasak) { yasakModalAc(yasak.dataset.yasak); return; }
 
@@ -857,6 +936,11 @@
                               platform: al('platform') };
                     yol = '/api/admin/item'; basari = 'Ürün eklendi';
                     if (!govde.name || !(govde.price >= 0)) return bildir('Ürün adı ve geçerli bir fiyat gerekli', true);
+                } else if (tip === 'childgift') {
+                    govde = { title: al('title'), description: al('description'), reward: al('reward'),
+                              platform: al('platform'), active: true };
+                    yol = '/api/admin/child-gift'; basari = 'Çocuk hediyesi eklendi';
+                    if (!govde.title || !govde.description) return bildir('Başlık ve açıklama gerekli', true);
                 }
 
                 ekle.disabled = true;
@@ -903,6 +987,6 @@
             }
         })();
     </script>
-    <script src="/site-account.js?v=8"></script>
+    <script src="/site-account.js?v=9"></script>
 </body>
 </html>

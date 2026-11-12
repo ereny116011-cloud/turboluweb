@@ -49,6 +49,7 @@ let currentLang = localStorage.getItem('lang') || 'tr';
 let currentUser = null;
 let token = localStorage.getItem('token') || null;
 let statusInterval = null;
+let aktifBolum = 'status';
 let notificationPreferences;
 try {
   const kayitliTercihler = JSON.parse(localStorage.getItem('notifyPrefs') || 'null');
@@ -419,12 +420,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try { await navigator.serviceWorker.register('/mc/sw.js'); } catch (e) {}
   }
 
-  try {
-    const res = await fetch(`${API}/api/country`);
-    const { tr } = await res.json();
-    if (!localStorage.getItem('lang')) setLang(tr ? 'tr' : 'en'); else setLang(currentLang);
-  } catch { setLang(currentLang); }
-
+  // Profil önce yüklenir: içerik (çocuk hediyeleri, kurulum uyarısı) doğru
+  // bilgiyle çizilsin.
   if (token) {
     try {
       const res = await fetch(`${API}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -433,8 +430,56 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentUser = data;
     } catch (e) { logout(); }
   }
+
+  try {
+    const res = await fetch(`${API}/api/country`);
+    const { tr } = await res.json();
+    if (!localStorage.getItem('lang')) setLang(tr ? 'tr' : 'en'); else setLang(currentLang);
+  } catch { setLang(currentLang); }
+
   renderUI();
+  if (currentUser && currentUser.setupCompleted === false) hesapKurulumAc(currentUser);
+
+  // Kurulum penceresi kapanınca profil bilgileri tazelenir; hediyeler ve
+  // profil alanları güncel veriyle çizilsin.
+  window.addEventListener('turbolu:setup-complete', async () => {
+    await profilYenile();
+    renderUI();
+    showContent(aktifBolum || 'status');
+  });
 });
+
+// ========== HESAP KURULUMU ==========
+// Minecraft kullanıcı adları ve doğum tarihi. Ortak bileşen site-account.js
+// içindedir; burada yalnızca doğru zaman tetiklenir.
+function bugunTarih() {
+  const simdi = new Date();
+  const ay = String(simdi.getMonth() + 1).padStart(2, '0');
+  const gun = String(simdi.getDate()).padStart(2, '0');
+  return `${simdi.getFullYear()}-${ay}-${gun}`;
+}
+
+function hesapKurulumAc(profil) {
+  if (!profil) return;
+  try {
+    if (localStorage.getItem('turboluSetupSkipped') === String(profil.username || '')) return;
+  } catch (e) { /* yoksay */ }
+  if (window.TurboluSetup && typeof window.TurboluSetup.open === 'function') {
+    window.TurboluSetup.open(profil);
+  }
+}
+
+// Profil bilgilerini sunucudan yeniler (yaş, Minecraft adları, kurulum durumu).
+async function profilYenile() {
+  if (!token) return null;
+  try {
+    const res = await fetch(`${API}/api/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    if (data.error) return null;
+    currentUser = data;
+    return currentUser;
+  } catch (e) { return null; }
+}
 
 // ========== UI ==========
 function renderUI() {
@@ -484,6 +529,7 @@ function renderUI() {
 function showContent(section) {
   const content = document.getElementById('content');
   if (!content) return;
+  aktifBolum = section;
   content.classList.remove('page-enter');
   void content.offsetWidth;
   content.classList.add('page-enter');
@@ -542,6 +588,11 @@ async function renderStatus() {
         <p><strong>Sürüm:</strong> <span id="sunucu-surum">-</span></p>
       </div>
     </div>
+    ${currentUser && currentUser.isChild ? `
+    <div class="glass-card" id="cocuk-hediyeleri">
+      <h2><i class="fa-solid fa-gift"></i> Sana Özel Hediyeler</h2>
+      <div id="cocukHediyeListesi"><p class="empty-note">Hediyeler yükleniyor...</p></div>
+    </div>` : ''}
     <div class="footer">
       <p>&copy; 2026 Eren Yılmaz - TurboluMC. Tüm Hakları Saklıdır.</p>
       <p class="license-text">Bu proje GNU General Public License v3.0 ile korunmaktadır.</p>
@@ -579,6 +630,35 @@ async function renderStatus() {
   updateStatus();
   if (statusInterval) clearInterval(statusInterval);
   statusInterval = setInterval(updateStatus, 15000);
+  cocukHediyeleriYukle();
+}
+
+// Çocuk hesaplarına özel hediyeler.
+async function cocukHediyeleriYukle() {
+  const host = document.getElementById('cocukHediyeListesi');
+  if (!host) return;
+  try {
+    const res = await fetch(`${API}/api/child-gifts?platform=java`);
+    const gifts = await res.json();
+    const hedef = document.getElementById('cocukHediyeListesi');
+    if (!hedef) return;
+    if (!Array.isArray(gifts) || gifts.length === 0) {
+      hedef.innerHTML = '<p class="empty-note">Şimdilik yeni bir hediye yok. Seni bekleyen sürprizler olabilir!</p>';
+      return;
+    }
+    hedef.innerHTML = gifts.map(g => `
+      <div class="cocuk-hediye">
+        <i class="fa-solid fa-gift" aria-hidden="true"></i>
+        <div>
+          <b>${esc(g.title)}</b>
+          <p>${esc(g.description)}</p>
+          ${g.reward ? `<span class="hediye-odul"><i class="fa-solid fa-star" aria-hidden="true"></i> ${esc(g.reward)}</span>` : ''}
+        </div>
+      </div>`).join('');
+  } catch (e) {
+    const hedef = document.getElementById('cocukHediyeListesi');
+    if (hedef) hedef.innerHTML = '<p class="empty-note">Hediyeler şu an görüntülenemiyor.</p>';
+  }
 }
 
 async function renderShop() {
@@ -825,8 +905,11 @@ async function handleAuth(mode) {
     token = data.token;
     currentUser = { username: data.username, balance: data.balance, isAdmin: data.isAdmin };
     closeModal();
+    await profilYenile();
     renderUI();
     showContent('status');
+    // Yeni hesaplarda kurulum ekranı açılır.
+    if (currentUser && currentUser.setupCompleted === false) hesapKurulumAc(currentUser);
   } catch (_) {
     hata('Sunucuya ulaşılamadı. İnternet bağlantını kontrol edip tekrar dene.');
   } finally {
@@ -856,6 +939,24 @@ async function renderProfile() {
         <label><i class="fa-solid fa-comment"></i> Durum</label>
         <select id="statusSelect"><option value="Online">Çevrimiçi</option><option value="Offline">Çevrimdışı</option></select>
       </div>
+      <div class="profile-field">
+        <label><i class="fa-solid fa-cube"></i> Java Minecraft adın</label>
+        <input id="minecraftJavaInput" type="text" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Örn. TurboluMC" value="${esc(currentUser.minecraftJava || '')}">
+      </div>
+      <div class="profile-field">
+        <label><i class="fa-solid fa-cubes"></i> Bedrock oyuncu adın</label>
+        <input id="minecraftBedrockInput" type="text" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Örn. TurboluMC" value="${esc(currentUser.minecraftBedrock || '')}">
+      </div>
+      <div class="profile-field">
+        <label><i class="fa-solid fa-cake-candles"></i> Doğum tarihi</label>
+        <input id="birthDateInput" type="date" max="${bugunTarih()}">
+      </div>
+      <p class="empty-note" style="text-align:left; margin-top:-4px;">
+        ${currentUser.isChild ? 'Çocuk hesabısın: sana özel hediyeler ana sayfada görünüyor.' : 'Doğum tarihin yalnızca yaşına göre hediye göstermek için kullanılır, kimseye gösterilmez.'}
+      </p>
+      <button id="setupAgainBtn" class="small-btn" style="width:100%; margin-top:12px;">
+        <i class="fa-solid fa-sliders"></i> Hesap kurulumunu güncelle
+      </button>
       <hr style="margin: 1rem 0; border-color: var(--glass-border);">
       <h3 style="margin-bottom:0.5rem;"><i class="fa-solid fa-lock"></i> Şifre Değiştir</h3>
       <div class="profile-field"><input id="oldPass" type="password" placeholder="Mevcut şifre" autocomplete="current-password"></div>
@@ -869,10 +970,14 @@ async function renderProfile() {
   `;
   document.getElementById('langSelect').value = currentUser.language || 'tr';
   document.getElementById('statusSelect').value = currentUser.status || 'Online';
+  document.getElementById('birthDateInput').value = currentUser.birthDate || '';
   document.getElementById('changeAvatarBtn').addEventListener('click', () => document.getElementById('avatarUpload').click());
   document.getElementById('avatarUpload').addEventListener('change', uploadAvatar);
   document.getElementById('changePassBtn').addEventListener('click', changePassword);
   document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
+  document.getElementById('setupAgainBtn').addEventListener('click', () => {
+    hesapKurulumAc(currentUser);
+  });
 }
 
 async function uploadAvatar(event) {
@@ -918,15 +1023,33 @@ async function changePassword() {
 async function saveProfileSettings() {
   const language = document.getElementById('langSelect').value;
   const status = document.getElementById('statusSelect').value;
+  const java = document.getElementById('minecraftJavaInput').value.trim();
+  const bedrock = document.getElementById('minecraftBedrockInput').value.trim();
+  const dogum = document.getElementById('birthDateInput').value;
+
+  if (java && !/^[A-Za-z0-9_]{3,16}$/.test(java)) return alert('Java adı 3-16 karakter olmalı (harf, rakam, alt çizgi).');
+  if (bedrock && !/^[\p{L}\p{N} _.-]{2,20}$/u.test(bedrock)) return alert('Bedrock adı 2-20 karakter olabilir.');
+  if (dogum && dogum > bugunTarih()) return alert('Doğum tarihi gelecekte olamaz.');
+
+  const govde = { language, status, minecraftJava: java, minecraftBedrock: bedrock };
+  if (dogum) govde.birthDate = dogum;
+  // Kurulum alanları tamamlandıysa hesap artık "kurulmuş" sayılır.
+  if (dogum && (java || bedrock)) govde.setupCompleted = true;
+
   const res = await fetch(`${API}/api/profile`, {
     method: 'PUT',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ language, status })
+    body: JSON.stringify(govde)
   });
   const data = await res.json();
   if (data.success) {
     currentUser.language = language;
     currentUser.status = status;
+    currentUser.minecraftJava = java;
+    currentUser.minecraftBedrock = bedrock;
+    if (dogum) currentUser.birthDate = dogum;
+    if (typeof data.isChild === 'boolean') currentUser.isChild = data.isChild;
+    if (typeof data.setupCompleted === 'boolean') currentUser.setupCompleted = data.setupCompleted;
     setLang(language);
     renderUI();
     showContent('status');

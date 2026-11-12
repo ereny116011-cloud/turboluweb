@@ -7,7 +7,7 @@
   const token = () => localStorage.getItem('token') || '';
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = '/site-account.css?v=4';
+  style.href = '/site-account.css?v=5';
   document.head.appendChild(style);
 
   const widget = document.createElement('aside');
@@ -56,6 +56,120 @@
   }
   loadOAuth();
 
+  /* ------------------------------------------------------------------ */
+  /* Hesap kurulumu: Minecraft adları + doğum tarihi                    */
+  /* ------------------------------------------------------------------ */
+
+  const setupDialog = document.createElement('dialog');
+  setupDialog.className = 'site-account-dialog site-setup-dialog';
+  setupDialog.setAttribute('aria-labelledby', 'site-setup-title');
+  setupDialog.innerHTML = `
+    <form method="dialog" class="site-account-close-form"><button class="site-account-close" aria-label="Kapat">×</button></form>
+    <h2 id="site-setup-title">Hesabını tamamla</h2>
+    <p class="site-account-hint">Minecraft kullanıcı adlarını ve doğum tarihini gir. Doğum tarihin yalnızca yaşına göre hediye göstermek için kullanılır, kimseye gösterilmez.</p>
+    <form id="site-setup-form" novalidate>
+      <label for="site-setup-java">Java sürümü Minecraft adın</label>
+      <input id="site-setup-java" name="minecraftJava" autocomplete="off" spellcheck="false"
+             maxlength="16" placeholder="Örn. TurboluMC">
+      <label for="site-setup-bedrock">Bedrock sürümü oyuncu adın</label>
+      <input id="site-setup-bedrock" name="minecraftBedrock" autocomplete="off" spellcheck="false"
+             maxlength="20" placeholder="Örn. TurboluMC">
+      <label for="site-setup-birth">Doğum tarihi</label>
+      <input id="site-setup-birth" name="birthDate" type="date" required>
+      <p class="site-account-error" role="status" aria-live="polite"></p>
+      <button type="submit" class="site-account-submit">Kaydet</button>
+    </form>
+    <button type="button" class="site-account-switch" id="site-setup-skip">Şimdilik geç</button>`;
+  document.body.appendChild(setupDialog);
+
+  const JAVA_ADI = /^[A-Za-z0-9_]{3,16}$/;
+  const BEDROCK_ADI = /^[\p{L}\p{N} _.-]{2,20}$/u;
+
+  function bugun() {
+    const simdi = new Date();
+    const ay = String(simdi.getMonth() + 1).padStart(2, '0');
+    const gun = String(simdi.getDate()).padStart(2, '0');
+    return `${simdi.getFullYear()}-${ay}-${gun}`;
+  }
+
+  function setupAc(profil) {
+    if (!token()) return;
+    if (setupDialog.open) return;
+    const form = setupDialog.querySelector('#site-setup-form');
+    form.reset();
+    setupDialog.querySelector('#site-setup-java').value = (profil && profil.minecraftJava) || '';
+    setupDialog.querySelector('#site-setup-bedrock').value = (profil && profil.minecraftBedrock) || '';
+    setupDialog.querySelector('#site-setup-birth').value = (profil && profil.birthDate) || '';
+    setupDialog.querySelector('#site-setup-birth').max = bugun();
+    setupDialog.querySelector('.site-account-error').textContent = '';
+    setupDialog.showModal();
+    setTimeout(() => setupDialog.querySelector('#site-setup-java').focus(), 60);
+  }
+
+  /* Kurulum tamamlanmamış hesaplar için ekranı aç.
+     Kullanıcı "şimdilik geç" dediyse aynı hesap için bir daha zorlanmaz;
+     profil sayfasından yeniden açılabilir. */
+  function setupGerekliMi(profil) {
+    if (!profil || profil.error) return;
+    if (profil.setupCompleted !== false) return;
+    const ad = String(profil.username || '');
+    try {
+      if (localStorage.getItem('turboluSetupSkipped') === ad) return;
+    } catch (_) { /* yoksay */ }
+    setupAc(profil);
+  }
+
+  setupDialog.querySelector('#site-setup-skip').addEventListener('click', () => {
+    try {
+      if (currentUser && currentUser.username) {
+        localStorage.setItem('turboluSetupSkipped', currentUser.username);
+      }
+    } catch (_) { /* yoksay */ }
+    setupDialog.close();
+  });
+
+  setupDialog.querySelector('#site-setup-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const hata = setupDialog.querySelector('.site-account-error');
+    const gonder = setupDialog.querySelector('.site-account-submit');
+    hata.textContent = '';
+
+    const java = setupDialog.querySelector('#site-setup-java').value.trim();
+    const bedrock = setupDialog.querySelector('#site-setup-bedrock').value.trim();
+    const dogum = setupDialog.querySelector('#site-setup-birth').value;
+
+    if (!java && !bedrock) { hata.textContent = 'En az bir Minecraft kullanıcı adı gerekli.'; return; }
+    if (java && !JAVA_ADI.test(java)) { hata.textContent = 'Java adı 3-16 karakter olmalı (harf, rakam, alt çizgi).'; return; }
+    if (bedrock && !BEDROCK_ADI.test(bedrock)) { hata.textContent = 'Bedrock adı 2-20 karakter olabilir.'; return; }
+    if (!dogum) { hata.textContent = 'Doğum tarihini seç.'; return; }
+    if (dogum > bugun()) { hata.textContent = 'Doğum tarihi gelecekte olamaz.'; return; }
+
+    gonder.disabled = true;
+    const eskiMetin = gonder.textContent;
+    gonder.textContent = 'Kaydediliyor…';
+    try {
+      const response = await fetch(`${API}/api/profile`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token()}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          minecraftJava: java,
+          minecraftBedrock: bedrock,
+          birthDate: dogum,
+          setupCompleted: true
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.error) throw new Error(data.error || 'Kurulum kaydedilemedi.');
+      setupDialog.close();
+      try { localStorage.removeItem('turboluSetupSkipped'); } catch (_) { /* yoksay */ }
+      window.dispatchEvent(new CustomEvent('turbolu:setup-complete', { detail: data }));
+    } catch (err) {
+      hata.textContent = err.message || 'Kurulum kaydedilemedi.';
+      gonder.disabled = false;
+      gonder.textContent = eskiMetin;
+    }
+  });
+
   const releaseDialog = document.createElement('dialog');
   releaseDialog.className = 'site-release-dialog';
   releaseDialog.setAttribute('aria-labelledby', 'site-release-title');
@@ -69,6 +183,7 @@
   document.body.appendChild(releaseDialog);
 
   let registerMode = false;
+  let currentUser = null;
   const esc = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[c]);
@@ -110,6 +225,7 @@
   }
 
   function renderAccount(profile) {
+    currentUser = profile || null;
     const username = profile && profile.username;
     widget.innerHTML = username
       ? `<span class="site-account-name">${esc(username)}</span>${profile.isAdmin ? '<a class="site-account-admin" href="/panel/">Yönetim</a>' : ''}<button class="site-account-logout" type="button">Çıkış</button>`
@@ -118,6 +234,7 @@
     if (logout) logout.addEventListener('click', () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('turboluSetupSkipped');
       location.reload();
     });
     widget.querySelectorAll('.site-account-open').forEach(open => open.addEventListener('click', () => {
@@ -194,6 +311,12 @@
     } catch (_) { /* Sürüm notu servisi kullanılamıyorsa sayfa normal çalışır. */ }
   }
 
-  getProfile().then(renderAccount);
+  /* Dış sayfalar (MC, Bedrock) da kurulum ekranını tetikleyebilsin. */
+  window.TurboluSetup = { open: setupAc, check: setupGerekliMi };
+
+  getProfile().then((profile) => {
+    renderAccount(profile);
+    setupGerekliMi(profile);
+  });
   showReleaseNotes();
 })();

@@ -30,6 +30,7 @@ const API_ROUTES = {
   '/api/announcements': ['GET'],
   '/api/news': ['GET'],
   '/api/campaigns': ['GET'],
+  '/api/child-gifts': ['GET'],
   '/api/admin/users': ['GET'],
   '/api/admin/requests': ['GET'],
   '/api/admin/ban-user': ['POST'],
@@ -40,7 +41,10 @@ const API_ROUTES = {
   '/api/admin/announcement': ['POST', 'DELETE'],
   '/api/admin/news': ['POST', 'DELETE'],
   '/api/admin/campaign': ['POST', 'DELETE'],
-  '/api/admin/item': ['POST']
+  '/api/admin/item': ['POST'],
+  '/api/admin/child-gifts': ['GET'],
+  '/api/admin/child-gift': ['POST', 'DELETE'],
+  '/api/admin/child-gift/publish': ['POST']
 };
 
 const SESSION_FILE = 'session.json';
@@ -555,10 +559,14 @@ function registerIpc() {
       return false;
     }
     await writeSession(value);
+    // Bellekteki oturum da güncellenmeli; aksi hâlde sonraki istekler
+    // (ör. profil güncelleme) eski token ile gider ve "Yetkisiz" döner.
+    sessionToken = value;
     return true;
   });
   ipcMain.handle('auth:clear', async () => {
     await writeSession('');
+    sessionToken = '';
     return true;
   });
 
