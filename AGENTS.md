@@ -48,8 +48,10 @@ Sayfaları doğrudan `file://` ile açma; `fetch`, Clipboard API, service worker
 | `bedrock/` | Turbolu Bedrock SPA'sı (`index.html` + `app.js` + `style.css` + `manifest.json`). |
 | `tikla/` | Turbolu Tıkla mobil oyun tanıtım sitesi; çok sayfalı yapı. |
 | `tikla/apk/` | `turbolutikla.apk` ve virüs tarama görseli. |
-| `panel/index.html` | İçerik yönetim paneli: duyuru, haber, kampanya, ürün ve talepler. |
-| `desktop/` | TurboluApp PC: Electron tabanlı masaüstü uygulaması (Windows, Linux, macOS). Kendi arayüzüyle Worker API'sini kullanır; siteyi gömmez. |
+| `turboluapp-pc/` | TurboluApp PC kurulum ve indirme sayfası. |
+| `panel/index.html` | İçerik yönetim paneli: duyuru, haber, kampanya, ürün, çocuk hediyesi ve talepler. |
+| `desktop/` | TurboluApp PC: Rust (Tauri 2) tabanlı masaüstü uygulaması (Windows, Linux, macOS). Kendi arayüzüyle Worker API'sini kullanır; siteyi gömmez. |
+| `desktop/download/` | Kurulum dosyası (`TurboluApp-Setup-1.0.0.exe`) ve `SHA256SUMS.txt`; siteden indirilir. |
 | `worker/` | Worker entegrasyon belgeleri. `worker/OAUTH-INTEGRATION.md` sosyal giriş sözleşmesini anlatır. Worker kaynak kodu eklenirse `worker/src/` altında tutulur; sırlar ve gerçek client secret değerleri commit edilmez. |
 | `fa/` | Font Awesome 6 vendor dosyaları. Mümkünse düzenleme; CDN'e geri dönme. |
 | `img/` | Ortak görseller. Big Sur duvar kağıdı `bigsur-wallpaper.webp`; eski SVG dosyaları tarihseldir. |
@@ -304,6 +306,12 @@ Diğer notlar:
   - `/tikla/apk/virus_test_sonucu.png`
 - Bu iki dosyayı GitHub Releases veya başka bir dış bağlantıya taşıma. `.gitattributes` içindeki `*.apk -text` ve `*.png -text` kurallarını koru.
 - APK büyük bir ikili dosyadır (yaklaşık 26 MB). Git LFS'e taşıma; mevcut yöntem bilinçli olarak seçildi.
+- TurboluApp PC kurulum dosyası da siteden sunulur:
+  - `/desktop/download/TurboluApp-Setup-1.0.0.exe`
+  - `/desktop/download/SHA256SUMS.txt`
+- Kurulum dosyasını `desktop/src-tauri/target/release/bundle/` altından
+  `desktop/download/` klasörüne kopyala; sayfadaki sağlama toplamını da güncelle.
+- `.gitattributes` içindeki `*.exe -text` kuralını koru; dosyayı Git LFS'e taşıma.
 - `mc/sw.js` yalnızca push bildirimlerini işler; önbellek (cache) stratejisi içermez. Buraya yanlışlıkla asset cache ekleme.
 
 ## 9. Test ve doğrulama

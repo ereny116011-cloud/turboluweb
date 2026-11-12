@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurboluApp PC — Windows, Linux ve macOS için kurulum</title>
+    <meta name="description" content="TurboluApp PC kurulumu: Rust ve Tauri ile yazılmış masaüstü uygulamasını Windows, Linux veya macOS'a kur. Adım adım kurulum ve sağlama toplamı doğrulama.">
+    <meta name="theme-color" content="#080b18">
+    <link rel="canonical" href="https://turboluweb.wasmer.app/turboluapp-pc/">
+    <meta property="og:site_name" content="Turbolu Studios">
+    <meta property="og:title" content="TurboluApp PC — Kurulum">
+    <meta property="og:description" content="Rust ve Tauri ile yazılmış masaüstü uygulaması. 2,3 MB, hızlı, hafif.">
+    <meta property="og:url" content="https://turboluweb.wasmer.app/turboluapp-pc/">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://turboluweb.wasmer.app/mc/crpr.webp">
+    <link rel="icon" href="../mc/crpr.webp" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="font" type="woff2" href="../fa/webfonts/fa-solid-900.woff2" crossorigin>
+    <link rel="stylesheet" href="../fa/css/fontawesome.min.css">
+    <link rel="stylesheet" href="../fa/css/solid.min.css">
+    <link rel="stylesheet" href="../style.css?v=11">
+    <link rel="stylesheet" href="../site-polish.css?v=12">
+    <link rel="stylesheet" href="../turboluapp/style.css?v=1">
+    <link rel="stylesheet" href="style.css?v=1">
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                var light = saved === 'light' || (saved !== 'dark' && window.matchMedia('(prefers-color-scheme: light)').matches);
+                if (light) document.documentElement.classList.add('light');
+                document.documentElement.style.colorScheme = light ? 'light' : 'dark';
+            } catch (_) { /* Varsayılan koyu tema ile devam et. */ }
+        })();
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="wrap header-inner">
+            <a class="brand" href="/" aria-label="Turbolu Studios ana sayfa">
+                <img src="../mc/crpr.webp" alt="" width="36" height="36">
+                <span>TurboluApp</span>
+            </a>
+            <nav class="site-nav" aria-label="TurboluApp PC sayfası">
+                <a href="#indir">İndir</a>
+                <a href="#kurulum">Kurulum</a>
+                <a href="#ozellikler">Özellikler</a>
+                <a href="#sss">SSS</a>
+            </nav>
+            <button class="icon-btn" id="themeToggle" type="button" aria-label="Temayı değiştir" title="Temayı değiştir">
+                <i class="fa-solid fa-moon" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="app-hero wrap" id="indir">
+            <div class="app-hero-copy">
+                <p class="app-eyebrow"><span class="app-status-dot is-live" aria-hidden="true"></span> Turbolu Studios · Masaüstü uygulaması</p>
+                <h1>Turbolu, masaüstünde.</h1>
+                <p class="app-lead">TurboluApp PC; sunucu durumu, duyurular, market ve hesap yönetimini tek pencerede toplar. Rust ve Tauri ile yazıldı — 2,3 MB, saniyeler içinde açılır.</p>
+                <div class="app-actions">
+                    <a class="btn btn-primary download-btn" href="/desktop/download/TurboluApp-Setup-1.0.0.exe" download type="application/vnd.microsoft.portable-executable">
+                        <i class="fa-solid fa-download" aria-hidden="true"></i> Windows kurulum dosyasını indir
+                    </a>
+                    <a class="btn btn-ghost" href="#kurulum">Nasıl kurulur?</a>
+                </div>
+                <p class="app-note">Sürüm 1.0.0 · Windows 10/11 (x64) · Kurulum dosyası 2,3 MB</p>
+            </div>
+
+            <aside class="app-info-card" aria-label="TurboluApp PC yayın bilgisi">
+                <div class="app-icon"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i></div>
+                <p class="app-info-label">Yayın durumu</p>
+                <h2>Hazır</h2>
+                <p>Kurulum dosyası imzalı ve doğrulanabilir. Kurulumdan sonra uygulama masaüstünde kısayol olarak durur.</p>
+                <div class="app-platform"><i class="fa-brands fa-windows" aria-hidden="true"></i> Windows · Linux · macOS</div>
+            </aside>
+        </section>
+
+        <section class="wrap app-section" id="kurulum">
+            <div class="section-head">
+                <h2>Kurulum</h2>
+                <p>Üç adımda hazır.</p>
+            </div>
+            <div class="app-feature-grid">
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-download" aria-hidden="true"></i></span>
+                    <h3>1. Dosyayı indir</h3>
+                    <p>Yukarıdaki bağlantıdan kurulum dosyasını indir. Dosya imzalıdır; Windows "Bilinen yayıncı" uyarısı verebilir.</p>
+                </article>
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span>
+                    <h3>2. Kurulumu başlat</h3>
+                    <p>Dosyayı çift tıkla, kurulum sihirbazını tamamla. Kurulum yalnızca senin kullanıcı hesabına yazılır, yönetici yetkisi gerekmez.</p>
+                </article>
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-rocket" aria-hidden="true"></i></span>
+                    <h3>3. Başla</h3>
+                    <p>Uygulamayı aç, Turbolu hesabınla giriş yap. İlk girişte Minecraft adlarını ve doğum tarihini isteyen kurulum ekranı açılır.</p>
+                </article>
+            </div>
+
+            <div class="checksum-card">
+                <div class="checksum-head">
+                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                    <div>
+                        <h3>Dosyayı doğrulamak isteyenler için</h3>
+                        <p>İndirdiğin dosyanın sağlama toplamı şu:</p>
+                    </div>
+                </div>
+                <code class="checksum">0b90455dc50d6be87e56ec76d01b59f7dd95db3646623d0c96afc0bfbc578dd8  TurboluApp-Setup-1.0.0.exe</code>
+                <p class="checksum-note">
+                    Windows'ta <code>certutil -hashfile TurboluApp-Setup-1.0.0.exe SHA256</code> yazarak karşılaştırabilirsin.
+                    Ayrıca <a href="/desktop/download/SHA256SUMS.txt">SHA256SUMS.txt</a> dosyası da aynı değeri içerir.
+                </p>
+            </div>
+        </section>
+
+        <section class="wrap app-section" id="ozellikler">
+            <div class="section-head">
+                <h2>Uygulamada ne var?</h2>
+                <p>Tanıdığın masaüstü deneyimi, ama çok daha hafif.</p>
+            </div>
+            <div class="app-feature-grid">
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-server" aria-hidden="true"></i></span>
+                    <h3>Sunucu durumu</h3>
+                    <p>Java ve Bedrock sunucularının canlılığı, oyuncu sayısı ve sürüm bilgisi.</p>
+                </article>
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span>
+                    <h3>Market ve talepler</h3>
+                    <p>Puanla ürün al, talebinin durumunu panelden takip et.</p>
+                </article>
+                <article class="app-feature">
+                    <span><i class="fa-solid fa-user-shield" aria-hidden="true"></i></span>
+                    <h3>Güvenli oturum</h3>
+                    <p>Token'ın işletim sistemi anahtar deposunda saklanır; uygulama hiçbir tarayıcı verisine dokunmaz.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="wrap app-section" id="sss">
+            <div class="section-head">
+                <h2>Merak edilenler</h2>
+                <p>Kurulumdan önce bilmen gerekenler.</p>
+            </div>
+            <details>
+                <summary>Linux veya macOS sürümü var mı?</summary>
+                <p>Evet. Linux için AppImage ve deb, macOS için dmg paketleri GitHub iş akışında üretiliyor. Aynı Rust kod tabanını kullanıyorlar; arayüz birebir aynı.</p>
+            </details>
+            <details>
+                <summary>Windows uyarısı çıkıyor, normal mi?</summary>
+                <p>Sertifika kendi kendine imzalı olduğu için Windows "bilinmeyen yayıncı" uyarısı gösterebilir. Dosya yine de imzalıdır ve sağlama toplamını doğrulayabilirsin.</p>
+            </details>
+            <details>
+                <summary>Uygulama neden bu kadar küçük?</summary>
+                <p>Rust ve Tauri kullanıyoruz; Electron'un taşıdığı tarayıcı motorunu her kullanıcıya indirmiyoruz. Sistemdeki WebView2'yi kullanıyoruz. Kurulum 2,3 MB, kurulu hali 5,3 MB.</p>
+            </details>
+            <details>
+                <summary>Verilerim nerede saklanıyor?</summary>
+                <p>Hesap bilgilerin Worker API'sinde; masaüstü uygulaması yalnızca oturum token'ını cihazında saklar. Başka hiçbir veri toplanmaz.</p>
+            </details>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <a href="/">Turbolu Studios</a>
+        <span>© 2026 Turbolu Studios</span>
+    </footer>
+
+    <script>
+        (function () {
+            var button = document.getElementById('themeToggle');
+            if (!button) return;
+            function updateTheme() {
+                var light = document.documentElement.classList.contains('light');
+                button.innerHTML = '<i class="fa-solid ' + (light ? 'fa-sun' : 'fa-moon') + '" aria-hidden="true"></i>';
+                button.setAttribute('aria-label', light ? 'Koyu temaya geç' : 'Açık temaya geç');
+                button.title = button.getAttribute('aria-label');
+                document.documentElement.style.colorScheme = light ? 'light' : 'dark';
+            }
+            button.addEventListener('click', function () {
+                var light = !document.documentElement.classList.contains('light');
+                document.documentElement.classList.toggle('light', light);
+                try { localStorage.setItem('theme', light ? 'light' : 'dark'); } catch (_) { /* Gizli mod */ }
+                updateTheme();
+            });
+            updateTheme();
+        })();
+    </script>
+    <script src="/site-account.js?v=9"></script>
+</body>
+</html>

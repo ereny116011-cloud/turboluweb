@@ -1,2 +1,3 @@
 *.apk -text
 *.png -text
+*.exe -text
