@@ -1,6 +1,6 @@
-# Tıkla APK dosyaları
+# Tıkla APK dosyaları — Wasmer volume
 
-APK ve virüs tarama görseli artık GitHub Releases yerine doğrudan siteden sunuluyor:
+APK ve virüs tarama görseli doğrudan siteden sunuluyor:
 
 - `https://turboluweb.wasmer.app/tikla/apk/turbolutikla.apk`
 - `https://turboluweb.wasmer.app/tikla/apk/virus_test_sonucu.png`
@@ -10,38 +10,97 @@ Aynı şekilde TurboluApp PC kurulum dosyası da siteden sunuluyor:
 - `https://turboluweb.wasmer.app/desktop/download/TurboluApp-Setup-1.0.0.exe`
 - `https://turboluweb.wasmer.app/desktop/download/SHA256SUMS.txt`
 
-Dosyalar şu anda `tikla/apk/` ve `desktop/download/` klasörlerinde ve siteyle
-birlikte yayınlanıyor. Volume'a **bağlı değil**; aşağıdaki bölüm yalnızca
-dosyaları volume üzerinden sunmak isteyenler için bir alternatiftir.
+## Durum
 
-## Wasmer volume kullanmak isterseniz
+| Dosya | Nerede | Durum |
+| --- | --- | --- |
+| `turbolutikla.apk` (26 MB) | Volume `tikla-apk` → `/opt/static_app/tikla/apk` | Volume'a taşınıyor |
+| `virus_test_sonucu.png` | Aynı volume | Volume'a taşınıyor |
+| `TurboluApp-Setup-1.0.0.exe` (2,3 MB) | Repoda (`desktop/download/`) | Repoda kalıyor |
 
-Wasmer volume'ları tek bir bölgeye sabitlenmiş uygulamalarda çalışır. Canlı site
-`fr-roub1` bölgesinden sunulduğu için uygulamayı bu bölgeye sabitleyin:
+Volume tek bir bölgeye sabitlenmiş uygulamalarda çalışır. Canlı site
+`fr-roub1` bölgesinden sunulduğu için uygulama bu bölgeye sabitlenmiş olmalı
+(`app.yaml` kökte ve `main` dalında).
 
-1. `app.yaml` dosyasını kökte tutup değişikliği `main` dalına gönderin.
-2. Wasmer deployment tamamlandığında uygulama `fr-roub1` bölgesine sabitlenir.
-3. Storage → Add volume ekranında şu değerlerle volume oluşturun:
-   - Ad: `tikla-apk`
-   - Mount path: `/opt/static_app/tikla/apk`
-   - Boyut: `2 GB`
-4. Volume'a `turbolutikla.apk` ve `virus_test_sonucu.png` dosyalarını yükleyin.
-   Storage ekranındaki **S3 access** seçeneği, volume'u S3 uyumlu bir
-   adresle doldurmanızı sağlar; büyük dosyayı tarayıcıdan yüklemek yerine
-   komut satırından yüklemek isterseniz kullanılır:
+## Adımlar
 
-   ```bash
-   rclone copy turbolutikla.apk wasmer:tikla-apk/turbolutikla.apk
-   ```
+### 1. Volume'u oluştur
 
-   S3 access yalnızca bu adımı kolaylaştırır; zorunlu değildir ve
-   kullanılmadığında dosyalar Wasmer'ın web arayüzünden de yüklenebilir.
-5. Volume'u uygulamaya bağlayın ve yeniden deploy edin.
+Wasmer Storage → **Add volume**:
 
-Önemli: Volume bağlandığında mevcut `tikla/apk` dizinini gölgeler. Dosyaları
-volume'a yüklemeden bağlamayın; aksi halde indirme bağlantıları geçici olarak
-404 döner.
+| Alan | Değer |
+| --- | --- |
+| Ad | `tikla-apk` |
+| Mount path | `/opt/static_app/tikla/apk` |
+| Boyut | `2 GB` |
+| Bölge | `fr-roub1` |
 
-Wasmer Support, bu uygulamanın site dosyalarının `/opt/static_app` altında
-sunulduğunu doğruladı. Bu uygulamada mount path kesin olarak
-`/opt/static_app/tikla/apk` olmalıdır.
+Mount path kesin olarak `/opt/static_app/tikla/apk` olmalıdır — Wasmer
+Support, site dosyalarının `/opt/static_app` altında sunulduğunu doğruladı.
+
+### 2. Dosyaları yükle
+
+İki yol var.
+
+**a) Wasmer arayüzünden** — Storage ekranında volume'u açıp dosyaları sürükle-bırak
+ile yükle. 26 MB için yeterli.
+
+**b) S3 access ile komut satırından** — Volume oluştururken **S3 access**
+seçeneğini açarsan Wasmer bir S3 uyumlu adres ve anahtar verir. Bu bilgilerle
+`rclone` kullanarak yüklemek çok daha hızlıdır:
+
+```bash
+winget install --id Rclone.Rclone --exact   # Windows'ta bir kez
+
+# Depodaki yardımcı betik (endpoint/anahtar bilgilerini ortamdan okur):
+export WASMER_S3_ENDPOINT="https://..."
+export WASMER_S3_ACCESS_KEY="..."
+export WASMER_S3_SECRET_KEY="..."
+export WASMER_BUCKET="tikla-apk"
+./tikla/apk/yukle-apk.sh
+```
+
+Betiğin yaptıkları:
+- `rclone` uzak tanımını oluşturur (`wasmer` adıyla)
+- `tikla/apk/` klasörünü volume'a kopyalar (`--checksum` ile)
+- Yüklenen dosyaları listeler
+
+Elle kullanmak istersen:
+
+```bash
+rclone config create wasmer s3 provider Other \
+  endpoint "$WASMER_S3_ENDPOINT" \
+  access_key_id "$WASMER_S3_ACCESS_KEY" \
+  secret_access_key "$WASMER_S3_SECRET_KEY"
+
+rclone copy tikla/apk wasmer:tikla-apk --checksum --progress
+rclone lsf wasmer:tikla-apk
+```
+
+### 3. Bağla ve yeniden deploy et
+
+Volume'u uygulamaya bağlayıp yeniden deploy et.
+
+### 4. Doğrula
+
+```bash
+curl -sI https://turboluweb.wasmer.app/tikla/apk/turbolutikla.apk
+# 200 OK ve Content-Length: 26460341 beklenir
+```
+
+### 5. APK'yı repodan çıkar
+
+Volume doğrulandıktan sonra `tikla/apk/turbolutikla.apk` dosyasını
+depodan kaldır — 26 MB'lık ikiliyi repoda tutmaya gerek kalmaz.
+
+## Uyarılar
+
+- Volume bağlandığında `tikla/apk` dizinini **gölgeler**. Dosyaları volume'a
+  yüklemeden bağlama; aksi halde indirme bağlantıları 404 döner.
+- Volume tek bölgede çalışır. Uygulama `fr-roub1` dışına taşınırsa APK'ya
+  erişim bozulur.
+- Volume'a yüklenen dosyalar depoya yansımaz; `tikla/apk/yukle-apk.sh` betiği
+  repodaki dosyaları okur, yani volume'a yüklemeden önce APK'nın depoda
+  olduğundan emin ol.
+- `tikla/apk/yukle-apk.sh` betiğini depoda tutmak zorunda değilsin; yalnızca
+  yükleme anında kullanılır.

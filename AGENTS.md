@@ -304,14 +304,19 @@ Diğer notlar:
 - Tıkla APK'sı ve virüs raporu siteden sunulur:
   - `/tikla/apk/turbolutikla.apk`
   - `/tikla/apk/virus_test_sonucu.png`
-- Bu iki dosyayı GitHub Releases veya başka bir dış bağlantıya taşıma. `.gitattributes` içindeki `*.apk -text` ve `*.png -text` kurallarını koru.
-- APK büyük bir ikili dosyadır (yaklaşık 26 MB). Git LFS'e taşıma; mevcut yöntem bilinçli olarak seçildi.
+- APK ve virüs raporu **Wasmer volume** `tikla-apk` üzerinden sunulur
+  (mount path: `/opt/static_app/tikla/apk`). Dosyalar volume'a
+  `tikla/apk/yukle-apk.sh` betiğiyle yüklenir (rclone + S3 access, ya da
+  Wasmer arayüzü). Ayrıntı ve doğrulama adımları: `WASMER-VOLUME.md`.
+- Volume tek bölgede (`fr-roub1`) çalışır; `app.yaml` kökte ve `main` dalında
+  olmalıdır.
 - TurboluApp PC kurulum dosyası da siteden sunulur:
   - `/desktop/download/TurboluApp-Setup-1.0.0.exe`
   - `/desktop/download/SHA256SUMS.txt`
 - Kurulum dosyasını `desktop/src-tauri/target/release/bundle/` altından
   `desktop/download/` klasörüne kopyala; sayfadaki sağlama toplamını da güncelle.
-- `.gitattributes` içindeki `*.exe -text` kuralını koru; dosyayı Git LFS'e taşıma.
+- `.gitattributes` içindeki `*.apk -text`, `*.png -text` ve `*.exe -text`
+  kurallarını koru; dosyaları Git LFS'e taşıma.
 - `mc/sw.js` yalnızca push bildirimlerini işler; önbellek (cache) stratejisi içermez. Buraya yanlışlıkla asset cache ekleme.
 
 ## 9. Test ve doğrulama
