@@ -517,11 +517,15 @@ function bugunTarih() {
   return `${simdi.getFullYear()}-${ay}-${gun}`;
 }
 
-function hesapKurulumAc(profil) {
+// Kurulum ekranını açar. `zorla` verilirse "şimdilik geç" işareti yok sayılır
+// (profil sayfasındaki "Hesap kurulumunu güncelle" düğmesi bunu kullanır).
+function hesapKurulumAc(profil, zorla) {
   if (!profil) return;
-  try {
-    if (localStorage.getItem('turboluSetupSkipped') === String(profil.username || '')) return;
-  } catch (e) { /* yoksay */ }
+  if (!zorla) {
+    try {
+      if (localStorage.getItem('turboluSetupSkipped') === String(profil.username || '')) return;
+    } catch (e) { /* yoksay */ }
+  }
   if (window.TurboluSetup && typeof window.TurboluSetup.open === 'function') {
     window.TurboluSetup.open(profil);
   }
@@ -1327,7 +1331,7 @@ async function renderProfile() {
   document.getElementById('changePassBtn').addEventListener('click', changePassword);
   document.getElementById('saveSettingsBtn').addEventListener('click', saveProfileSettings);
   document.getElementById('setupAgainBtn').addEventListener('click', () => {
-    hesapKurulumAc(currentUser);
+    hesapKurulumAc(currentUser, true);
   });
 }
 

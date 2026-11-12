@@ -940,7 +940,15 @@ async function finishLogin(data, fallbackName, options = {}) {
   paintAccountChip();
 
   // Yeni kayıt veya yarım kalmış kurulum: önce hesap kurulumu sorulur.
-  const needsSetup = options.setup === true || state.user.setupCompleted === false;
+  // Daha önce "şimdilik atla" denilen hesaplar tekrar sorulmaz.
+  const skipped = (() => {
+    try {
+      return localStorage.getItem('turboluSetupSkipped') === String(state.user.username || '');
+    } catch (_) { return false; }
+  })();
+
+  const needsSetup = !skipped &&
+    (options.setup === true || state.user.setupCompleted === false);
   if (needsSetup) {
     toast(`Hoş geldin, ${state.user.username || fallbackName || 'oyuncu'}!`, 'success');
     showSetup();
@@ -1294,6 +1302,12 @@ function bindSetup() {
   });
 
   $('#setupSkip')?.addEventListener('click', () => {
+    // Atlanan hesap bir daha otomatik sorulmaz; Hesabım sayfasından
+    // "Kurulumu tamamla" düğmesiyle yeniden açılabilir.
+    try {
+      const username = state.user && state.user.username;
+      if (username) localStorage.setItem('turboluSetupSkipped', username);
+    } catch (_) { /* yoksay */ }
     hideWelcome();
     toast('Kurulumu daha sonra Hesabım sayfasından tamamlayabilirsin.', 'info');
     if (state.page === 'account') renderAccount();
@@ -1354,6 +1368,7 @@ function bindSetup() {
     await loadProfile();
     paintAccountChip();
     hideWelcome();
+    try { localStorage.removeItem('turboluSetupSkipped'); } catch (_) { /* yoksay */ }
     toast('Kurulum tamamlandı. İyi oyunlar!', 'success');
     if (state.user && state.user.isChild) {
       toast('Sana özel hediyeler Genel Bakış sayfasında seni bekliyor.', 'info');
