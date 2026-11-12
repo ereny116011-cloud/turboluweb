@@ -19,19 +19,21 @@ jobs:
         include:
           - name: Windows
             os: windows-latest
-            args: --win
+            bundles: nsis
             artifact: turboluapp-windows
           - name: Linux
             os: ubuntu-latest
-            args: --linux
+            bundles: deb,appimage
             artifact: turboluapp-linux
           - name: macOS Intel
             os: macos-15-intel
-            args: --mac --x64
+            bundles: dmg
+            target: --target x86_64-apple-darwin
             artifact: turboluapp-macos-x64
           - name: macOS Apple Silicon
             os: macos-15
-            args: --mac --arm64
+            bundles: dmg
+            target: --target aarch64-apple-darwin
             artifact: turboluapp-macos-arm64
 
     defaults:
@@ -42,57 +44,71 @@ jobs:
       - name: Depoyu çek
         uses: actions/checkout@v4
 
-      - name: Node.js kur
-        uses: actions/setup-node@v4
+      - name: Rust araç zincirini kur
+        uses: dtolnay/rust-toolchain@stable
         with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: desktop/package-lock.json
+          targets: ${{ matrix.target }}
 
-      - name: Bağımlılıkları kur
-        run: npm ci
+      - name: Tauri sistem bağımlılıklarını kur (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            libxdo-dev
+
+      - name: Önbellek
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            desktop/src-tauri/target
+          key: ${{ matrix.name }}-cargo-${{ hashFiles('desktop/src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ matrix.name }}-cargo-
 
       - name: Derle (Windows)
         if: runner.os == 'Windows'
-        run: npx electron-builder --win --publish never
+        run: cargo tauri build --bundles nsis
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.WIN_CSC_LINK }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
 
       - name: Derle (Linux)
         if: runner.os == 'Linux'
-        run: npx electron-builder --linux --publish never
+        run: cargo tauri build --bundles ${{ matrix.bundles }}
 
       - name: Derle (macOS)
         if: runner.os == 'macOS'
-        run: npx electron-builder ${{ matrix.args }} --publish never
+        run: cargo tauri build --bundles ${{ matrix.bundles }} ${{ matrix.target }}
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Sağlama toplamı oluştur
-        run: node scripts/checksums.mjs dist
+        run: cargo run --release --example checksums --manifest-path src-tauri/Cargo.toml -- src-tauri/target/release/bundle
 
       - name: Çıktıları listele
         shell: bash
-        run: ls -lh dist
+        run: ls -lh src-tauri/target/release/bundle
 
       - name: Çıktıları yükle
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: |
-            desktop/dist/*.exe
-            desktop/dist/*.AppImage
-            desktop/dist/*.deb
-            desktop/dist/*.dmg
-            desktop/dist/*.zip
-            desktop/dist/SHA256SUMS.txt
-            desktop/dist/*.yml
+            desktop/src-tauri/target/release/bundle/nsis/*.exe
+            desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+            desktop/src-tauri/target/release/bundle/deb/*.deb
+            desktop/src-tauri/target/release/bundle/dmg/*.dmg
+            desktop/src-tauri/target/release/bundle/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30

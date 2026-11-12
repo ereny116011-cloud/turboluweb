@@ -1695,9 +1695,8 @@ async function renderSettings() {
       <div class="card-head"><h3 class="card-title">Uygulama bilgileri</h3></div>
       <div class="kv"><span>Sürüm</span><b>${esc(info.version || '—')}</b></div>
       <div class="kv"><span>Platform</span><b>${esc((info.platform || '') + ' · ' + (info.arch || ''))}</b></div>
-      <div class="kv"><span>Electron</span><b>${esc(info.electron || '—')}</b></div>
-      <div class="kv"><span>Chromium</span><b>${esc(info.chrome || '—')}</b></div>
-      <div class="kv"><span>Node.js</span><b>${esc(info.node || '—')}</b></div>
+      <div class="kv"><span>Çalışma zamanı</span><b>${esc(info.runtime || '—')}</b></div>
+      <div class="kv"><span>Motor</span><b>${esc(info.webview || '—')}</b></div>
       <div class="kv"><span>API</span><b style="max-width:60%">${esc(info.api || '—')}</b></div>
     </div>
 

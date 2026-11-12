@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Temel uygulama yetkileri. Tüm ağ, oturum ve pencere işlemleri Rust tarafında yapılır.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

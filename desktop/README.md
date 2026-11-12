@@ -1,13 +1,33 @@
 # TurboluApp PC
 
-Turbolu Studios'un masaüstü uygulaması. Tarayıcıda site açmaz; kendi arayüzüyle
-doğrudan Worker API'sini kullanır.
+Turbolu Studios'un masaüstü uygulaması. Tarayıcıda site açmaz; kendi
+arayüzüyle doğrudan Worker API'sini kullanır.
 
-- **Teknoloji:** Electron + vanilla HTML/CSS/JS (framework yok)
-- **Platformlar:** Windows (NSIS kurulum + portable), Linux (AppImage + deb),
+- **T teknoloji:** Rust (Tauri 2) + vanilla HTML/CSS/JS arayüz
+- **Platformlar:** Windows (NSIS kurulum), Linux (AppImage + deb),
   macOS (Intel `x64` ve Apple Silicon `arm64` ayrı)
 - **API:** `https://shrill-salad-a498.ereny116011.workers.dev`
 - **Lisans:** GPL-3.0-only
+
+## Mimari
+
+| Katman | Dil | Konum |
+| --- | --- | --- |
+| Arayüz | HTML/CSS/JS | `src/renderer/` |
+| Köprü | JavaScript | `src/renderer/bridge.js` |
+| Uygulama | Rust | `src-tauri/src/` |
+
+Arayüz Electron'dan bu projeye taşındı; tasarım birebir korunmuştur. Ağ
+istekleri, oturum saklama, sosyal giriş köprüsü ve pencere işlemleri artık
+Rust tarafında yapılır. Renderer'ın ağ erişimi yoktur; tüm istekler
+`bridge.js` üzerinden Rust komutlarına gider.
+
+Rust modülleri:
+
+- `main.rs` — Tauri kurulumu, komutlar, pencere yönetimi
+- `api.rs` — Worker API istemcisi ve izin listesi
+- `session.rs` — oturum token'ının işletim sistemi anahtar deposunda saklanması
+- `oauth.rs` — sosyal giriş için yerel HTTP köprüsü
 
 ## Özellikler
 
@@ -38,67 +58,69 @@ başka kullanıcılara gösterilmez ve yalnızca yaş hesabı için saklanır.
 
 ## Güvenlik modeli
 
-- `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`
-- Renderer'ın ağ erişimi yoktur (`connect-src 'none'`); tüm istekler ana süreçte
-  yapılır ve yalnızca izin listesindeki API yollarına (`API_ROUTES`) çıkılır.
-- API yanıtları 4 MB, istek gövdeleri 3 MB ile sınırlandırılır; bozuk JSON sessizce
-  boş nesneye çevrilir.
-- Dış bağlantılar yalnızca site, GitHub ve Worker origin'lerine açılabilir; kimlik
-  bilgisi içeren (`https://site@baska-host`) adresler reddedilir. Pencere içinde
-  yalnızca uygulamanın kendi dosyası açılabilir.
+- Renderer'da Node.js yoktur; ağ erişimi yoktur (`connect-src` yalnızca IPC).
+  Tüm istekler Rust tarafında yapılır ve yalnızca izin listesindeki API
+  yollarına (`API_ROUTES`) çıkılır.
+- API yanıtları 4 MB, istek gövdeleri 3 MB ile sınırlandırılır; bozuk JSON
+  sessizce boş nesneye çevrilir.
+- Dış bağlantılar yalnızca site, GitHub ve Worker origin'lerine açılabilir;
+  kimlik bilgisi içeren (`https://site@baska-host`) adresler reddedilir.
 - Profil görselleri yalnızca yerel yol, `data:image` veya izinli avatar
   sunucularından yüklenir; CSP `img-src` listesi de aynı sunucularla sınırlıdır.
-- Medya, bildirim, konum ve diğer tüm tarayıcı izinleri reddedilir.
-- Oturum token'ı `userData/session.json` içinde `safeStorage` ile şifrelenir.
-  Şifreleme kullanılamıyorsa (anahtar zinciri olmayan Linux) düz metin saklanır.
+- Oturum token'ı işletim sistemi anahtar deposunda saklanır (Windows:
+  Credential Manager, macOS: Keychain, Linux: Secret Service). Depo
+  kullanılamıyorsa token kullanıcıya özel dosya izinleriyle (`0600`) düz metin
+  olarak yazılır.
 - Sosyal girişte sağlayıcı sayfası sistem tarayıcısında açılır. Dönüş yalnızca
   `127.0.0.1` üzerindeki tek kullanımlık, rastgele yollu yerel dinleyiciye yapılır;
   OAuth client secret'ları yalnızca Worker ortamında tutulur.
 
 ## Geliştirme
 
+Rust araç zinciri (`rustup`) ve WebView2 gerekir.
+
 ```powershell
 cd desktop
-npm install
-npm start
+cargo tauri dev
 ```
 
 ## Derleme
 
 ```powershell
-# Windows: NSIS kurulum + portable
-npm run dist:win
+# Windows: NSIS kurulum
+cargo tauri build --bundles nsis
 
 # Linux: AppImage + deb (Linux makine veya CI gerekir)
-npm run dist:linux
+cargo tauri build --bundles deb,appimage
 
-# macOS: x64 + arm64 dmg/zip (macOS makine veya CI gerekir)
-npm run dist:mac
+# macOS: x64 + arm64 dmg (macOS makine veya CI gerekir)
+cargo tauri build --bundles dmg
 ```
 
-Çıktılar `desktop/dist/` altına yazılır:
+Çıktılar `src-tauri/target/release/bundle/` altına yazılır:
 
 | Platform | Dosya |
 | --- | --- |
-| Windows | `TurboluApp-Setup-<sürüm>.exe`, `TurboluApp-Portable-<sürüm>.exe` |
-| Linux | `TurboluApp-<sürüm>-x64.AppImage`, `TurboluApp-<sürüm>-amd64.deb` |
-| macOS | `TurboluApp-<sürüm>-x64.dmg/.zip`, `TurboluApp-<sürüm>-arm64.dmg/.zip` |
+| Windows | `nsis/TurboluApp_<sürüm>_x64-setup.exe` |
+| Linux | `appimage/turboluapp_<sürüm>_amd64.AppImage`, `deb/…deb` |
+| macOS | `dmg/TurboluApp_<sürüm>_x64.dmg`, `…_arm64.dmg` |
 
 macOS paketleri imzasız üretilir; dağıtımdan önce Apple Developer sertifikasıyla
-imzalanmalı ve noter onayından geçirilmelidir (`CSC_LINK`, `CSC_KEY_PASSWORD`).
+imzalanmalı ve noter onayından geçirilmelidir (`APPLE_SIGNING_IDENTITY`).
 Windows'ta kod imzalama sertifikası yoksa SmartScreen uyarısı çıkabilir.
 Windows paketleri proje sahibinin kendi sertifikasıyla imzalanır; adımlar ve
 gereken GitHub sırları: `desktop/SIGNING.md`.
 
-Her derlemeden sonra `dist/SHA256SUMS.txt` üretilir; doğrulama için
-`npm run checksums` komutu kullanılabilir.
+Her derlemeden sonra sağlama toplamı üretilir:
+
+```powershell
+cargo run --release --bin checksums -- src-tauri/target/release/bundle
+```
 
 Linux ve macOS çıktıları bu depodaki GitHub Actions iş akışıyla üretilir:
 `.github/workflows/desktop.yml`. İş akışı `desktop-v*` etiketiyle veya
 **Actions → TurboluApp PC derleme → Run workflow** ile tetiklenir; çıktılar
 çalıştırma sayfasının altındaki **Artifacts** bölümünden indirilir.
-
-> Son başarılı derleme: [TurboluApp PC derleme #1](https://github.com/ereny116011-cloud/turboluweb/actions/runs/42851909453)
 
 ## API uçları
 

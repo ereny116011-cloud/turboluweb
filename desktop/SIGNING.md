@@ -4,21 +4,45 @@ TurboluApp PC paketleri varsayılan olarak **imzasız** üretilir. İmza, yalnı
 sertifika ve parola ortam değişkenleri verildiğinde otomatik uygulanır; hiçbir
 sır depoya yazılmaz.
 
-## Windows: kendi sertifikan (seçilen yöntem)
+## Windows: kendi sertifikan
 
 Gereken: bir kod imzalama sertifikası (`.pfx` / `.p12`). OV veya EV sertifika
 kullanılabilir. Sertifika yoksa SmartScreen "Bilinmeyen yayıncı" uyarısı verir.
 
+Tauri, imzayı `signtool.exe` ile yapar. Sertifikayı Windows depo içine
+aktarmak ve parolayı ortam değişkeniyle vermek gerekir:
+
 ```powershell
 cd desktop
-$env:CSC_LINK = "C:\yol\sertifika.pfx"     # veya base64 metni
-$env:CSC_KEY_PASSWORD = "sertifika-parolasi"
-npm run dist:win
+
+# 1) Sertifikayı CurrentUser\My deposuna ekle (parola sorulur)
+$pfx = "C:\yol\turbolu-codesign.pfx"
+Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My
+
+# 2) Başparmak izini (thumbprint) öğren
+Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert |
+  Select-Object Subject, Thumbprint, NotAfter
+
+# 3) Derle (thumbprint'ı yapıştır)
+$env:TAURI_BUNDLE_WINDOWS_CERTIFICATE_THUMBPRINT = "ABCDEF0123456789..."
+$env:TAURI_BUNDLE_WINDOWS_CERTIFICATE_TIMESTAMP_SERVER = "http://timestamp.digicert.com"
+cargo tauri build --bundles nsis
 ```
 
-Sertifika parolası komut satırına yazılmak istenmiyorsa `CSC_KEY_PASSWORD`
-değerini oturum boyunca ortam değişkeni olarak ver veya build sırasında
-PowerShell `Read-Host -AsSecureString` ile al.
+Alternatif: `signCommand` ile doğrudan `signtool` çağrılabilir. Bu durumda
+parola ortam değişkeni üzerinden geçirilir.
+
+```powershell
+$env:SIGNTOOL_PASSWORD = "sertifika-parolasi"
+cargo tauri build --bundles nsis
+```
+
+`tauri.conf.json` içindeki `bundle.windows.signCommand` değeri bu durumda
+`signtool sign /f "<pfx yolu>" /p %SIGNTOOL_PASSWORD% /fd SHA256 /tr <zaman damgası sunucusu> /td SHA256 %1`
+şeklinde ayarlanabilir.
+
+Sertifika parolası komut satırına yazılmak istenmiyorsa ortam değişkeni
+kullanılmalı; hiçbir sır depoya yazılmaz.
 
 ### Sertifikan yoksa: kendinden imzalı sertifika
 
@@ -43,9 +67,6 @@ $pwd = ConvertTo-SecureString -String "PAROLA" -Force -AsPlainText
 Export-PfxCertificate -Cert $cert -FilePath "C:\yol\turbolu-codesign.pfx" -Password $pwd
 ```
 
-Ardından yukarıdaki `CSC_LINK` / `CSC_KEY_PASSWORD` değişkenleriyle derle.
-Aynı sertifikayla imzalanmış eski sürümlerin güncellemeleri sorunsuz çalışır.
-
 GitHub Actions için depo sırları:
 
 | Sır | Değer |
@@ -56,7 +77,7 @@ GitHub Actions için depo sırları:
 Base64 üretmek için:
 
 ```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\yol\sertifika.pfx")) | Set-Clipboard
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\yol\turbolu-codesign.pfx")) | Set-Clipboard
 ```
 
 ## macOS
@@ -67,27 +88,27 @@ iş akışı bunu otomatik yapar.
 
 | Sır | Değer |
 | --- | --- |
-| `MAC_CSC_LINK` | Developer ID Application `.p12` dosyasının base64'ü |
-| `MAC_CSC_KEY_PASSWORD` | `.p12` parolası |
+| `APPLE_SIGNING_IDENTITY` | Developer ID Application sertifikasının adı |
 | `APPLE_ID` | Apple hesabının e-postası |
 | `APPLE_APP_SPECIFIC_PASSWORD` | appleid.apple.com üzerinden üretilen uygulamaya özel parola |
 | `APPLE_TEAM_ID` | Apple Developer Team ID |
 
 `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD` ve `APPLE_TEAM_ID` birlikte verildiğinde
-electron-builder paketi `notarytool` ile noter onayına gönderir. Bu değerler yoksa
-noter onayı atlanır ve paket imzasız/onaysız kalır.
+Tauri paketi `notarytool` ile noter onayına gönderir. Bu değerler yoksa noter
+onayı atlanır ve paket imzasız/onaysız kalır.
 
 Sertifikayı anahtar zincirinden dışa aktarma (macOS):
 
 1. **Keychain Access → Sertifikalar** bölümünde "Developer ID Application" öğesini bul.
 2. Sağ tık → **Export** → `.p12` seç, bir parola belirle.
-3. Dosyayı base64'e çevirip `MAC_CSC_LINK` sırrına yaz.
+3. Dosyayı base64'e çevirip ilgili sıra yaz.
 
 ## Doğrulama
 
 ```powershell
 # Windows
-Get-AuthenticodeSignature desktop\dist\TurboluApp-Setup-1.0.0.exe | Format-List Status, SignerCertificate
+Get-AuthenticodeSignature desktop\src-tauri\target\release\bundle\nsis\*.exe |
+  Format-List Status, SignerCertificate
 
 # macOS (macOS makinede)
 codesign --verify --deep --strict --verbose=2 TurboluApp.app

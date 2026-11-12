@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "TurboluApp",
+  "version": "1.0.0",
+  "identifier": "app.turbolu.desktop",
+  "build": {
+    "frontendDist": "../src/renderer"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "TurboluApp",
+        "width": 1200,
+        "height": 780,
+        "minWidth": 940,
+        "minHeight": 620,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "decorations": false,
+        "transparent": false,
+        "shadow": true,
+        "dragDropEnabled": false,
+        "backgroundColor": "#080b16",
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost data: https://turboluweb.wasmer.app https://shrill-salad-a498.ereny116011.workers.dev https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://graph.microsoft.com; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' ipc: http://ipc.localhost; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'none'; worker-src 'none'; manifest-src 'none'",
+      "freezePrototype": true,
+      "assetProtocol": {
+        "enable": false,
+        "scope": []
+      }
+    },
+    "withGlobalTauri": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "app", "dmg", "deb", "appimage"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "publisher": "Turbolu Studios",
+    "copyright": "© 2026 Turbolu Studios",
+    "shortDescription": "TurboluMC ve Turbolu Bedrock masaüstü uygulaması",
+    "longDescription": "TurboluMC ve Turbolu Bedrock sunucularının durumu, duyurular, haberler, kampanyalar, market ve hesap yönetimi tek uygulamada.",
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["Turkish"],
+        "displayLanguageSelector": false
+      }
+    },
+    "linux": {
+      "deb": {
+        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0", "libayatana-appindicator3-1", "libsecret-1-0"]
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    }
+  }
+}

@@ -144,17 +144,22 @@ sistemi değildir; Microsoft hesabı ve Xbox Live kapsamlarıyla çalışır.
 
 ### TurboluApp PC (`desktop/`)
 
-- Electron tabanlı, kendi arayüzüne sahip masaüstü uygulamasıdır; siteyi yüklemez
-  veya gömmez. Veriyi doğrudan mevcut Worker API'sinden alır.
-- `desktop/src/main.js` pencere, IPC, oturum ve ağ isteklerini yönetir. Renderer'ın
-  doğrudan ağ erişimi yoktur; istekler yalnızca `API_ROUTES` izin listesindeki
-  yollar için yapılır.
-- `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true` korunmalı;
-  yeni API ucu gerekiyorsa önce `API_ROUTES` listesine ekle.
-- Oturum token'ı `userData/session.json` içinde `safeStorage` ile saklanır.
-- Derleme: `cd desktop && npm install`, ardından `npm run dist:win`,
-  `npm run dist:linux` veya `npm run dist:mac`. Linux ve macOS çıktıları
-  `.github/workflows/desktop.yml` üzerinden üretilir.
+- Rust (Tauri 2) tabanlı, kendi arayüzüne sahip masaüstü uygulamasıdır; siteyi
+  yüklemez veya gömmez. Veriyi doğrudan mevcut Worker API'sinden alır.
+- `desktop/src/renderer/` arayüzdür (HTML/CSS/JS); `desktop/src/renderer/bridge.js`
+  `window.turbolu` API'sini Tauri komutlarına bağlar.
+- `desktop/src-tauri/src/` uygulama katmanıdır: `main.rs` (pencere, komutlar),
+  `api.rs` (Worker istemcisi ve izin listesi), `session.rs` (oturum saklama),
+  `oauth.rs` (sosyal giriş yerel köprüsü).
+- Renderer'ın doğrudan ağ erişimi yoktur; istekler yalnızca `API_ROUTES`
+  izin listesindeki yollar için yapılır. Yeni API ucu gerekiyorsa önce
+  `api.rs` içindeki tabloya ekle.
+- Oturum token'ı işletim sistemi anahtar deposunda saklanır (Credential
+  Manager / Keychain / Secret Service); depo yoksa `0600` izinli dosyaya düz
+  metin yazılır.
+- Derleme: `cd desktop && cargo tauri build --bundles nsis` (Windows),
+  `--bundles deb,appimage` (Linux) veya `--bundles dmg` (macOS). Linux ve macOS
+  çıktıları `.github/workflows/desktop.yml` üzerinden üretilir.
 - Ayrıntılar: `desktop/README.md`.
 
 ### Sık kullanılan API uçları
