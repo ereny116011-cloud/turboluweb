@@ -1,1 +1,1 @@
-0b90455dc50d6be87e56ec76d01b59f7dd95db3646623d0c96afc0bfbc578dd8  TurboluApp_1.0.0_x64-setup.exe
+393d73eb3c592f9a0d804483b2fa5cd00f2b42245307c37bbd8dfa6810605f3a  TurboluApp_1.0.1_x64-setup.exe

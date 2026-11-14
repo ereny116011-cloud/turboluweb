@@ -855,12 +855,30 @@ export default {
         if (yeniMi) return json(cached.veri);
 
         try {
+          // Tüm release'ler taranır; "latest" işareti eski kalmış olsa bile
+          // en yeni sürüm bulunur.
           const res = await fetch(
-            'https://api.github.com/repos/ereny116011-cloud/turboluweb/releases/latest',
+            'https://api.github.com/repos/ereny116011-cloud/turboluweb/releases?per_page=10',
             { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'TurboluApp' } }
           );
           if (!res.ok) throw new Error('HTTP ' + res.status);
-          const release = await res.json();
+          const listeler = await res.json();
+          if (!Array.isArray(listeler) || !listeler.length) throw new Error('Release bulunamadi');
+
+          const surumSirasi = (a, b) => {
+            const av = String(a.tag_name || '').match(/(\d+)\.(\d+)\.(\d+)/);
+            const bv = String(b.tag_name || '').match(/(\d+)\.(\d+)\.(\d+)/);
+            if (!av || !bv) return 0;
+            for (let i = 0; i < 3; i += 1) {
+              const fark = Number(bv[i]) - Number(av[i]);
+              if (fark) return fark;
+            }
+            return 0;
+          };
+
+          const release = listeler
+            .filter((r) => !r.draft && !r.prerelease)
+            .sort(surumSirasi)[0] || listeler[0];
 
           const varliklar = Array.isArray(release.assets) ? release.assets : [];
           const bul = (desen) => {
