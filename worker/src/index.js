@@ -846,6 +846,52 @@ export default {
         }
       }
 
+      // === Masaüstü uygulama sürümleri (GitHub Releases) ===
+      // Sitedeki indirme bağlantıları bu uçtan beslenir; böylece yeni bir
+      // sürüm yayınlandığında sayfayı elle güncellemeye gerek kalmaz.
+      if (path === '/api/desktop/releases') {
+        const cached = await getJSON('desktop_releases');
+        const yeniMi = cached && Number(cached.zaman || 0) > Date.now() - 15 * 60 * 1000;
+        if (yeniMi) return json(cached.veri);
+
+        try {
+          const res = await fetch(
+            'https://api.github.com/repos/ereny116011-cloud/turboluweb/releases/latest',
+            { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'TurboluApp' } }
+          );
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const release = await res.json();
+
+          const varliklar = Array.isArray(release.assets) ? release.assets : [];
+          const bul = (desen) => {
+            const eslesen = varliklar.find((a) => new RegExp(desen, 'i').test(a.name));
+            return eslesen
+              ? { ad: eslesen.name, url: eslesen.browser_download_url, boyut: eslesen.size }
+              : null;
+          };
+
+          const veri = {
+            surum: release.tag_name || '',
+            tarih: release.published_at || '',
+            sayfa: release.html_url || '',
+            windows: bul('setup.*\\.exe$'),
+            linux: bul('\\.AppImage$') || bul('\\.deb$'),
+            macos: bul('x64.*\\.dmg$') || bul('aarch64.*\\.dmg$'),
+            macosIntel: bul('x64.*\\.dmg$'),
+            macosArm: bul('aarch64.*\\.dmg$'),
+            checksum: bul('SHA256SUMS\\.txt$')
+          };
+
+          await putJSON('desktop_releases', { zaman: Date.now(), veri });
+          return json(veri);
+        } catch (error) {
+          // GitHub'a ulaşılamazsa son bilinen veriyi döndür.
+          console.error('Sürüm bilgisi alınamadı:', error && (error.stack || error.message));
+          if (cached && cached.veri) return json(cached.veri);
+          return json({ error: 'Sürüm bilgisi alınamadı', neden: String((error && error.message) || error) }, 502);
+        }
+      }
+
       // === Ürünler (PLATFORM FİLTRELİ) ===
       if (path === '/api/items') {
         const platform = url.searchParams.get('platform');

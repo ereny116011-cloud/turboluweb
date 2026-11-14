@@ -61,12 +61,12 @@
                 <h1>Turbolu, masaüstünde.</h1>
                 <p class="app-lead">TurboluApp PC; sunucu durumu, duyurular, market ve hesap yönetimini tek pencerede toplar. Rust ve Tauri ile yazıldı — 2,3 MB, saniyeler içinde açılır.</p>
                 <div class="app-actions">
-                    <a class="btn btn-primary download-btn" href="/desktop/download/TurboluApp-Setup-1.0.0.exe" download type="application/vnd.microsoft.portable-executable">
-                        <i class="fa-solid fa-download" aria-hidden="true"></i> Windows kurulum dosyasını indir
+                    <a class="btn btn-primary download-btn" id="downloadMain" href="/desktop/download/TurboluApp-Setup-1.0.0.exe" download type="application/vnd.microsoft.portable-executable">
+                        <i class="fa-solid fa-download" aria-hidden="true"></i> <span id="downloadMainText">Windows kurulum dosyasını indir</span>
                     </a>
                     <a class="btn btn-ghost" href="#kurulum">Nasıl kurulur?</a>
                 </div>
-                <p class="app-note">Sürüm 1.0.0 · Windows 10/11 (x64) · Kurulum dosyası 2,3 MB</p>
+                <p class="app-note" id="downloadNote">Sürüm 1.0.0 · Windows 10/11 (x64) · Kurulum dosyası 2,3 MB</p>
             </div>
 
             <aside class="app-info-card" aria-label="TurboluApp PC yayın bilgisi">
@@ -76,6 +76,49 @@
                 <p>Kurulum dosyası imzalı ve doğrulanabilir. Kurulumdan sonra uygulama masaüstünde kısayol olarak durur.</p>
                 <div class="app-platform"><i class="fa-brands fa-windows" aria-hidden="true"></i> Windows · Linux · macOS</div>
             </aside>
+        </section>
+
+        <section class="wrap app-section" id="platformlar">
+            <div class="section-head">
+                <h2>İşletim sistemine göre indir</h2>
+                <p>Windows kurulum dosyası doğrudan sitemizde; diğerleri GitHub üzerinden.</p>
+            </div>
+            <div class="platform-grid" id="platformGrid">
+                <article class="platform-card" data-os="windows">
+                    <span class="platform-icon"><i class="fa-brands fa-windows" aria-hidden="true"></i></span>
+                    <h3>Windows</h3>
+                    <p class="platform-meta">10/11 · x64 · NSIS kurulum sihirbazı</p>
+                    <a class="btn btn-primary btn-block platform-btn" data-href="windows" href="/desktop/download/TurboluApp-Setup-1.0.0.exe" download>
+                        <i class="fa-solid fa-download" aria-hidden="true"></i> İndir
+                    </a>
+                    <span class="platform-size" data-size="windows"></span>
+                </article>
+
+                <article class="platform-card" data-os="linux">
+                    <span class="platform-icon"><i class="fa-brands fa-linux" aria-hidden="true"></i></span>
+                    <h3>Linux</h3>
+                    <p class="platform-meta">x86_64 · AppImage veya deb</p>
+                    <a class="btn btn-primary btn-block platform-btn" data-href="linux" href="#" rel="noopener">
+                        <i class="fa-solid fa-download" aria-hidden="true"></i> İndir
+                    </a>
+                    <span class="platform-size" data-size="linux"></span>
+                </article>
+
+                <article class="platform-card" data-os="macos">
+                    <span class="platform-icon"><i class="fa-brands fa-apple" aria-hidden="true"></i></span>
+                    <h3>macOS</h3>
+                    <p class="platform-meta">Intel ve Apple Silicon · dmg</p>
+                    <a class="btn btn-primary btn-block platform-btn" data-href="macos" href="#" rel="noopener">
+                        <i class="fa-solid fa-download" aria-hidden="true"></i> İndir
+                    </a>
+                    <span class="platform-size" data-size="macos"></span>
+                </article>
+            </div>
+            <p class="platform-note">
+                Linux ve macOS paketleri <a href="https://github.com/ereny116011-cloud/turboluweb/releases" rel="noopener" target="_blank">GitHub Releases</a>
+                üzerinden dağıtılır. macOS'ta ilk açılışta "Tanınmayan geliştirici" uyarısı çıkabilir;
+                <code> Sistem Ayarları → Gizlilik ve Güvenlik </code> ekranından izin verirsin.
+            </p>
         </section>
 
         <section class="wrap app-section" id="kurulum">
@@ -151,6 +194,10 @@
                 <p>Evet. Linux için AppImage ve deb, macOS için dmg paketleri GitHub iş akışında üretiliyor. Aynı Rust kod tabanını kullanıyorlar; arayüz birebir aynı.</p>
             </details>
             <details>
+                <summary>macOS'ta "tanınmayan geliştirici" uyarısı çıkıyor, normal mi?</summary>
+                <p>Evet. Paketler kendi kendine imzalı olduğu için macOS ilk açılışta uyarı gösterir. <code> Sistem Ayarları → Gizlilik ve Güvenlik </code> ekranından "Yine de Aç" diyerek geçebilirsin.</p>
+            </details>
+            <details>
                 <summary>Windows uyarısı çıkıyor, normal mi?</summary>
                 <p>Sertifika kendi kendine imzalı olduğu için Windows "bilinmeyen yayıncı" uyarısı gösterebilir. Dosya yine de imzalıdır ve sağlama toplamını doğrulayabilirsin.</p>
             </details>
@@ -188,6 +235,78 @@
                 updateTheme();
             });
             updateTheme();
+        })();
+    </script>
+    <script>
+        // Yayınlanan sürümleri Worker'dan al; indirme bağlantıları güncel kalsın.
+        (function () {
+            var API = 'https://shrill-salad-a498.ereny116011.workers.dev';
+
+            function boyutYaz(bayt) {
+                if (!bayt) return '';
+                return (bayt / 1048576).toFixed(1).replace('.0', '') + ' MB';
+            }
+
+            function bagla(anahtar, hedef) {
+                var dugmeler = document.querySelectorAll('[data-href="' + anahtar + '"]');
+                var varlik = hedef;
+                if (!varlik) return;
+                dugmeler.forEach(function (d) {
+                    d.href = varlik.url;
+                    d.removeAttribute('aria-disabled');
+                    d.classList.remove('is-disabled');
+                });
+                var yazi = document.querySelector('[data-size="' + anahtar + '"]');
+                if (yazi) yazi.textContent = boyutYaz(varlik.boyut);
+            }
+
+            function hazirla(v) {
+                if (!v) return;
+
+                if (v.windows) {
+                    bagla('windows', v.windows);
+                }
+                if (v.linux) {
+                    bagla('linux', v.linux);
+                }
+                if (v.macos) {
+                    bagla('macos', v.macos);
+                }
+
+                // Ana düğme: işletim sistemine göre uygun paketi gösterir.
+                var isWindows = /Win/i.test(navigator.platform || navigator.userAgent);
+                var isMac = /Mac/i.test(navigator.platform || navigator.userAgent);
+                var secili = isWindows ? v.windows : (isMac ? v.macos : v.linux);
+                var anaDugme = document.getElementById('downloadMain');
+                var anaMetin = document.getElementById('downloadMainText');
+                var not = document.getElementById('downloadNote');
+                if (secili && anaDugme && anaMetin) {
+                    anaDugme.href = secili.url;
+                    anaMetin.textContent = (isWindows ? 'Windows' : isMac ? 'macOS' : 'Linux') + ' kurulum dosyasını indir';
+                    if (not) {
+                        not.textContent = 'Sürüm ' + (v.surum || '').replace('desktop-v', '') +
+                            ' · ' + (isWindows ? 'Windows 10/11 (x64)' : isMac ? 'macOS (Intel / Apple Silicon)' : 'Linux (x86_64)') +
+                            ' · ' + boyutYaz(secili.boyut);
+                    }
+                }
+
+                // Sürüm bilgisi gelmediyse kullanıcıyı yönlendir.
+                if (!v.windows && !v.linux && !v.macos) {
+                    var kart = document.querySelector('[data-os="linux"] .platform-btn');
+                    var kartMac = document.querySelector('[data-os="macos"] .platform-btn');
+                    [kart, kartMac].forEach(function (d) {
+                        if (!d) return;
+                        d.href = v.sayfa || '#';
+                        d.classList.add('is-disabled');
+                        d.setAttribute('aria-disabled', 'true');
+                    });
+                }
+            }
+
+            fetch(API + '/api/desktop/releases')
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(hazirla)
+                .catch(function () { /* Bağlantı yoksa varsayılan Windows bağlantısı kalır. */ });
         })();
     </script>
     <script src="/site-account.js?v=9"></script>
