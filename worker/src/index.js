@@ -876,6 +876,8 @@ export default {
             sayfa: release.html_url || '',
             windows: bul('setup.*\\.exe$'),
             linux: bul('\\.AppImage$') || bul('\\.deb$'),
+            linuxDeb: bul('\\.deb$'),
+            linuxAppImage: bul('\\.AppImage$'),
             macos: bul('x64.*\\.dmg$') || bul('aarch64.*\\.dmg$'),
             macosIntel: bul('x64.*\\.dmg$'),
             macosArm: bul('aarch64.*\\.dmg$'),

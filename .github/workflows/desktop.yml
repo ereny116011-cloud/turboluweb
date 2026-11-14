@@ -28,11 +28,13 @@ jobs:
           - name: macOS Intel
             os: macos-15-intel
             bundles: dmg
+            rust_target: x86_64-apple-darwin
             target: --target x86_64-apple-darwin
             artifact: turboluapp-macos-x64
           - name: macOS Apple Silicon
             os: macos-15
             bundles: dmg
+            rust_target: aarch64-apple-darwin
             target: --target aarch64-apple-darwin
             artifact: turboluapp-macos-arm64
 
@@ -46,21 +48,26 @@ jobs:
 
       - name: Rust araç zincirini kur
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
+
+      - name: Rust hedefini kur (macOS)
+        if: runner.os == 'macOS'
+        run: rustup target add ${{ matrix.rust_target }}
 
       - name: Tauri sistem bağımlılıklarını kur (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get install -y --no-install-recommends \
             libwebkit2gtk-4.1-dev \
             libappindicator3-dev \
             librsvg2-dev \
             patchelf \
             libssl-dev \
             libayatana-appindicator3-dev \
-            libxdo-dev
+            libxdo-dev \
+            file \
+            wget \
+            fuse3
 
       - name: Önbellek
         uses: actions/cache@v4
@@ -77,12 +84,21 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $pfx = [Convert]::FromBase64String("${{ secrets.WIN_CSC_LINK }}")
+          $ErrorActionPreference = 'Stop'
           $dosya = Join-Path $env:RUNNER_TEMP "turbolu-codesign.pfx"
-          [IO.File]::WriteAllBytes($dosya, $pfx)
+
+          # Secret base64 olabilir (metin olarak saklanan pfx) ya da ham pfx.
+          $ham = "${{ secrets.WIN_CSC_LINK }}"
+          try {
+            $bayt = [Convert]::FromBase64String($ham)
+            [IO.File]::WriteAllBytes($dosya, $bayt)
+          } catch {
+            [IO.File]::WriteAllText($dosya, $ham, [Text.Encoding]::ASCII)
+          }
           $parola = ConvertTo-SecureString "${{ secrets.WIN_CSC_KEY_PASSWORD }}" -AsPlainText -Force
           $sertifika = Import-PfxCertificate -FilePath $dosya -CertStoreLocation Cert:\CurrentUser\My -Password $parola
           Remove-Item $dosya -Force
+          if (-not $sertifika) { throw "Sertifika içe aktarılamadı." }
           "thumbprint=$($sertifika.Thumbprint)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Host "Sertifika içe aktarıldı: $($sertifika.Thumbprint)"
 

@@ -1,7 +1,7 @@
 {
   "name": "turboluapp-desktop",
   "productName": "TurboluApp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Turbolu Studios masaüstü uygulaması — sunucu durumu, duyurular, market ve hesap yönetimi.",
   "author": "Turbolu Studios <ereny116011@gmail.com>",
   "license": "GPL-3.0-only",
