@@ -49,6 +49,14 @@ jobs:
       - name: Rust araç zincirini kur
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Tauri CLI kur
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: latest
+          build: false
+
       - name: Rust hedefini kur (macOS)
         if: runner.os == 'macOS'
         run: rustup target add ${{ matrix.rust_target }}
@@ -59,7 +67,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
             librsvg2-dev \
             patchelf \
             libssl-dev \
@@ -95,8 +102,14 @@ jobs:
           } catch {
             [IO.File]::WriteAllText($dosya, $ham, [Text.Encoding]::ASCII)
           }
-          $parola = ConvertTo-SecureString "${{ secrets.WIN_CSC_KEY_PASSWORD }}" -AsPlainText -Force
-          $sertifika = Import-PfxCertificate -FilePath $dosya -CertStoreLocation Cert:\CurrentUser\My -Password $parola
+          $sifre = "${{ secrets.WIN_CSC_KEY_PASSWORD }}"
+          $sertifika = $null
+          if ($sifre) {
+            $parola = ConvertTo-SecureString $sifre -AsPlainText -Force
+            $sertifika = Import-PfxCertificate -FilePath $dosya -CertStoreLocation Cert:\CurrentUser\My -Password $parola
+          } else {
+            $sertifika = Import-PfxCertificate -FilePath $dosya -CertStoreLocation Cert:\CurrentUser\My
+          }
           Remove-Item $dosya -Force
           if (-not $sertifika) { throw "Sertifika içe aktarılamadı." }
           "thumbprint=$($sertifika.Thumbprint)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append

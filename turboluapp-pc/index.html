@@ -152,8 +152,8 @@
                         <p>İndirdiğin dosyanın sağlama toplamı şu:</p>
                     </div>
                 </div>
-                <code class="checksum">0b90455dc50d6be87e56ec76d01b59f7dd95db3646623d0c96afc0bfbc578dd8  TurboluApp-Setup-1.0.0.exe</code>
-                <p class="checksum-note">
+                <code class="checksum" id="checksumValue">Yükleniyor…</code>
+                <p class="checksum-note" id="checksumNote">
                     Windows'ta <code>certutil -hashfile TurboluApp-Setup-1.0.0.exe SHA256</code> yazarak karşılaştırabilirsin.
                     Ayrıca <a href="/desktop/download/SHA256SUMS.txt">SHA256SUMS.txt</a> dosyası da aynı değeri içerir.
                 </p>
@@ -272,6 +272,16 @@
                 if (v.macos) {
                     bagla('macos', v.macos);
                 }
+
+                // Sağlama toplamı: sitedeki Windows dosyasının özeti.
+                fetch('/desktop/download/SHA256SUMS.txt')
+                    .then(function (r) { return r.ok ? r.text() : ''; })
+                    .then(function (metin) {
+                        var satir = metin.split('\n').filter(function (s) { return s.indexOf('.exe') !== -1; })[0];
+                        var kutu = document.getElementById('checksumValue');
+                        if (satir && kutu) kutu.textContent = satir.trim();
+                    })
+                    .catch(function () { /* Özet alınamazsa kutu boş kalır. */ });
 
                 // Ana düğme: işletim sistemine göre uygun paketi gösterir.
                 var isWindows = /Win/i.test(navigator.platform || navigator.userAgent);
